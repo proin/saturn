@@ -10,11 +10,9 @@ router.get("/", function (req, res) {
 
     if (!name) return res.send({err: new Error('not defined name')});
 
-    let running = true;
-    if (!thread.log[name]) running = false;
-    else if (thread.log[name] && thread.log[name][thread.log[name].length - 1].status == 'finish')
-        running = false;
-    res.send({running: running, data: thread.log[name] ? thread.log[name] : []});
+    if (thread.log[name]) thread.log[name].splice(0, thread.log[name].length - 1);
+
+    res.send({status: true});
 });
 
 module.exports = router;

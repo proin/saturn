@@ -20,6 +20,7 @@
     "angular": "^1.5.8",
     "angular-material": "^1.1.1",
     "angular-route": "^1.5.8",
-    "jquery": "^3.1.1"
+    "jquery": "^3.1.1",
+    "blueimp-file-upload": "^9.14.0"
   }
 }

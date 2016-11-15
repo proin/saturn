@@ -6,8 +6,8 @@ module.exports = ()=> {
     return (req, res, next)=> {
 
         req.DIR = {};
-        req.DIR.WORKSPACE_PATH = path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.flowpipe', 'workspace');
-        req.DIR.TMP = (name)=> path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.flowpipe', 'tmp', name);
+        req.DIR.WORKSPACE_PATH = path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn', 'workspace');
+        req.DIR.TMP = (name)=> path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn', 'tmp', name);
         next();
     };
 };

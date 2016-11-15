@@ -14,69 +14,32 @@ html(ng-app="app")
         .container
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container
-                    a.navbar-brand(href='#') Saturn
-                    ul.nav.navbar-nav
-                        li.nav-item
-                            a.nav-link(href='#') List
+                    a.navbar-brand
+                        i.fa.fa-paper-plane
+                        | &nbsp;&nbsp;Saturn
 
             .toolbar
                 .container
-                    button.btn.btn-default.btn-sm(ng-click='click.log()', ng-cloak)
-                        i.fa.fa-pencil-square-o(ng-if='status.logView == true')
-                        i.fa.fa-terminal(ng-if='status.logView == false')
-                    button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak)
-                        i.fa.fa-play(ng-if='!status.running')
-                        i.fa.fa-stop(ng-if='status.running')
-                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false')
-                        i.fa.fa-floppy-o
-                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.checkall()')
+                        i.fa.fa-check-square-o
+                    button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#add')
                         i.fa.fa-plus-square
-                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
-                        i.fa.fa-minus-circle
-
-
-            .editor-view(ng-show='status.logView == false', ng-cloak)
-                .code-container(ng-cloak)
-                    .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
-                        .col-md-2
-                            b [libs]
-                        .col-md-10
-                            .code-editor#code-editor-libs
-
-                .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak)
-                    .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
-                        .col-md-2
-                            b [{{$index}}] &nbsp;
-                            select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
-                                option(value='work') work
-                                option(value='loop') loop
-                        .col-md-10
-                            .loop(ng-if='code.type == "loop"')
-                                .row
-                                    .col-md-10
-                                        .code-editor(id='code-editor-{{code.id}}')
-                                    .col-md-2(style='text-align: right;')
-                                        | end &nbsp;
-                                        select(ng-model='code.block_end', ng-change='event.changed()')
-                                            option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
-
-                            .work(ng-if='code.type == "work"')
-                                .code-editor(id='code-editor-{{code.id}}')
-
-                        .col-md-2
-                        .col-md-10
-
-            .log-view(ng-if='status.logView', ng-cloak)
-                .container
-                    .panel#terminal
-                        .action
-                            .message(ng-repeat='message in appLog')
-                                .command(ng-if='message.status == "start" || message.status == "finish"')
-                                    span.symbol $
-                                    span.in {{app}} {{message.status}}
-                                .output(ng-if='!(message.status == "start" || message.status == "finish")') {{message.msg}}
-                            .message(ng-if='appLog.length==0')
-                                .output No running process here.
+                    button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#upload')
+                        i.fa.fa-upload
+                    button.btn.btn-default.btn-sm(ng-click='click.delete()')
+                        i.fa.fa-trash
+        .container
+            table.table.table-hover
+                tbody
+                    tr(ng-repeat='file in current')
+                        td(ng-cloak)
+                            input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper"')
+                            i.fa.fa-code-fork(ng-if='file.type == "project"')
+                            i.fa.fa-folder-open(ng-if='file.type == "folder"')
+                            i.fa.fa-file(ng-if='file.type == "file"')
+                            div(style='display:inline-block; width: 80%;', ng-click='click.list(file)')
+                                | {{file.name}}
+                                span(ng-if='file.status', style='color: #8bc34a; margin-left: 8px;') [Running]
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm
@@ -90,3 +53,40 @@ html(ng-app="app")
                     .modal-footer
                         button.btn.btn-secondary(type='button', data-dismiss='modal') Close
 
+        #add.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title New Project
+                    .modal-body
+                        form
+                            .form-group
+                                label.form-control-label Project Name:
+                                input.form-control(type='text', ng-model='addName')
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.add()') Create
+
+        #upload.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title Upload Files
+                    table.table.table-hover
+                        tbody
+                            tr(ng-repeat='file in fu_current')
+                                td(ng-cloak)
+                                    input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper"')
+                                    i.fa.fa-folder-open(ng-if='file.type == "folder"')
+                                    i.fa.fa-file(ng-if='file.type == "file"')
+                                    div(style='display:inline-block; width: 80%;', ng-click='click.fileList(file)')
+                                        | {{file.name}}
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.upload()') Upload

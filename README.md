@@ -1,6 +1,6 @@
 ## Saturn
 
-Saturn is opensource, node.js workspace framework.
+Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
 
 ### How to start
 
