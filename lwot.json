@@ -1,0 +1,11 @@
+{
+    "name": "Saturn",
+    "version": "0.0.1",
+    "authors": "proin <proin@proinlab.com>",
+    "description": "Saturn: Workspace for Node.js",
+    "dependencies": {
+        "platform": {
+            "express": "https://github.com/searble/lwot-platform-express"
+        }
+    }
+}

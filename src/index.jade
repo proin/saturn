@@ -1,0 +1,92 @@
+doctype html
+html(ng-app="app")
+    head
+        include components/jade/header
+
+        script(src="{$ROOT}/components/js/codemirror/codemirror.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+        link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
+
+        script(src="{$ROOT}/view/js/index.js")
+        link(rel="stylesheet", href="{$ROOT}/view/css/index.css")
+
+    body(ng-controller='ctrl')
+        .container
+            nav.navbar.navbar-fixed-top.navbar-light.bg-faded
+                .container
+                    a.navbar-brand(href='#') Saturn
+                    ul.nav.navbar-nav
+                        li.nav-item
+                            a.nav-link(href='#') List
+
+            .toolbar
+                .container
+                    button.btn.btn-default.btn-sm(ng-click='click.log()', ng-cloak)
+                        i.fa.fa-pencil-square-o(ng-if='status.logView == true')
+                        i.fa.fa-terminal(ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak)
+                        i.fa.fa-play(ng-if='!status.running')
+                        i.fa.fa-stop(ng-if='status.running')
+                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false')
+                        i.fa.fa-floppy-o
+                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='status.logView == false')
+                        i.fa.fa-plus-square
+                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
+                        i.fa.fa-minus-circle
+
+
+            .editor-view(ng-show='status.logView == false', ng-cloak)
+                .code-container(ng-cloak)
+                    .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
+                        .col-md-2
+                            b [libs]
+                        .col-md-10
+                            .code-editor#code-editor-libs
+
+                .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak)
+                    .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
+                        .col-md-2
+                            b [{{$index}}] &nbsp;
+                            select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
+                                option(value='work') work
+                                option(value='loop') loop
+                        .col-md-10
+                            .loop(ng-if='code.type == "loop"')
+                                .row
+                                    .col-md-10
+                                        .code-editor(id='code-editor-{{code.id}}')
+                                    .col-md-2(style='text-align: right;')
+                                        | end &nbsp;
+                                        select(ng-model='code.block_end', ng-change='event.changed()')
+                                            option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
+
+                            .work(ng-if='code.type == "work"')
+                                .code-editor(id='code-editor-{{code.id}}')
+
+                        .col-md-2
+                        .col-md-10
+
+            .log-view(ng-if='status.logView', ng-cloak)
+                .container
+                    .panel#terminal
+                        .action
+                            .message(ng-repeat='message in appLog')
+                                .command(ng-if='message.status == "start" || message.status == "finish"')
+                                    span.symbol $
+                                    span.in {{app}} {{message.status}}
+                                .output(ng-if='!(message.status == "start" || message.status == "finish")') {{message.msg}}
+                            .message(ng-if='appLog.length==0')
+                                .output No running process here.
+
+        .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
+            .modal-dialog.modal-sm
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title Alert
+                    .modal-body
+                        p {{alert.message}}
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+

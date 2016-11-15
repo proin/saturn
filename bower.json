@@ -1,0 +1,25 @@
+{
+  "name": "lwot",
+  "description": "",
+  "main": "",
+  "authors": [
+    "ple <ple@searble.net>",
+    "proin <proin@searble.net>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "www/libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-material": "^1.1.1",
+    "angular-route": "^1.5.8",
+    "jquery": "^3.1.1"
+  }
+}

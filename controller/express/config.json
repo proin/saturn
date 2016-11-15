@@ -1,0 +1,10 @@
+{
+    "port": 3000,
+    "dev": true,
+    "session": {
+        "secret": "SnoTRa-seSsIon-sEcreT",
+        "resave": false,
+        "saveUninitialized": false
+    },
+    "encrypt": "SnoTra"
+}
