@@ -73,6 +73,13 @@ app.controller("ctrl", function ($scope, $timeout) {
                 value: value,
                 lineNumbers: true,
                 lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Q": function (cm) {
+                        cm.foldCode(cm.getCursor());
+                    }
+                },
+                foldGutter: true,
+                gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                 viewportMargin: Infinity,
                 mode: "javascript"
             }).on('change', function (e) {

@@ -5,7 +5,17 @@ html(ng-app="app")
 
         script(src="{$ROOT}/components/js/codemirror/codemirror.js")
         script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+
+        // fold code
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/foldcode.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/foldgutter.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/brace-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/xml-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/markdown-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/comment-fold.js')
+
         link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
+        link(rel="stylesheet", href="{$ROOT}/components/js/codemirror/addon/fold/foldgutter.css")
 
         script(src="{$ROOT}/view/js/project.js")
         link(rel="stylesheet", href="{$ROOT}/view/css/project.css")
@@ -23,9 +33,6 @@ html(ng-app="app")
 
             .toolbar
                 .container
-                    //button.btn.btn-default.btn-sm(ng-click='click.log()', ng-cloak)
-                    //    i.fa.fa-pencil-square-o(ng-if='status.logView == true')
-                    //    i.fa.fa-terminal(ng-if='status.logView == false')
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak)
                         i.fa.fa-play(ng-if='!status.running')
                         i.fa.fa-stop(ng-if='status.running')
@@ -79,18 +86,6 @@ html(ng-app="app")
                             b out [{{$index}}] &nbsp;
                         .col-md-10
                             div(ng-repeat='log in singleLog[$index]') {{log.msg}}
-
-            .log-view(ng-if='status.logView', ng-cloak)
-                .container
-                    .panel#terminal
-                        .action
-                            .message(ng-repeat='message in appLog')
-                                .command(ng-if='message.status == "start" || message.status == "finish"')
-                                    span.symbol $
-                                    span.in {{app}} {{message.status}}
-                                .output(ng-if='!(message.status == "start" || message.status == "finish")') {{message.msg}}
-                            .message(ng-if='appLog.length==0')
-                                .output No running process here.
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm
