@@ -1,8 +1,16 @@
 app.controller("ctrl", function ($scope, $timeout) {
-    $scope.app = location.href.split('#')[1];
+    $scope.app = decodeURI(location.href.split('#')[1]);
     $scope.appLog = [];
-    $scope.singleLog = {};
+    $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
+
+    for (var key in $scope.singleLog)
+        for (var i = 0; i < $scope.singleLog[key].length; i++)
+            delete $scope.singleLog[key][i]['$$hashKey'];
+
     $scope.outputLong = {};
+
+    $scope.titleEdit = false;
+    $scope.appRename = $scope.app;
 
     $scope.status = {};
     $scope.status.focused = -1;
@@ -26,9 +34,8 @@ app.controller("ctrl", function ($scope, $timeout) {
     $timeout();
 
     $.get('http://localhost:3000/api/script/get?name=' + $scope.app, function (data) {
-        if (data.err) {
+        if (data.err)
             return;
-        }
         $scope.lib = data.lib;
         $scope.flowpipe = data.scripts;
 
@@ -50,6 +57,8 @@ app.controller("ctrl", function ($scope, $timeout) {
                         $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
                 }
             }
+
+            localStorage.logs = JSON.stringify($scope.singleLog);
 
             $scope.status.running = data.running;
             $timeout(function () {
@@ -258,7 +267,6 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.click.clean = function () {
         $scope.singleLog = {};
         $timeout();
-        // $.get('/api/script/log-clear?name=' + $scope.app);
     };
 
     $scope.click.save = function (isNotShow) {
@@ -270,8 +278,23 @@ app.controller("ctrl", function ($scope, $timeout) {
         });
     };
 
+    $scope.click.export = function () {
+        window.open('/api/script/export?name=' + encodeURI($scope.app), '_blank');
+    };
+
     $scope.click.log = function () {
         $scope.status.logView = !$scope.status.logView;
+        $timeout();
+    };
+
+    $scope.click.editTitle = function (rename) {
+        $.post('/api/script/rename', {name: $scope.app, rename: rename}, function (result) {
+            if (result.status) {
+                location.href = '/project.html#' + encodeURI(rename);
+                location.reload();
+            }
+        });
+        $scope.titleEdit = false;
         $timeout();
     };
 

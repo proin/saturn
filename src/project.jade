@@ -24,9 +24,10 @@ html(ng-app="app")
         .container
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container(ng-cloak)
-                    a.navbar-brand
+                    a.navbar-brand(ng-click='titleEdit = true')
                         i.fa.fa-paper-plane
-                        | &nbsp;&nbsp;Saturn: {{app}}
+                        span(ng-if='!titleEdit') &nbsp;&nbsp;Saturn: {{app}}
+                        input(type='text', ng-if='titleEdit', ng-model='appRename', ng-enter='click.editTitle(appRename)')
                     ul.nav.navbar-nav
                         li.nav-item
                             a.nav-link(href='/') List
@@ -44,6 +45,8 @@ html(ng-app="app")
                         i.fa.fa-plus-square
                     button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
                         i.fa.fa-minus-circle
+                    button.btn.btn-default.btn-sm(ng-click='click.export()', ng-if='status.logView == false')
+                        i.fa.fa-download
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
             .editor-view(ng-show='status.logView == false', ng-cloak)
