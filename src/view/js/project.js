@@ -52,7 +52,7 @@ app.controller("ctrl", function ($scope, $timeout) {
 
             $scope.status.running = data.running;
             $timeout(function () {
-                $('.code-container.running .output').scrollTop($('#terminal .action').height() + 200);
+                $('.code-container.running .output .col-md-10').scrollTop($('.code-container.running .output .col-md-10 .output-messages').height());
             });
         });
     }, 1000);

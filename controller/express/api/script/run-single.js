@@ -17,12 +17,14 @@ router.post("/", function (req, res) {
     args.WORKSPACE_PATH = WORKSPACE_PATH;
     args.TMP_PATH = TMP_PATH;
 
+    lib = JSON.parse(lib);
     scripts = JSON.parse(scripts);
 
     req.saturn.workspace.save(args)
         .then(()=> new Promise((resolve)=> {
-            let runjs = `'use strict';\n`;
+            let runjs = lib.value + '\n';
             runjs += `const Flowpipe = require('Flowpipe');\n`;
+
             runjs += `let flowpipe = Flowpipe.instance('app');\n`;
 
             runjs += `flowpipe.then(()=> new Promise((resolve)=> {`;
@@ -41,8 +43,8 @@ router.post("/", function (req, res) {
             runjs += `}));\n`;
 
             if (scripts[target].type == 'work') {
-                runjs += `flowpipe.then('${target}', require('${path.resolve(TMP_PATH, 'scripts', `script-${target}.js`)}'));\n`;
-
+                let jsm = fs.readFileSync(path.resolve(TMP_PATH, 'scripts', `script-${target}.js`), 'utf-8');
+                runjs += `flowpipe.then('${target}', ${jsm});\n`;
                 runjs += `flowpipe.then(()=> new Promise((resolve)=> {`;
                 runjs += `let variables = {};`;
                 runjs += `for(let key in global)\n`;
@@ -74,7 +76,8 @@ router.post("/", function (req, res) {
 
                 for (let i = target; i <= scripts[target].block_end; i++) {
                     if (scripts[i].type == 'work') {
-                        runjs += `flowpipe.then('${i}', require('${path.resolve(TMP_PATH, 'scripts', `script-${i}.js`)}'));\n`;
+                        let jsm = fs.readFileSync(path.resolve(TMP_PATH, 'scripts', `script-${i}.js`), 'utf-8');
+                        runjs += `flowpipe.then('${i}', ${jsm});\n`;
 
                         runjs += `flowpipe.then(()=> new Promise((resolve)=> {`;
                         runjs += `let variables = {};`;
@@ -106,8 +109,6 @@ router.post("/", function (req, res) {
             if (!thread.log[name]) thread.log[name] = [];
             thread.log[name].push({module: `${name}`, status: `install`, message: `installing dependencies...`});
             thread.status[name] = true;
-
-            lib = JSON.parse(lib);
 
             let npmlibs = ['flowpipe'];
             let npms = lib.value.match(/require\([^\)]+\)/gim);
