@@ -41,8 +41,8 @@ app.controller("ctrl", function ($scope, $timeout) {
             for (var i = 0; i < data.data.length; i++) {
                 if (data.data[i].status == 'start') {
                     // $scope.appLog.splice(0);
-                    if ($scope.singleLog[$scope.status.focused])
-                        $scope.singleLog[$scope.status.focused].splice(0);
+                    if ($scope.singleLog[$scope.status.singleFocused])
+                        $scope.singleLog[$scope.status.singleFocused].splice(0);
                 } else if (data.data[i].status == 'data' && $scope.status.singleFocused !== -1) {
                     $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
                     if ($scope.singleLog[$scope.status.singleFocused].length > MAX_LOG_SIZE)
