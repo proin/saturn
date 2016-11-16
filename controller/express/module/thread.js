@@ -41,7 +41,7 @@ module.exports = ()=> {
         resolve();
     });
 
-    runnable.run = (name)=> new Promise((resolve)=> {
+    runnable.run = (name, isSingle)=> new Promise((resolve)=> {
         if (runnable.status[name]) return resolve();
 
         let run_terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
@@ -65,7 +65,7 @@ module.exports = ()=> {
         runnable.log[name].push({module: `${name}`, status: `start`});
         runnable.status[name] = true;
 
-        run_terminal('node', [path.resolve(WORKSPACE_PATH, `${name}.satbook`, 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
+        run_terminal('node', [path.resolve(WORKSPACE_PATH, `${name}.satbook`, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
             data = data + '';
             data = data.split('\n');
 

@@ -15,9 +15,22 @@ body {
   }
 }
 
+.running {
+  background: #b3e5fc;
+}
+
 .row.code-box {
   padding: 12px 8px;
   border-bottom: 1px solid rgba(0, 0, 0, .1);
+
+  &.output {
+    background: #e0f2f1 !important;
+
+    .col-md-10 {
+      max-height: 140px;
+      overflow: scroll;
+    }
+  }
 
   &.active {
     padding: 12px 4px;

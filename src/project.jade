@@ -23,13 +23,13 @@ html(ng-app="app")
 
             .toolbar
                 .container
-                    button.btn.btn-default.btn-sm(ng-click='click.log()', ng-cloak)
-                        i.fa.fa-pencil-square-o(ng-if='status.logView == true')
-                        i.fa.fa-terminal(ng-if='status.logView == false')
+                    //button.btn.btn-default.btn-sm(ng-click='click.log()', ng-cloak)
+                    //    i.fa.fa-pencil-square-o(ng-if='status.logView == true')
+                    //    i.fa.fa-terminal(ng-if='status.logView == false')
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak)
                         i.fa.fa-play(ng-if='!status.running')
                         i.fa.fa-stop(ng-if='status.running')
-                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='status.logView == true')
+                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='status.logView == false')
                         i.fa.fa-eraser
                     button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false')
                         i.fa.fa-floppy-o
@@ -38,19 +38,24 @@ html(ng-app="app")
                     button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
                         i.fa.fa-minus-circle
 
-
             .editor-view(ng-show='status.logView == false', ng-cloak)
-                .code-container(ng-cloak)
+                .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == true ? "running": ""')
                     .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
                         .col-md-2
-                            b [libs]
+                            b in [libs]
                         .col-md-10
                             .code-editor#code-editor-libs
 
-                .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak)
+                    .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0', ng-class='status.focused == $index ? "active":""')
+                        .col-md-2
+                            b out [libs] &nbsp;
+                        .col-md-10
+                            div(ng-repeat='log in singleLog.libs') {{log.msg}}
+
+                .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == true ? "running": ""')
                     .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
                         .col-md-2
-                            b [{{$index}}] &nbsp;
+                            b in [{{$index}}] &nbsp;
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
                                 option(value='work') work
                                 option(value='loop') loop
@@ -66,9 +71,14 @@ html(ng-app="app")
 
                             .work(ng-if='code.type == "work"')
                                 .code-editor(id='code-editor-{{code.id}}')
-
                         .col-md-2
                         .col-md-10
+
+                    .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
+                        .col-md-2
+                            b out [{{$index}}] &nbsp;
+                        .col-md-10
+                            div(ng-repeat='log in singleLog[$index]') {{log.msg}}
 
             .log-view(ng-if='status.logView', ng-cloak)
                 .container

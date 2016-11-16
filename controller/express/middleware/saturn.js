@@ -13,7 +13,7 @@ module.exports = ()=> (req, res, next)=> {
         if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
         if (!fs.existsSync(path.resolve(WORKSPACE_PATH, 'package.json'))) fs.writeFileSync(path.resolve(WORKSPACE_PATH, 'package.json'), '{}');
 
-        fsext.removeSync(path.resolve(TMP_PATH));
+        fsext.removeSync(path.resolve(TMP_PATH, 'scripts'));
         fsext.mkdirsSync(path.resolve(TMP_PATH, 'scripts'));
 
         lib = JSON.parse(lib);
@@ -55,11 +55,22 @@ module.exports = ()=> (req, res, next)=> {
 
                 runjs += `flowpipe.then('${i}', require('${path.resolve(TMP_PATH, 'scripts', `script-${i}.js`)}'));\n`;
 
-                if (runInsert[i]) {
-                    for (let j = 0; j < runInsert[i].length; j++) {
+                // runjs += `flowpipe.then(()=> new Promise((resolve)=> {`;
+                // runjs += `let variables = {};`;
+                // runjs += `for(let key in global)\n`;
+                // runjs += `try {\n`;
+                // runjs += `if(typeof global[key] == 'object')\n`;
+                // runjs += `variables[key] = JSON.stringify(global[key]);\n`;
+                // runjs += `else\n`;
+                // runjs += `variables[key] = global[key];\n`;
+                // runjs += `} catch(e) {}\n`;
+                // runjs += `require('fs').writeFileSync(require('path').resolve(__dirname, 'variable.json'), JSON.stringify(variables));\n`;
+                // runjs += `resolve();\n`;
+                // runjs += `}));\n`;
+
+                if (runInsert[i])
+                    for (let j = 0; j < runInsert[i].length; j++)
                         runjs += `flowpipe.loop('${runInsert[i][j].start}', (args)=> ${runInsert[i][j].condition.replace(';', '')});\n`
-                    }
-                }
             }
         }
 

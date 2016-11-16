@@ -1,9 +1,11 @@
 app.controller("ctrl", function ($scope, $timeout) {
     $scope.app = location.href.split('#')[1];
     $scope.appLog = [];
+    $scope.singleLog = {};
 
     $scope.status = {};
     $scope.status.focused = -1;
+    $scope.status.singleFocused = localStorage.preFocused ? localStorage.preFocused : 'libs';
     $scope.status.indent = [];
     $scope.status.logView = false;
     $scope.status.running = false;
@@ -33,8 +35,19 @@ app.controller("ctrl", function ($scope, $timeout) {
 
     setInterval(function () {
         $.get('http://localhost:3000/api/script/log?name=' + $scope.app, function (data) {
-            if (data.data.length == $scope.appLog.length) return;
-            $scope.appLog = data.data;
+            if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
+            for (var i = 0; i < data.data.length; i++) {
+                if (data.data[i].status == 'start') {
+                    // $scope.appLog.splice(0);
+                    if ($scope.singleLog[$scope.status.focused])
+                        $scope.singleLog[$scope.status.focused].splice(0);
+                } else if (data.data[i].status == 'data' && $scope.status.singleFocused !== -1) {
+                    $scope.singleLog[$scope.status.singleFocused].unshift(data.data[i]);
+                }
+
+                // $scope.appLog.push(data.data[i]);
+            }
+
             $scope.status.running = data.running;
             $timeout(function () {
                 $('#terminal').scrollTop($('#terminal .action').height() + 200);
@@ -217,7 +230,9 @@ app.controller("ctrl", function ($scope, $timeout) {
     };
 
     $scope.click.clean = function () {
-        $.get('/api/script/log-clear?name=' + $scope.app);
+        $scope.singleLog = {};
+        $timeout();
+        // $.get('/api/script/log-clear?name=' + $scope.app);
     };
 
     $scope.click.save = function () {
@@ -235,12 +250,37 @@ app.controller("ctrl", function ($scope, $timeout) {
     };
 
     $scope.click.run = function () {
-        if ($scope.status.logView == false) $scope.status.logView = true;
         if ($scope.status.running) {
             $.get('/api/script/stop?name=' + $scope.app);
         } else {
-            var runnable = {name: $scope.app, lib: JSON.stringify($scope.lib), scripts: JSON.stringify($scope.flowpipe)};
-            $.post('/api/script/run', runnable);
+            if ($scope.status.focused == -1) {
+                $scope.status.singleFocused = 'libs';
+            } else {
+                if (!$scope.flowpipe[$scope.status.focused]) return;
+                $scope.status.singleFocused = $scope.status.focused;
+                if ($scope.singleLog[$scope.status.focused])
+                    $scope.singleLog[$scope.status.focused].splice(0);
+            }
+
+            localStorage.preFocused = $scope.status.singleFocused;
+
+            if ($scope.status.singleFocused === 'libs') {
+                var runnable = {
+                    name: $scope.app,
+                    target: $scope.status.focused,
+                    lib: JSON.stringify($scope.lib),
+                    scripts: JSON.stringify($scope.flowpipe)
+                };
+                $.post('/api/script/run', runnable);
+            } else {
+                var runnable = {
+                    name: $scope.app,
+                    target: $scope.status.focused,
+                    lib: JSON.stringify($scope.lib),
+                    scripts: JSON.stringify($scope.flowpipe)
+                };
+                $.post('/api/script/run-single', runnable);
+            }
         }
     };
 
@@ -268,4 +308,5 @@ app.controller("ctrl", function ($scope, $timeout) {
     };
 
     $scope.event.changed();
-});
+})
+;
