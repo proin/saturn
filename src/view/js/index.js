@@ -5,6 +5,9 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.FU_PATH = [];
     $scope.fu_current = [];
 
+    $scope.createType = 'folder';
+    $scope.createName = '';
+
     $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
         $scope.current = data;
         $timeout();
@@ -48,6 +51,23 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.click.add = function () {
         if (!$scope.addName) return;
         location.href = '/project.html#' + $scope.addName;
+    };
+
+    $scope.click.create = function () {
+        $.post('/api/file/create', {
+            read_path: JSON.stringify($scope.PATH),
+            filetype: $scope.createType,
+            filename: $scope.createName
+        }, function () {
+            $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
+                $('#create').modal('hide');
+                // $scope.createType = 'folder';
+                $scope.createName = '';
+                $scope.current = data;
+
+                $timeout();
+            });
+        });
     };
 
     $scope.click.delete = function () {
@@ -126,7 +146,9 @@ app.controller("ctrl", function ($scope, $timeout) {
         } else if (file.type == 'project') {
             location.href = '/project.html#' + file.name;
         } else {
-            // TODO download
+            var jsext = '.js';
+            if (file.name.indexOf(jsext) == file.name.length - jsext.length)
+                location.href = '/viewer.html#' + encodeURI(file.path);
         }
     };
 

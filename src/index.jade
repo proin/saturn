@@ -23,6 +23,8 @@ html(ng-app="app")
                     button.btn.btn-default.btn-sm(ng-click='click.checkall()')
                         i.fa.fa-check-square-o
                     button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#add')
+                        i.fa.fa-file-text
+                    button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#create')
                         i.fa.fa-plus-square
                     button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#upload')
                         i.fa.fa-upload
@@ -69,6 +71,28 @@ html(ng-app="app")
                         button.btn.btn-secondary(type='button', data-dismiss='modal') Close
                         | &nbsp;
                         button.btn.btn-primary(type='button', ng-click='click.add()') Create
+
+        #create.modal.fade(tabindex='-1', role='dialog', aria-labelledby='create', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title New File
+                    .modal-body
+                        form
+                            .form-group
+                                label.form-control-label Type
+                                select.form-control(ng-model='createType')
+                                    option(value='folder') Folder
+                                    option(value='js') Javascript
+                            .form-group
+                                label.form-control-label File or Folder Name:
+                                input.form-control(type='text', ng-model='createName')
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.create()') Create
 
         #upload.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
             .modal-dialog(role='document')

@@ -44,6 +44,7 @@ html(ng-app="app")
                         i.fa.fa-plus-square
                     button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
                         i.fa.fa-minus-circle
+                    .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
             .editor-view(ng-show='status.logView == false', ng-cloak)
                 .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == true ? "running": ""')

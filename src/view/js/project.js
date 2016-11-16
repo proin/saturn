@@ -9,6 +9,7 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.status.indent = [];
     $scope.status.logView = false;
     $scope.status.running = false;
+    $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
 
     $scope.alert = {};
     $scope.alert.message = '';
@@ -68,16 +69,32 @@ app.controller("ctrl", function ($scope, $timeout) {
 
             $('#' + id).html('');
 
+            var OsNo = navigator.userAgent.toLowerCase();
+            var os = {
+                Linux: /linux/.test(OsNo),
+                Unix: /x11/.test(OsNo),
+                Mac: /mac/.test(OsNo),
+                Windows: /win/.test(OsNo)
+            };
+            var cmdkey = 'Ctrl';
+            if (os.Mac) cmdkey = 'Cmd';
+            var keymap = {};
+            keymap[cmdkey + '-F'] = function (cm) {
+                cm.foldCode(cm.getCursor());
+            };
+            keymap[cmdkey + '-R'] = function () {
+                $scope.click.run();
+            };
+            keymap[cmdkey + '-S'] = function () {
+                $scope.click.save(true);
+            };
+
             CodeMirror(document.getElementById(id), {
                 height: 'auto',
                 value: value,
                 lineNumbers: true,
                 lineWrapping: true,
-                extraKeys: {
-                    "Ctrl-Q": function (cm) {
-                        cm.foldCode(cm.getCursor());
-                    }
-                },
+                extraKeys: keymap,
                 foldGutter: true,
                 gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                 viewportMargin: Infinity,
@@ -242,12 +259,12 @@ app.controller("ctrl", function ($scope, $timeout) {
         // $.get('/api/script/log-clear?name=' + $scope.app);
     };
 
-    $scope.click.save = function () {
+    $scope.click.save = function (isNotShow) {
         var runnable = {name: $scope.app, lib: JSON.stringify($scope.lib), scripts: JSON.stringify($scope.flowpipe)};
         $.post('/api/script/save', runnable, function (result) {
-            if (result.status) {
-                $scope.alert.show($scope.app + ' saved!')
-            }
+            if (result.status) $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
+            if (result.status && !isNotShow) $scope.alert.show($scope.app + ' saved!');
+            $timeout();
         });
     };
 

@@ -1,0 +1,51 @@
+doctype html
+html(ng-app="app")
+    head
+        include components/jade/header
+
+        script(src="{$ROOT}/components/js/codemirror/codemirror.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+
+        // fold code
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/foldcode.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/foldgutter.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/brace-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/xml-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/markdown-fold.js')
+        script(src='{$ROOT}/components/js/codemirror/addon/fold/comment-fold.js')
+
+        link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
+        link(rel="stylesheet", href="{$ROOT}/components/js/codemirror/addon/fold/foldgutter.css")
+
+        script(src="{$ROOT}/view/js/viewer.js")
+        link(rel="stylesheet", href="{$ROOT}/view/css/viewer.css")
+
+    body(ng-controller='ctrl')
+        .container
+            nav.navbar.navbar-fixed-top.navbar-light.bg-faded
+                .container(ng-cloak)
+                    a.navbar-brand
+                        i.fa.fa-paper-plane
+                        | &nbsp;&nbsp;Saturn: {{file}}
+                    ul.nav.navbar-nav
+                        li.nav-item
+                            a.nav-link(href='/') List
+
+            .toolbar
+                .container
+                    button.btn.btn-default.btn-sm(ng-click='click.save()')
+                        i.fa.fa-floppy-o
+
+            .code-editor(id='code-editor')
+
+        .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
+            .modal-dialog.modal-sm
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title Alert
+                    .modal-body
+                        p {{alert.message}}
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
