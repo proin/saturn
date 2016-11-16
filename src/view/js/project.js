@@ -43,7 +43,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                     if ($scope.singleLog[$scope.status.focused])
                         $scope.singleLog[$scope.status.focused].splice(0);
                 } else if (data.data[i].status == 'data' && $scope.status.singleFocused !== -1) {
-                    $scope.singleLog[$scope.status.singleFocused].unshift(data.data[i]);
+                    $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
                 }
 
                 // $scope.appLog.push(data.data[i]);
