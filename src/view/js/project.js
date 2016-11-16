@@ -35,6 +35,7 @@ app.controller("ctrl", function ($scope, $timeout) {
     });
 
     setInterval(function () {
+        var MAX_LOG_SIZE = 100;
         $.get('http://localhost:3000/api/script/log?name=' + $scope.app, function (data) {
             if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
             for (var i = 0; i < data.data.length; i++) {
@@ -44,14 +45,14 @@ app.controller("ctrl", function ($scope, $timeout) {
                         $scope.singleLog[$scope.status.focused].splice(0);
                 } else if (data.data[i].status == 'data' && $scope.status.singleFocused !== -1) {
                     $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
+                    if ($scope.singleLog[$scope.status.singleFocused].length > MAX_LOG_SIZE)
+                        $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
                 }
-
-                // $scope.appLog.push(data.data[i]);
             }
 
             $scope.status.running = data.running;
             $timeout(function () {
-                $('#terminal').scrollTop($('#terminal .action').height() + 200);
+                $('.code-container.running .output').scrollTop($('#terminal .action').height() + 200);
             });
         });
     }, 1000);
