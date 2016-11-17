@@ -286,6 +286,10 @@ app.controller("ctrl", function ($scope, $timeout) {
         window.open('/api/script/export?name=' + encodeURI($scope.app), '_blank');
     };
 
+    $scope.click.exportRun = function () {
+        window.open('/api/script/exportScript?name=' + encodeURI($scope.app), '_blank');
+    };
+
     $scope.click.log = function () {
         $scope.status.logView = !$scope.status.logView;
         $timeout();

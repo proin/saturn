@@ -46,7 +46,9 @@ html(ng-app="app")
                     button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
                         i.fa.fa-minus-circle
                     button.btn.btn-default.btn-sm(ng-click='click.export()', ng-if='status.logView == false')
-                        i.fa.fa-download
+                        i.fa.fa-book
+                    button.btn.btn-default.btn-sm(ng-click='click.exportRun()', ng-if='status.logView == false')
+                        i.fa.fa-rocket
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
             .editor-view(ng-show='status.logView == false', ng-cloak)

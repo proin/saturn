@@ -46,9 +46,7 @@ router.post("/", function (req, res) {
                     if (list[j] == npms[i])
                         exists = false;
 
-                try {
-                    require(path.resolve(WORKSPACE_PATH, npms[i]));
-                } catch (e) {
+                if (fs.existsSync(path.resolve(WORKSPACE_PATH, npms[i]))) {
                     exists = true;
                 }
 
