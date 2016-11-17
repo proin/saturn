@@ -20,21 +20,19 @@ router.post("/", function (req, res) {
     lib = JSON.parse(lib);
     scripts = JSON.parse(scripts);
 
-    let requirestr = lib.value.match(/require\([^\)]+\)/gim);
-    for (let i = 0; i < requirestr.length; i++) {
-        requirestr[i] = requirestr[i].replace(/ /gim, '');
-        requirestr[i] = requirestr[i].replace(/\n/gim, '');
-        requirestr[i] = requirestr[i].replace(/\t/gim, '');
-        requirestr[i] = requirestr[i].replace("require('", '');
-        requirestr[i] = requirestr[i].replace("')", '');
-        if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
-            lib.value = lib.value.replace(requirestr[i], path.resolve(WORKSPACE_PATH, requirestr[i]));
-    }
-
-    req.body.lib = lib;
-
     req.saturn.workspace.save(args)
         .then(()=> new Promise((resolve)=> {
+            let requirestr = lib.value.match(/require\([^\)]+\)/gim);
+            for (let i = 0; i < requirestr.length; i++) {
+                requirestr[i] = requirestr[i].replace(/ /gim, '');
+                requirestr[i] = requirestr[i].replace(/\n/gim, '');
+                requirestr[i] = requirestr[i].replace(/\t/gim, '');
+                requirestr[i] = requirestr[i].replace("require('", '');
+                requirestr[i] = requirestr[i].replace("')", '');
+                if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
+                    lib.value = lib.value.replace(requirestr[i], path.resolve(WORKSPACE_PATH, requirestr[i]));
+            }
+
             let runjs = lib.value + '\n';
             runjs += `const Flowpipe = require('Flowpipe');\n`;
 

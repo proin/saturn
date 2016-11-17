@@ -16,15 +16,23 @@ module.exports = ()=> (req, res, next)=> {
         fsext.removeSync(path.resolve(TMP_PATH, 'scripts'));
         fsext.mkdirsSync(path.resolve(TMP_PATH, 'scripts'));
 
-        try {
-            lib = JSON.parse(lib);
-        } catch (e) {
-        }
-
+        lib = JSON.parse(lib);
         scripts = JSON.parse(scripts);
 
         fs.writeFileSync(path.resolve(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
         fs.writeFileSync(path.resolve(TMP_PATH, 'lib.json'), JSON.stringify(lib));
+
+        let libVal = lib.value;
+        let requirestr = libVal.match(/require\([^\)]+\)/gim);
+        for (let i = 0; i < requirestr.length; i++) {
+            requirestr[i] = requirestr[i].replace(/ /gim, '');
+            requirestr[i] = requirestr[i].replace(/\n/gim, '');
+            requirestr[i] = requirestr[i].replace(/\t/gim, '');
+            requirestr[i] = requirestr[i].replace("require('", '');
+            requirestr[i] = requirestr[i].replace("')", '');
+            if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
+                lib.value = lib.value.replace(requirestr[i], path.resolve(WORKSPACE_PATH, requirestr[i]));
+        }
 
         let runjs = lib.value + '\n';
         runjs += `const Flowpipe = require('Flowpipe');\n`;

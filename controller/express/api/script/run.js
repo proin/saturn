@@ -12,21 +12,6 @@ router.post("/", function (req, res) {
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
     const TMP_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
 
-    lib = JSON.parse(lib);
-
-    let requirestr = lib.value.match(/require\([^\)]+\)/gim);
-    for (let i = 0; i < requirestr.length; i++) {
-        requirestr[i] = requirestr[i].replace(/ /gim, '');
-        requirestr[i] = requirestr[i].replace(/\n/gim, '');
-        requirestr[i] = requirestr[i].replace(/\t/gim, '');
-        requirestr[i] = requirestr[i].replace("require('", '');
-        requirestr[i] = requirestr[i].replace("')", '');
-        if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
-            lib.value = lib.value.replace(requirestr[i], path.resolve(WORKSPACE_PATH, requirestr[i]));
-    }
-
-    req.body.lib = lib;
-
     let args = req.body;
     args.WORKSPACE_PATH = WORKSPACE_PATH;
     args.TMP_PATH = TMP_PATH;
@@ -36,6 +21,8 @@ router.post("/", function (req, res) {
             if (!thread.log[name]) thread.log[name] = [];
             thread.log[name].push({module: `${name}`, status: `install dependencies...`});
             thread.status[name] = true;
+
+            lib = JSON.parse(lib);
 
             let npmlibs = ['flowpipe'];
             let npms = lib.value.match(/require\([^\)]+\)/gim);
