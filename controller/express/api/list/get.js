@@ -45,6 +45,12 @@ router.get("/", function (req, res) {
     let result = [];
     for (let key in projectList)
         result.push(projectList[key]);
+
+    result.sort((a, b)=> {
+        if (b.name == 'node_modules') return 1;
+        return b.type.localeCompare(a.type);
+    });
+
     res.send(result);
 });
 

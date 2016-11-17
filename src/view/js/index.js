@@ -75,10 +75,10 @@ app.controller("ctrl", function ($scope, $timeout) {
             read_path: JSON.stringify($scope.PATH),
             rm: JSON.stringify(checked)
         }, function (data) {
-            $scope.current = data;
-            if ($scope.PATH.length > 0)
-                $scope.current.unshift({type: 'upper', name: '..'});
-            $timeout();
+            $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
+                $scope.current = data;
+                $timeout();
+            });
         });
     };
 
