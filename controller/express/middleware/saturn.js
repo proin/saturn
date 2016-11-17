@@ -16,15 +16,17 @@ module.exports = ()=> (req, res, next)=> {
         fsext.removeSync(path.resolve(TMP_PATH, 'scripts'));
         fsext.mkdirsSync(path.resolve(TMP_PATH, 'scripts'));
 
-        lib = JSON.parse(lib);
+        try {
+            lib = JSON.parse(lib);
+        } catch (e) {
+        }
+
         scripts = JSON.parse(scripts);
 
         fs.writeFileSync(path.resolve(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
         fs.writeFileSync(path.resolve(TMP_PATH, 'lib.json'), JSON.stringify(lib));
 
-        // let runjs = `'use strict';\n`;
         let runjs = lib.value + '\n';
-
         runjs += `const Flowpipe = require('Flowpipe');\n`;
         runjs += `let flowpipe = Flowpipe.instance('app');\n`;
 
