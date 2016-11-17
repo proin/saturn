@@ -4,31 +4,25 @@ const router = express.Router();
 const fs = require('fs');
 const fsext = require('fs-extra');
 const path = require('path');
+const multer = require('multer');
+let upload = multer();
 
-router.post("/", function (req, res) {
-    let {read_path, files} = req.body;
+router.post("/", upload.array('files', 10000), function (req, res) {
+    let {read_path, dest_path} = req.body;
 
-    let COPY_PATH = req.DIR.WORKSPACE_PATH;
+    let WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
     if (read_path) {
         read_path = JSON.parse(read_path);
         for (let i = 0; i < read_path.length; i++)
-            COPY_PATH = path.resolve(COPY_PATH, read_path[i]);
+            WORKSPACE_PATH = path.resolve(WORKSPACE_PATH, read_path[i]);
     }
 
-    if (files) {
-        files = JSON.parse(files);
-        for (let i = 0; i < files.length; i++) {
-            let cpf = path.resolve(COPY_PATH, path.basename(files[i]));
+    let DEST = path.resolve(WORKSPACE_PATH, dest_path);
 
-            if (fs.lstatSync(files[i]).isDirectory() && !fs.existsSync(cpf)) {
-                fsext.mkdirsSync(path.resolve(COPY_PATH, path.basename(files[i])));
-            }
-
-            try {
-                fsext.copySync(files[i], cpf);
-            } catch (e) {
-            }
-        }
+    if (!fs.existsSync(DEST)) fsext.mkdirsSync(DEST);
+    for (let i = 0; i < req.files.length; i++) {
+        let _DEST = path.resolve(DEST, req.files[i].originalname);
+        fs.writeFileSync(_DEST, req.files[i].buffer);
     }
 
     res.send({status: true});

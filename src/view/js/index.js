@@ -1,15 +1,14 @@
 app.controller("ctrl", function ($scope, $timeout) {
-    $scope.PATH = [];
+    $scope.PATH = location.href.split('#')[1] ? JSON.parse(decodeURI(location.href.split('#')[1])) : [];
     $scope.current = [];
-
-    $scope.FU_PATH = [];
-    $scope.fu_current = [];
 
     $scope.createType = 'folder';
     $scope.createName = '';
 
     $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
         $scope.current = data;
+        if ($scope.PATH.length > 0)
+            $scope.current.unshift({type: 'upper', name: '..'});
         $timeout();
         setInterval(function () {
             $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
@@ -21,11 +20,8 @@ app.controller("ctrl", function ($scope, $timeout) {
         }, 1000);
     });
 
-    $.get('/api/file/get?read_path=' + JSON.stringify($scope.FU_PATH), function (data) {
-        $scope.fu_current = data;
-        $timeout();
-    });
-
+    $scope.event = {};
+    $scope.status = {};
     $scope.click = {};
 
     $scope.click.checkall = function () {
@@ -61,7 +57,6 @@ app.controller("ctrl", function ($scope, $timeout) {
         }, function () {
             $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
                 $('#create').modal('hide');
-                // $scope.createType = 'folder';
                 $scope.createName = '';
                 $scope.current = data;
 
@@ -88,42 +83,53 @@ app.controller("ctrl", function ($scope, $timeout) {
     };
 
     $scope.click.upload = function () {
-        let checked = [];
-        for (var i = 0; i < $scope.fu_current.length; i++)
-            if ($scope.fu_current[i].checked)
-                checked.push($scope.fu_current[i].path);
-        $.post('/api/file/upload', {
-            read_path: JSON.stringify($scope.PATH),
-            files: JSON.stringify(checked)
-        }, function () {
-            $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
-                $scope.click.fscheckall();
-                $scope.click.fscheckall();
+        if ($('#upload input')[0].files.length > 0)
+            $scope.event.upload({'./': $('#upload input')[0].files}, function () {
                 $('#upload').modal('hide');
+                $('#upload input').val('');
+            });
+    };
+
+    $scope.event.upload = function (files, callback) {
+        $scope.status.uploading = true;
+
+        var keys = [];
+        for (var key in files)
+            keys.push(key);
+
+        var uploader = function (callback) {
+            if (keys.length == 0) return callback();
+            var key = keys.splice(0, 1)[0];
+
+            var form = $('<form method="post"><input type="file" name="files" /></form>');
+            var formData = new FormData(form);
+            formData.append("dest_path", key);
+            formData.append("read_path", JSON.stringify($scope.PATH));
+            for (var i = 0; i < files[key].length; i++)
+                formData.append("files", files[key][i]);
+
+            $.ajax({
+                url: '/api/file/upload',
+                processData: false,
+                contentType: false,
+                data: formData,
+                type: 'POST',
+                success: function () {
+                    uploader(callback);
+                }
+            });
+        };
+
+        uploader(function () {
+            $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
+                $scope.status.uploading = false;
                 $scope.current = data;
+                if ($scope.PATH.length > 0)
+                    $scope.current.unshift({type: 'upper', name: '..'});
+                if (callback) callback();
                 $timeout();
             });
         });
-    };
-
-    $scope.click.fileList = function (file) {
-        if (file.type == 'upper') {
-            $scope.FU_PATH.splice($scope.FU_PATH.length - 1, 1);
-            $.get('/api/file/get?read_path=' + JSON.stringify($scope.FU_PATH), function (data) {
-                $scope.fu_current = data;
-                if ($scope.FU_PATH.length > 0)
-                    $scope.fu_current.unshift({type: 'upper', name: '..'});
-                $timeout();
-            });
-        } else if (file.type == 'folder') {
-            $scope.FU_PATH.push(file.name);
-            $.get('/api/file/get?read_path=' + JSON.stringify($scope.FU_PATH), function (data) {
-                $scope.fu_current = data;
-                if ($scope.FU_PATH.length > 0)
-                    $scope.fu_current.unshift({type: 'upper', name: '..'});
-                $timeout();
-            });
-        }
     };
 
     $scope.click.list = function (file) {
@@ -150,6 +156,8 @@ app.controller("ctrl", function ($scope, $timeout) {
             if (file.name.indexOf(jsext) == file.name.length - jsext.length)
                 location.href = '/viewer.html#' + encodeURI(file.path);
         }
+
+        location.href = '#' + JSON.stringify($scope.PATH);
     };
 
 });

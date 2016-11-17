@@ -10,7 +10,9 @@ html(ng-app="app")
         script(src="{$ROOT}/view/js/index.js")
         link(rel="stylesheet", href="{$ROOT}/view/css/index.css")
 
-    body(ng-controller='ctrl')
+    body(ng-controller='ctrl', ng-drop='event.upload')
+        .on-dragging
+            h2 Drag & Drop Here!
         .container
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container
@@ -101,15 +103,10 @@ html(ng-app="app")
                         button.close(type='button', data-dismiss='modal', aria-label='Close')
                             span(aria-hidden='true') ×
                         h4.modal-title Upload Files
-                    table.table.table-hover
-                        tbody
-                            tr(ng-repeat='file in fu_current')
-                                td(ng-cloak)
-                                    input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper"')
-                                    i.fa.fa-folder-open(ng-if='file.type == "folder"')
-                                    i.fa.fa-file(ng-if='file.type == "file"')
-                                    div(style='display:inline-block; width: 80%;', ng-click='click.fileList(file)')
-                                        | {{file.name}}
+                    .modal-body
+                        .form-group
+                            label.form-control-label Select File
+                            input.form-control(type='file', multiple)
                     .modal-footer
                         button.btn.btn-secondary(type='button', data-dismiss='modal') Close
                         | &nbsp;
