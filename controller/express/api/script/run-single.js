@@ -154,7 +154,8 @@ router.post("/", function (req, res) {
                             exists = true;
                 }
 
-                npmlibs.push(npms[i]);
+                if (!exists)
+                    npmlibs.push(npms[i]);
             }
 
             return thread.install(npmlibs, WORKSPACE_PATH);

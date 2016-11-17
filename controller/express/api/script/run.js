@@ -19,7 +19,7 @@ router.post("/", function (req, res) {
     req.saturn.workspace.save(args)
         .then(()=> {
             if (!thread.log[name]) thread.log[name] = [];
-            thread.log[name].push({module: `${name}`, status: `install dependencies...`});
+            thread.log[name].push({module: `${name}`, status: `data`, msg: `installing dependencies...`});
             thread.status[name] = true;
 
             lib = JSON.parse(lib);
@@ -57,11 +57,14 @@ router.post("/", function (req, res) {
                             exists = true;
                 }
 
-                npmlibs.push(npms[i]);
+                if (!exists)
+                    npmlibs.push(npms[i]);
             }
 
+            console.log(npmlibs);
             return thread.install(npmlibs, WORKSPACE_PATH);
         }).then(()=> {
+            thread.log[name].push({module: `${name}`, status: `data`, msg: `installed dependencies...`});
             thread.status[name] = false;
             return thread.run(name);
         })

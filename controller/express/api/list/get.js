@@ -23,7 +23,8 @@ router.get("/", function (req, res) {
     }
 
     let dirs = fs.readdirSync(WORKSPACE_PATH);
-    let ignores = {'node_modules': true, 'package.json': true, '.git': true, '.idea': true};
+    // let ignores = {'node_modules': true, 'package.json': true, '.git': true, '.idea': true};
+    let ignores = {'package.json': true, '.git': true, '.idea': true};
     let projectList = {};
     for (let i = 0; i < dirs.length; i++) {
         if (ignores[dirs[i]]) continue;
