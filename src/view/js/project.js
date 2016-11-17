@@ -3,6 +3,10 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.appLog = [];
     $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
 
+    $scope.history = function () {
+        window.history.back();
+    };
+
     for (var key in $scope.singleLog)
         for (var i = 0; i < $scope.singleLog[key].length; i++)
             delete $scope.singleLog[key][i]['$$hashKey'];

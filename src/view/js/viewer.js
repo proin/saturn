@@ -3,6 +3,10 @@ app.controller("ctrl", function ($scope, $timeout) {
 
     $scope.value = '';
 
+    $scope.history = function () {
+        window.history.back();
+    };
+
     $.post('/api/file/read', {filepath: $scope.file}, function (data) {
         var OsNo = navigator.userAgent.toLowerCase();
         var os = {
