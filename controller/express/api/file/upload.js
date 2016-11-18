@@ -46,7 +46,7 @@ router.post("/", upload.array('files', 10000), function (req, res) {
 
         let PRJ_PATH = ASAR.splice(0, 1)[0];
         let NAME = path.basename(PRJ_PATH);
-        let _DEST = path.resolve(WORKSPACE_PATH, NAME);
+        let _DEST = path.resolve(req.DIR.WORKSPACE_PATH, NAME);
 
         asar.extractAll(PRJ_PATH, _DEST);
         unzipping();
