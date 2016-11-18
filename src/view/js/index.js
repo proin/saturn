@@ -163,6 +163,9 @@ app.controller("ctrl", function ($scope, $timeout) {
                 var jsext = '.js';
                 if (file.name.indexOf(jsext) == file.name.length - jsext.length)
                     location.href = '/viewer.html#' + encodeURI(file.path);
+                else {
+                    window.open('/api/file/download?filepath=' + encodeURI(file.path), '_blank');
+                }
             }
 
             location.href = '#' + JSON.stringify($scope.PATH);

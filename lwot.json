@@ -1,6 +1,6 @@
 {
     "name": "Saturn",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "authors": "proin <proin@proinlab.com>",
     "description": "Saturn: Workspace for Node.js",
     "dependencies": {
