@@ -12,6 +12,7 @@ Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
 npm install -g lwot
 git clone https://github.com/proin/saturn 
 cd saturn
+bower install
 cp ./controller/express/config-sample.json ./controller/express/config.json
 lwot install
 lwot build
