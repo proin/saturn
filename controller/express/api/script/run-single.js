@@ -37,7 +37,7 @@ router.post("/", function (req, res) {
             }
 
             let runjs = lib.value + '\n';
-            runjs += `const Flowpipe = require('Flowpipe');\n`;
+            runjs += `const Flowpipe = require('flowpipe');\n`;
 
             runjs += `let flowpipe = Flowpipe.instance('app');\n`;
 
