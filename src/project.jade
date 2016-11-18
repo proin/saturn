@@ -21,11 +21,11 @@ html(ng-app="app")
         link(rel="stylesheet", href="{$ROOT}/view/css/project.css")
 
     body(ng-controller='ctrl')
-        .container
+        .container.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container(ng-cloak)
                     a.navbar-brand(ng-click='titleEdit = true')
-                        i.fa.fa-paper-plane
+                        img(src='/images/saturn-ico.png', width='30', height='30', alt='')
                         span(ng-if='!titleEdit') &nbsp;&nbsp;Saturn: {{app}}
                         input(type='text', ng-if='titleEdit', ng-model='appRename', ng-enter='click.editTitle(appRename)')
                     ul.nav.navbar-nav

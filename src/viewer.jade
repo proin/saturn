@@ -21,11 +21,11 @@ html(ng-app="app")
         link(rel="stylesheet", href="{$ROOT}/view/css/viewer.css")
 
     body(ng-controller='ctrl')
-        .container
+        .container.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container(ng-cloak)
                     a.navbar-brand
-                        i.fa.fa-paper-plane
+                        img(src='/images/saturn-ico.png', width='30', height='30', alt='')
                         | &nbsp;&nbsp;Saturn: {{file}}
                     ul.nav.navbar-nav
                         li.nav-item

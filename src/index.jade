@@ -13,11 +13,11 @@ html(ng-app="app")
     body(ng-controller='ctrl', ng-drop='event.upload')
         .on-dragging
             h2 Drag & Drop Here!
-        .container
+        .container.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container
                     a.navbar-brand
-                        i.fa.fa-paper-plane
+                        img(src='/images/saturn-ico.png', width='30', height='30', alt='')
                         | &nbsp;&nbsp;Saturn
                     ul.nav.navbar-nav
                         li.nav-item
