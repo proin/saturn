@@ -44,7 +44,7 @@ app.controller("ctrl", function ($scope, $timeout) {
 
         $timeout();
 
-        $.get('http://localhost:3000/api/script/get?name=' + $scope.app, function (data) {
+        $.get('/api/script/get?name=' + $scope.app, function (data) {
             if (data.err)
                 return;
             $scope.lib = data.lib;
@@ -55,7 +55,7 @@ app.controller("ctrl", function ($scope, $timeout) {
 
         setInterval(function () {
             var MAX_LOG_SIZE = 100;
-            $.get('http://localhost:3000/api/script/log?name=' + $scope.app, function (data) {
+            $.get('/api/script/log?name=' + $scope.app, function (data) {
                 if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
                 for (var i = 0; i < data.data.length; i++) {
                     if (data.data[i].status == 'start') {
