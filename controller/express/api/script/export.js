@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const fs = require('fs');
+const fsext = require('fs-extra');
 const path = require('path');
 const asar = require('asar');
 
@@ -17,6 +18,7 @@ router.get("/", function (req, res) {
     const DOWNLOAD_PATH = path.resolve(req.DIR.TMPD, `download`, `${name}.satbook`);
 
     if (!fs.existsSync(PRJ_PATH)) return res.send({err: new Error('no work')});
+    if (!fs.existsSync(path.resolve(req.DIR.TMPD, `download`))) fsext.mkdirsSync(path.resolve(req.DIR.TMPD, `download`));
 
     asar.createPackage(PRJ_PATH, DOWNLOAD_PATH, function () {
         res.download(DOWNLOAD_PATH);

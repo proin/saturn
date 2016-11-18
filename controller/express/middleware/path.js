@@ -14,7 +14,7 @@ module.exports = (config)=> {
 
         req.DIR.WORKSPACE_PATH = path.resolve(req.DIR.USERHOME, 'workspace');
         req.DIR.TMP = (name)=> path.resolve(req.DIR.USERHOME, 'tmp', name);
-        req.DIR.TMPD = path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn', 'tmp');
+        req.DIR.TMPD = path.resolve(req.DIR.USERHOME, 'tmp');
         next();
     };
 };
