@@ -1,378 +1,377 @@
 app.controller("ctrl", function ($scope, $timeout) {
-    while (ACCESS_STATUS === 'LOADING') {
-    }
-    $scope.ACCESS_STATUS = ACCESS_STATUS;
+    ACCESS_CHECK(function () {
+        $scope.ACCESS_STATUS = ACCESS_STATUS;
 
-    $scope.app = decodeURI(location.href.split('#')[1]);
-    $scope.appLog = [];
-    $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
+        $scope.app = decodeURI(location.href.split('#')[1]);
+        $scope.appLog = [];
+        $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
 
-    if (ACCESS_STATUS !== 'GRANTALL') {
-        $scope.singleLog = {};
-    }
+        if (ACCESS_STATUS !== 'GRANTALL') {
+            $scope.singleLog = {};
+        }
 
-    $scope.history = function () {
-        window.history.back();
-    };
+        $scope.history = function () {
+            window.history.back();
+        };
 
-    for (var key in $scope.singleLog)
-        for (var i = 0; i < $scope.singleLog[key].length; i++)
-            delete $scope.singleLog[key][i]['$$hashKey'];
+        for (var key in $scope.singleLog)
+            for (var i = 0; i < $scope.singleLog[key].length; i++)
+                delete $scope.singleLog[key][i]['$$hashKey'];
 
-    $scope.outputLong = {};
+        $scope.outputLong = {};
 
-    $scope.titleEdit = false;
-    $scope.appRename = $scope.app;
+        $scope.titleEdit = false;
+        $scope.appRename = $scope.app;
 
-    $scope.status = {};
-    $scope.status.focused = -1;
-    $scope.status.singleFocused = localStorage.preFocused ? localStorage.preFocused : 'libs';
-    $scope.status.indent = [];
-    $scope.status.logView = false;
-    $scope.status.running = false;
-    $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
+        $scope.status = {};
+        $scope.status.focused = -1;
+        $scope.status.singleFocused = localStorage.preFocused ? localStorage.preFocused : 'libs';
+        $scope.status.indent = [];
+        $scope.status.logView = false;
+        $scope.status.running = false;
+        $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
 
-    $scope.alert = {};
-    $scope.alert.message = '';
-    $scope.alert.show = function (message) {
-        $scope.alert.message = message;
-        $('#alert').modal('show');
+        $scope.alert = {};
+        $scope.alert.message = '';
+        $scope.alert.show = function (message) {
+            $scope.alert.message = message;
+            $('#alert').modal('show');
+            $timeout();
+        };
+
+        $scope.lib = {id: 'lib', type: 'lib', value: ''};
+        $scope.flowpipe = [];
+
         $timeout();
-    };
 
-    $scope.lib = {id: 'lib', type: 'lib', value: ''};
-    $scope.flowpipe = [];
+        $.get('http://localhost:3000/api/script/get?name=' + $scope.app, function (data) {
+            if (data.err)
+                return;
+            $scope.lib = data.lib;
+            $scope.flowpipe = data.scripts;
 
-    $timeout();
-
-    $.get('http://localhost:3000/api/script/get?name=' + $scope.app, function (data) {
-        if (data.err)
-            return;
-        $scope.lib = data.lib;
-        $scope.flowpipe = data.scripts;
-
-        $scope.event.changed();
-    });
-
-    setInterval(function () {
-        var MAX_LOG_SIZE = 100;
-        $.get('http://localhost:3000/api/script/log?name=' + $scope.app, function (data) {
-            if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
-            for (var i = 0; i < data.data.length; i++) {
-                if (data.data[i].status == 'start') {
-                    // $scope.appLog.splice(0);
-                    if ($scope.singleLog[$scope.status.singleFocused])
-                        $scope.singleLog[$scope.status.singleFocused].splice(0);
-                } else if ((data.data[i].status == 'data' || data.data[i].status == 'error') && $scope.status.singleFocused !== -1) {
-                    $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
-                    if ($scope.singleLog[$scope.status.singleFocused].length > MAX_LOG_SIZE)
-                        $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
-                }
-            }
-
-            localStorage.logs = JSON.stringify($scope.singleLog);
-
-            $scope.status.running = data.running;
-            $timeout(function () {
-                $('.code-container.running .output .col-md-10').scrollTop($('.code-container.running .output .col-md-10 .output-messages').height());
-            });
+            $scope.event.changed();
         });
-    }, 1000);
 
-    var codemirror = function (_id) {
-        var creator = function (id) {
-            var fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
-            var value = '';
-            if (id == 'code-editor-libs') {
-                $scope.lib.value = $scope.lib.value ? $scope.lib.value : "// load npm libraries\nconst fs = require('fs');";
-                value = $scope.lib.value;
-            } else {
-                value = $scope.flowpipe[fidx].value;
+        setInterval(function () {
+            var MAX_LOG_SIZE = 100;
+            $.get('http://localhost:3000/api/script/log?name=' + $scope.app, function (data) {
+                if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
+                for (var i = 0; i < data.data.length; i++) {
+                    if (data.data[i].status == 'start') {
+                        // $scope.appLog.splice(0);
+                        if ($scope.singleLog[$scope.status.singleFocused])
+                            $scope.singleLog[$scope.status.singleFocused].splice(0);
+                    } else if ((data.data[i].status == 'data' || data.data[i].status == 'error') && $scope.status.singleFocused !== -1) {
+                        $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
+                        if ($scope.singleLog[$scope.status.singleFocused].length > MAX_LOG_SIZE)
+                            $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
+                    }
+                }
+
+                localStorage.logs = JSON.stringify($scope.singleLog);
+
+                $scope.status.running = data.running;
+                $timeout(function () {
+                    $('.code-container.running .output .col-md-10').scrollTop($('.code-container.running .output .col-md-10 .output-messages').height());
+                });
+            });
+        }, 1000);
+
+        var codemirror = function (_id) {
+            var creator = function (id) {
+                var fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
+                var value = '';
+                if (id == 'code-editor-libs') {
+                    $scope.lib.value = $scope.lib.value ? $scope.lib.value : "// load npm libraries\nconst fs = require('fs');";
+                    value = $scope.lib.value;
+                } else {
+                    value = $scope.flowpipe[fidx].value;
+                }
+
+                $('#' + id).html('');
+
+                var OsNo = navigator.userAgent.toLowerCase();
+                var os = {
+                    Linux: /linux/.test(OsNo),
+                    Unix: /x11/.test(OsNo),
+                    Mac: /mac/.test(OsNo),
+                    Windows: /win/.test(OsNo)
+                };
+                var cmdkey = 'Ctrl';
+                if (os.Mac) cmdkey = 'Cmd';
+                var keymap = {};
+                keymap[cmdkey + '-F'] = function (cm) {
+                    cm.foldCode(cm.getCursor());
+                };
+                keymap[cmdkey + '-R'] = function () {
+                    $scope.click.run();
+                };
+                keymap[cmdkey + '-S'] = function () {
+                    $scope.click.save(true);
+                };
+
+                CodeMirror(document.getElementById(id), {
+                    height: 'auto',
+                    value: value,
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    extraKeys: keymap,
+                    foldGutter: true,
+                    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+                    viewportMargin: Infinity,
+                    readOnly: ACCESS_STATUS !== 'GRANTALL',
+                    mode: "javascript"
+                }).on('change', function (e) {
+                    var changeValue = e.getValue();
+                    if (id == 'code-editor-libs') $scope.lib.value = changeValue;
+                    else $scope.flowpipe[fidx].value = changeValue;
+                });
+            };
+
+            if (_id) {
+                creator(_id);
+                return;
             }
 
-            $('#' + id).html('');
-
-            var OsNo = navigator.userAgent.toLowerCase();
-            var os = {
-                Linux: /linux/.test(OsNo),
-                Unix: /x11/.test(OsNo),
-                Mac: /mac/.test(OsNo),
-                Windows: /win/.test(OsNo)
-            };
-            var cmdkey = 'Ctrl';
-            if (os.Mac) cmdkey = 'Cmd';
-            var keymap = {};
-            keymap[cmdkey + '-F'] = function (cm) {
-                cm.foldCode(cm.getCursor());
-            };
-            keymap[cmdkey + '-R'] = function () {
-                $scope.click.run();
-            };
-            keymap[cmdkey + '-S'] = function () {
-                $scope.click.save(true);
-            };
-
-            CodeMirror(document.getElementById(id), {
-                height: 'auto',
-                value: value,
-                lineNumbers: true,
-                lineWrapping: true,
-                extraKeys: keymap,
-                foldGutter: true,
-                gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-                viewportMargin: Infinity,
-                readOnly: ACCESS_STATUS !== 'GRANTALL',
-                mode: "javascript"
-            }).on('change', function (e) {
-                var changeValue = e.getValue();
-                if (id == 'code-editor-libs') $scope.lib.value = changeValue;
-                else $scope.flowpipe[fidx].value = changeValue;
+            $('.code-editor').each(function () {
+                var id = $(this).attr('id');
+                creator(id);
             });
         };
 
-        if (_id) {
-            creator(_id);
-            return;
-        }
-
-        $('.code-editor').each(function () {
-            var id = $(this).attr('id');
-            creator(id);
-        });
-    };
-
-    var findInfluence = function (idx) {
-        var indexing = {};
-        var max = idx;
-        for (var i = idx; i >= 0; i--)
-            if ($scope.flowpipe[i].type == 'loop')
-                if ($scope.flowpipe[i].block_end * 1 >= idx)
-                    max = $scope.flowpipe[i].block_end * 1;
-
-        for (var i = max; i >= 0; i--)
-            if ($scope.flowpipe[i].type == 'loop')
-                if ($scope.flowpipe[i].block_end * 1 >= idx)
-                    indexing[i] = true;
-
-        if (idx > -1)
-            for (var i = idx + 1; i < $scope.flowpipe.length; i++)
+        var findInfluence = function (idx) {
+            var indexing = {};
+            var max = idx;
+            for (var i = idx; i >= 0; i--)
                 if ($scope.flowpipe[i].type == 'loop')
-                    indexing[i] = true;
+                    if ($scope.flowpipe[i].block_end * 1 >= idx)
+                        max = $scope.flowpipe[i].block_end * 1;
 
-        var result = [];
-        for (var key in indexing)
-            result.push(key);
+            for (var i = max; i >= 0; i--)
+                if ($scope.flowpipe[i].type == 'loop')
+                    if ($scope.flowpipe[i].block_end * 1 >= idx)
+                        indexing[i] = true;
 
-        return result;
-    };
+            if (idx > -1)
+                for (var i = idx + 1; i < $scope.flowpipe.length; i++)
+                    if ($scope.flowpipe[i].type == 'loop')
+                        indexing[i] = true;
 
-    var findRoot = function (idx) {
-        var indexing = {};
-        var max = idx;
-        for (var i = idx; i >= 0; i--)
-            if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'loop')
-                if ($scope.flowpipe[i].block_end * 1 > idx)
-                    max = $scope.flowpipe[i].block_end * 1;
-        for (var i = max; i >= 0; i--)
-            if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'loop')
-                if ($scope.flowpipe[i].block_end * 1 > idx)
-                    indexing[i] = true;
+            var result = [];
+            for (var key in indexing)
+                result.push(key);
 
-        var result = [];
-        for (var key in indexing)
-            result.push(key);
+            return result;
+        };
 
-        return result[0] * 1 ? result[0] * 1 : idx;
-    };
+        var findRoot = function (idx) {
+            var indexing = {};
+            var max = idx;
+            for (var i = idx; i >= 0; i--)
+                if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'loop')
+                    if ($scope.flowpipe[i].block_end * 1 > idx)
+                        max = $scope.flowpipe[i].block_end * 1;
+            for (var i = max; i >= 0; i--)
+                if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'loop')
+                    if ($scope.flowpipe[i].block_end * 1 > idx)
+                        indexing[i] = true;
 
-    var idCreator = function () {
-        return Math.round(Math.random() * 100) + '-' + new Date().getTime();
-    };
+            var result = [];
+            for (var key in indexing)
+                result.push(key);
 
-    $scope.event = {};
+            return result[0] * 1 ? result[0] * 1 : idx;
+        };
 
-    $scope.event.findIndex = function (id) {
-        for (var i = 0; i < $scope.flowpipe.length; i++)
-            if ($scope.flowpipe[i].id == id)
-                return i;
-        return null;
-    };
+        var idCreator = function () {
+            return Math.round(Math.random() * 100) + '-' + new Date().getTime();
+        };
 
-    $scope.event.indent = function () {
-        $scope.status.indent = [];
+        $scope.event = {};
 
-        var block_indent = 0;
-        var block_end = [];
-        for (var i = 0; i < $scope.flowpipe.length; i++) {
-            if ($scope.flowpipe[i].type == 'loop') {
-                block_end.unshift($scope.flowpipe[i].block_end * 1);
-                $scope.status.indent.push(block_indent);
-                block_indent++;
-                continue;
+        $scope.event.findIndex = function (id) {
+            for (var i = 0; i < $scope.flowpipe.length; i++)
+                if ($scope.flowpipe[i].id == id)
+                    return i;
+            return null;
+        };
+
+        $scope.event.indent = function () {
+            $scope.status.indent = [];
+
+            var block_indent = 0;
+            var block_end = [];
+            for (var i = 0; i < $scope.flowpipe.length; i++) {
+                if ($scope.flowpipe[i].type == 'loop') {
+                    block_end.unshift($scope.flowpipe[i].block_end * 1);
+                    $scope.status.indent.push(block_indent);
+                    block_indent++;
+                    continue;
+                }
+
+                var unindented = false;
+                for (var j = 0; j < block_end.length; j++) {
+                    if (block_end[j] == i) {
+                        if (unindented === false) {
+                            $scope.status.indent.push(block_indent);
+                            unindented = true;
+                        }
+
+                        block_indent--;
+                        block_end.splice(0, 1);
+                        j--;
+                    }
+                }
+
+                if (unindented == false)
+                    $scope.status.indent.push(block_indent);
+            }
+        };
+
+        $scope.event.changed = function () {
+            $scope.worklist();
+            $timeout(function () {
+                $scope.event.indent();
+                codemirror();
+            });
+        };
+
+        $scope.click = {};
+        $scope.click.codebox = function (idx) {
+            $scope.status.focused = idx;
+            $timeout();
+        };
+
+        $scope.click.remove = function () {
+            if ($scope.status.focused == -1) return $scope.alert.show('[libs] is not removable');
+            if ($scope.flowpipe[$scope.status.focused].type == 'loop') return $scope.alert.show('[loop] is not removable');
+
+            var indexing = findInfluence($scope.status.focused);
+
+            for (var i = 0; i < indexing.length; i++)
+                if ($scope.flowpipe[indexing[i]].type == 'loop')
+                    $scope.flowpipe[indexing[i]].block_end = ($scope.flowpipe[indexing[i]].block_end * 1 - 1) + '';
+
+            $scope.flowpipe.splice($scope.status.focused * 1, 1);
+            $scope.status.focused--;
+
+            $scope.event.changed();
+        };
+
+        $scope.click.add = function () {
+            var indexing = [];
+            if ($scope.flowpipe.length > 0) indexing = findInfluence($scope.status.focused == -1 ? 0 : $scope.status.focused);
+
+            for (var i = 0; i < indexing.length; i++)
+                if ($scope.flowpipe[indexing[i]].type == 'loop')
+                    $scope.flowpipe[indexing[i]].block_end = ($scope.flowpipe[indexing[i]].block_end * 1 + 1) + '';
+
+            if ($scope.status.focused == -1) {
+                $scope.flowpipe.splice(0, 0, {id: idCreator(), type: 'work', value: ''})
+            } else {
+                $scope.flowpipe.splice($scope.status.focused * 1 + 1, 0, {id: idCreator(), type: 'work', value: ''})
             }
 
-            var unindented = false;
-            for (var j = 0; j < block_end.length; j++) {
-                if (block_end[j] == i) {
-                    if (unindented === false) {
-                        $scope.status.indent.push(block_indent);
-                        unindented = true;
-                    }
+            $scope.event.changed();
+        };
 
-                    block_indent--;
-                    block_end.splice(0, 1);
-                    j--;
+        $scope.click.clean = function () {
+            $scope.singleLog = {};
+            $timeout();
+        };
+
+        $scope.click.save = function (isNotShow) {
+            var runnable = {name: $scope.app, lib: JSON.stringify($scope.lib), scripts: JSON.stringify($scope.flowpipe)};
+            $.post('/api/script/save', runnable, function (result) {
+                if (result.status) $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
+                if (result.status && !isNotShow) $scope.alert.show($scope.app + ' saved!');
+                $timeout();
+            });
+        };
+
+        $scope.click.export = function () {
+            window.open('/api/script/export?name=' + encodeURI($scope.app), '_blank');
+        };
+
+        $scope.click.exportRun = function () {
+            window.open('/api/script/exportScript?name=' + encodeURI($scope.app), '_blank');
+        };
+
+        $scope.click.log = function () {
+            $scope.status.logView = !$scope.status.logView;
+            $timeout();
+        };
+
+        $scope.click.editTitle = function (rename) {
+            $.post('/api/script/rename', {name: $scope.app, rename: rename}, function (result) {
+                if (result.status) {
+                    location.href = '/project.html#' + encodeURI(rename);
+                    location.reload();
+                }
+            });
+            $scope.titleEdit = false;
+            $timeout();
+        };
+
+        $scope.click.run = function () {
+            if ($scope.status.running) {
+                $.get('/api/script/stop?name=' + $scope.app);
+            } else {
+                if ($scope.status.focused == -1) {
+                    $scope.status.singleFocused = 'libs';
+                } else {
+                    if (!$scope.flowpipe[$scope.status.focused]) return;
+                    $scope.status.singleFocused = $scope.status.focused;
+                    if ($scope.singleLog[$scope.status.focused])
+                        $scope.singleLog[$scope.status.focused].splice(0);
+                }
+
+                localStorage.preFocused = $scope.status.singleFocused;
+
+                if ($scope.status.singleFocused === 'libs') {
+                    var runnable = {
+                        name: $scope.app,
+                        target: $scope.status.focused,
+                        lib: JSON.stringify($scope.lib),
+                        scripts: JSON.stringify($scope.flowpipe)
+                    };
+                    $.post('/api/script/run', runnable);
+                } else {
+                    var runnable = {
+                        name: $scope.app,
+                        target: $scope.status.focused,
+                        lib: JSON.stringify($scope.lib),
+                        scripts: JSON.stringify($scope.flowpipe)
+                    };
+                    $.post('/api/script/run-single', runnable);
                 }
             }
+        };
 
-            if (unindented == false)
-                $scope.status.indent.push(block_indent);
-        }
-    };
+        $scope.loogwork = {};
 
-    $scope.event.changed = function () {
-        $scope.worklist();
-        $timeout(function () {
-            $scope.event.indent();
-            codemirror();
-        });
-    };
+        $scope.worklist = function () {
+            for (var k = 0; k < $scope.flowpipe.length; k++) {
+                var code = $scope.flowpipe[k];
+                var idx = k;
+                if (code.type != 'loop') continue;
 
-    $scope.click = {};
-    $scope.click.codebox = function (idx) {
-        $scope.status.focused = idx;
-        $timeout();
-    };
+                var list = [];
+                var maximum = $scope.flowpipe[findRoot(idx)].block_end;
+                if (findRoot(idx) == idx)
+                    maximum = $scope.flowpipe.length - 1;
 
-    $scope.click.remove = function () {
-        if ($scope.status.focused == -1) return $scope.alert.show('[libs] is not removable');
-        if ($scope.flowpipe[$scope.status.focused].type == 'loop') return $scope.alert.show('[loop] is not removable');
+                for (var i = idx; i <= maximum; i++)
+                    if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'work')
+                        list.push(i);
+                if (!code.block_end) code.block_end = list[0] + '';
+                $scope.loogwork[k] = list;
+            }
 
-        var indexing = findInfluence($scope.status.focused);
-
-        for (var i = 0; i < indexing.length; i++)
-            if ($scope.flowpipe[indexing[i]].type == 'loop')
-                $scope.flowpipe[indexing[i]].block_end = ($scope.flowpipe[indexing[i]].block_end * 1 - 1) + '';
-
-        $scope.flowpipe.splice($scope.status.focused * 1, 1);
-        $scope.status.focused--;
-
-        $scope.event.changed();
-    };
-
-    $scope.click.add = function () {
-        var indexing = [];
-        if ($scope.flowpipe.length > 0) indexing = findInfluence($scope.status.focused == -1 ? 0 : $scope.status.focused);
-
-        for (var i = 0; i < indexing.length; i++)
-            if ($scope.flowpipe[indexing[i]].type == 'loop')
-                $scope.flowpipe[indexing[i]].block_end = ($scope.flowpipe[indexing[i]].block_end * 1 + 1) + '';
-
-        if ($scope.status.focused == -1) {
-            $scope.flowpipe.splice(0, 0, {id: idCreator(), type: 'work', value: ''})
-        } else {
-            $scope.flowpipe.splice($scope.status.focused * 1 + 1, 0, {id: idCreator(), type: 'work', value: ''})
-        }
-
-        $scope.event.changed();
-    };
-
-    $scope.click.clean = function () {
-        $scope.singleLog = {};
-        $timeout();
-    };
-
-    $scope.click.save = function (isNotShow) {
-        var runnable = {name: $scope.app, lib: JSON.stringify($scope.lib), scripts: JSON.stringify($scope.flowpipe)};
-        $.post('/api/script/save', runnable, function (result) {
-            if (result.status) $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
-            if (result.status && !isNotShow) $scope.alert.show($scope.app + ' saved!');
             $timeout();
-        });
-    };
+        };
 
-    $scope.click.export = function () {
-        window.open('/api/script/export?name=' + encodeURI($scope.app), '_blank');
-    };
-
-    $scope.click.exportRun = function () {
-        window.open('/api/script/exportScript?name=' + encodeURI($scope.app), '_blank');
-    };
-
-    $scope.click.log = function () {
-        $scope.status.logView = !$scope.status.logView;
-        $timeout();
-    };
-
-    $scope.click.editTitle = function (rename) {
-        $.post('/api/script/rename', {name: $scope.app, rename: rename}, function (result) {
-            if (result.status) {
-                location.href = '/project.html#' + encodeURI(rename);
-                location.reload();
-            }
-        });
-        $scope.titleEdit = false;
-        $timeout();
-    };
-
-    $scope.click.run = function () {
-        if ($scope.status.running) {
-            $.get('/api/script/stop?name=' + $scope.app);
-        } else {
-            if ($scope.status.focused == -1) {
-                $scope.status.singleFocused = 'libs';
-            } else {
-                if (!$scope.flowpipe[$scope.status.focused]) return;
-                $scope.status.singleFocused = $scope.status.focused;
-                if ($scope.singleLog[$scope.status.focused])
-                    $scope.singleLog[$scope.status.focused].splice(0);
-            }
-
-            localStorage.preFocused = $scope.status.singleFocused;
-
-            if ($scope.status.singleFocused === 'libs') {
-                var runnable = {
-                    name: $scope.app,
-                    target: $scope.status.focused,
-                    lib: JSON.stringify($scope.lib),
-                    scripts: JSON.stringify($scope.flowpipe)
-                };
-                $.post('/api/script/run', runnable);
-            } else {
-                var runnable = {
-                    name: $scope.app,
-                    target: $scope.status.focused,
-                    lib: JSON.stringify($scope.lib),
-                    scripts: JSON.stringify($scope.flowpipe)
-                };
-                $.post('/api/script/run-single', runnable);
-            }
-        }
-    };
-
-    $scope.loogwork = {};
-
-    $scope.worklist = function () {
-        for (var k = 0; k < $scope.flowpipe.length; k++) {
-            var code = $scope.flowpipe[k];
-            var idx = k;
-            if (code.type != 'loop') continue;
-
-            var list = [];
-            var maximum = $scope.flowpipe[findRoot(idx)].block_end;
-            if (findRoot(idx) == idx)
-                maximum = $scope.flowpipe.length - 1;
-
-            for (var i = idx; i <= maximum; i++)
-                if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'work')
-                    list.push(i);
-            if (!code.block_end) code.block_end = list[0] + '';
-            $scope.loogwork[k] = list;
-        }
-
-        $timeout();
-    };
-
-    $scope.event.changed();
-})
-;
+        $scope.event.changed();
+    });
+});

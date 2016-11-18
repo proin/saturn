@@ -2,7 +2,6 @@ var ACCESS_STATUS = 'LOADING';
 
 $.get('/api/user/check', (data)=> {
     ACCESS_STATUS = data.status;
-    console.log(ACCESS_STATUS);
     if (ACCESS_STATUS === 'DENIED' || ACCESS_STATUS === false) {
         if (location.href === location.protocol + '//' + location.host + '/signin.html') {
             return;
@@ -12,6 +11,18 @@ $.get('/api/user/check', (data)=> {
         location.href = '/';
     }
 });
+
+var ACCESS_CHECK = function (callback) {
+    if (ACCESS_STATUS === 'LOADING') {
+        setTimeout(function () {
+            ACCESS_CHECK(callback);
+        }, 500);
+
+        return;
+    }
+
+    callback();
+};
 
 var app = angular.module(
     'app',
