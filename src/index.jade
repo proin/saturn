@@ -19,9 +19,14 @@ html(ng-app="app")
                     a.navbar-brand
                         i.fa.fa-paper-plane
                         | &nbsp;&nbsp;Saturn
+                    ul.nav.navbar-nav
+                        li.nav-item
+                            a.nav-link(ng-if='ACCESS_STATUS !== "GRANTALL"', href='/signin.html') Sign in
+                            a.nav-link(ng-if='ACCESS_STATUS === "GRANTALL"', ng-click='click.signout()') Sign Out
 
-            .toolbar
-                .container
+            .toolbar(ng-cloak)
+                .container(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
+                .container(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='click.checkall()')
                         i.fa.fa-check-square-o
                     button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#add')
@@ -37,7 +42,7 @@ html(ng-app="app")
                 tbody
                     tr(ng-repeat='file in current')
                         td(ng-cloak)
-                            input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper"')
+                            input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper" && ACCESS_STATUS === "GRANTALL"')
                             i.fa.fa-code-fork(ng-if='file.type == "project"')
                             i.fa.fa-folder-open(ng-if='file.type == "folder"')
                             i.fa.fa-file(ng-if='file.type == "file"')

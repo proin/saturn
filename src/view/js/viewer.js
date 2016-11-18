@@ -1,4 +1,8 @@
 app.controller("ctrl", function ($scope, $timeout) {
+    while (ACCESS_STATUS === 'LOADING') {
+    }
+    $scope.ACCESS_STATUS = ACCESS_STATUS;
+
     $scope.file = location.href.split('#')[1];
 
     $scope.value = '';
@@ -34,6 +38,7 @@ app.controller("ctrl", function ($scope, $timeout) {
             foldGutter: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
             viewportMargin: Infinity,
+            readOnly: ACCESS_STATUS !== 'GRANTALL',
             mode: "javascript"
         }).on('change', function (e) {
             var changeValue = e.getValue();

@@ -9,6 +9,9 @@ const multer = require('multer');
 let upload = multer();
 
 router.post("/", upload.array('files', 10000), function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {read_path, dest_path} = req.body;
 
     let WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;

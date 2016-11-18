@@ -7,6 +7,9 @@ const asar = require('asar');
 const zip = new require('node-zip')();
 
 router.get("/", function (req, res) {
+    // allow for everyone
+    if (req.user.check() === 'DENIED') return;
+
     let {name} = req.query;
 
     if (!name) return res.send({err: new Error('not defined name')});

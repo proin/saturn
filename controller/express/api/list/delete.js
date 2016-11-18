@@ -6,6 +6,9 @@ const fsext = require('fs-extra');
 const path = require('path');
 
 router.post("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {thread} = req.modules;
     let {read_path, rm} = req.body;
 
@@ -15,6 +18,12 @@ router.post("/", function (req, res) {
         read_path = JSON.parse(read_path);
         for (let i = 0; i < read_path.length; i++)
             WORKSPACE_PATH = path.resolve(WORKSPACE_PATH, read_path[i]);
+    }
+
+    try {
+        if (WORKSPACE_PATH.indexOf(req.DIR.WORKSPACE_PATH) !== 0) return res.send({status: false});
+    } catch (e) {
+        return res.send({status: false});
     }
 
     if (rm) {

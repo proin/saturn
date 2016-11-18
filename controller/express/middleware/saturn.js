@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = ()=> (req, res, next)=> {
+module.exports = (config)=> (req, res, next)=> {
+    req.config = config;
+
     const fs = require('fs');
     const path = require('path');
     const fsext = require('fs-extra');

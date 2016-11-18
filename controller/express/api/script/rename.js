@@ -6,6 +6,9 @@ const fsext = require('fs-extra');
 const path = require('path');
 
 router.post("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {name, rename} = req.body;
 
     if (!name) return res.send({err: new Error('not defined name')});

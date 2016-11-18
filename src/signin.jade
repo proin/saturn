@@ -1,0 +1,27 @@
+doctype html
+html(ng-app="app")
+    head
+        include components/jade/header
+
+        script(src="{$ROOT}/components/js/codemirror/codemirror.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+        link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
+
+        script(src="{$ROOT}/view/js/signin.js")
+        link(rel="stylesheet", href="{$ROOT}/view/css/signin.css")
+
+    body(ng-controller='ctrl', ng-drop='event.upload')
+        #saturn
+            .planet.bottom.planet-bg
+            .rings
+            .planet.top.planet-bg
+
+        .signin-container
+            form.form-signin
+                h2.form-signin-heading Please sign in
+                label.sr-only(for='inputEmail') Email address
+                input#inputEmail.form-control(type='text', placeholder='User', required='', autofocus='', ng-model='user')
+                label.sr-only(for='inputPassword') Password
+                input#inputPassword.form-control(type='password', placeholder='Password', required='', ng-model='password')
+                br
+                button.btn.btn-lg.btn-default.btn-block(ng-click='signin()') Sign in

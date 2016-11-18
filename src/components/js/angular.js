@@ -1,3 +1,18 @@
+var ACCESS_STATUS = 'LOADING';
+
+$.get('/api/user/check', (data)=> {
+    ACCESS_STATUS = data.status;
+    console.log(ACCESS_STATUS);
+    if (ACCESS_STATUS === 'DENIED' || ACCESS_STATUS === false) {
+        if (location.href === location.protocol + '//' + location.host + '/signin.html') {
+            return;
+        }
+        location.href = '/signin.html';
+    } else if (location.href === location.protocol + '//' + location.host + '/signin.html' && ACCESS_STATUS !== 'READONLY') {
+        location.href = '/';
+    }
+});
+
 var app = angular.module(
     'app',
     ['ngMessages']

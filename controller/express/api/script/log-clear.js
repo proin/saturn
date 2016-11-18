@@ -5,6 +5,9 @@ const fs = require('fs');
 const asar = require('asar');
 
 router.get("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {thread} = req.modules;
     let {name} = req.query;
 

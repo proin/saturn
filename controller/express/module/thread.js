@@ -1,10 +1,11 @@
 'use strict';
 
-module.exports = ()=> {
+module.exports = (server, config)=> {
     const fs = require('fs');
     const path = require('path');
     const asar = require('asar');
-    const MAX_LOG_SIZE = 500;
+    const MAX_LOG_SIZE = config.MAX_LOG ? config.MAX_LOG : 500;
+    const MAX_HEAP = config.MAX_HEAP ? config.MAX_HEAP : 4;
 
     let terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
         const _spawn = require('child_process').spawn;
@@ -47,10 +48,17 @@ module.exports = ()=> {
         let run_terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
             const _spawn = require('child_process').spawn;
             let term = _spawn(cmd, args, opts);
-            term.stdout.on('data', data ? data : ()=> {
+            term.stdout.on('data', (log)=> {
+                if (config.log)
+                    process.stdout.write(log);
+                if (data) data(log);
+
             });
 
-            term.stderr.on('data', err ? err : ()=> {
+            term.stderr.on('data', (log)=> {
+                if (config.log)
+                    process.stdout.write(log);
+                if (err) err(log);
             });
 
             term.on('close', () => {
@@ -60,12 +68,18 @@ module.exports = ()=> {
             runnable.proc[name] = term;
         });
 
-        let WORKSPACE_PATH = path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn', 'workspace');
+        let USERHOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+
+        if (config.HOME) USERHOME = path.resolve(USERHOME, config.HOME);
+        else if (config.home) USERHOME = path.resolve(USERHOME, config.home);
+        else USERHOME = path.resolve(USERHOME, '.node-saturn');
+        let WORKSPACE_PATH = path.resolve(USERHOME, 'workspace');
+
         if (!runnable.log[name]) runnable.log[name] = [];
         runnable.log[name].push({module: `${name}`, status: `start`});
         runnable.status[name] = true;
 
-        run_terminal('node', [path.resolve(WORKSPACE_PATH, `${name}.satbook`, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
+        run_terminal('node', [`--max-old-space-size=${MAX_HEAP * 1024}`, path.resolve(WORKSPACE_PATH, `${name}.satbook`, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
             data = data + '';
             data = data.split('\n');
 

@@ -5,6 +5,9 @@ const fs = require('fs');
 const path = require('path');
 
 router.post("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {thread} = req.modules;
     let {name, scripts, lib, target} = req.body;
 

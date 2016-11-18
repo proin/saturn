@@ -31,8 +31,9 @@ html(ng-app="app")
                         li.nav-item
                             a.nav-link(ng-click='history()') List
 
-            .toolbar
-                .container
+            .toolbar(ng-cloak)
+                .container(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
+                .container(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='click.save()')
                         i.fa.fa-floppy-o
 

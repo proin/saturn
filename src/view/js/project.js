@@ -1,7 +1,15 @@
 app.controller("ctrl", function ($scope, $timeout) {
+    while (ACCESS_STATUS === 'LOADING') {
+    }
+    $scope.ACCESS_STATUS = ACCESS_STATUS;
+
     $scope.app = decodeURI(location.href.split('#')[1]);
     $scope.appLog = [];
     $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
+
+    if (ACCESS_STATUS !== 'GRANTALL') {
+        $scope.singleLog = {};
+    }
 
     $scope.history = function () {
         window.history.back();
@@ -113,6 +121,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                 foldGutter: true,
                 gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                 viewportMargin: Infinity,
+                readOnly: ACCESS_STATUS !== 'GRANTALL',
                 mode: "javascript"
             }).on('change', function (e) {
                 var changeValue = e.getValue();

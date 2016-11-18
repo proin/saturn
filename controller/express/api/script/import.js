@@ -6,6 +6,9 @@ const path = require('path');
 const asar = require('asar');
 
 router.get("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {name} = req.query;
 
     if (!name) return res.send({err: new Error('not defined name')});

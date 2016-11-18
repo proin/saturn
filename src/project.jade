@@ -32,18 +32,18 @@ html(ng-app="app")
                         li.nav-item
                             a.nav-link(ng-click='history()') List
 
-            .toolbar
+            .toolbar(ng-cloak)
                 .container
-                    button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak)
+                    button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-play(ng-if='!status.running')
                         i.fa.fa-stop(ng-if='status.running')
-                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-eraser
-                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-floppy-o
-                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-plus-square
-                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-minus-circle
                     button.btn.btn-default.btn-sm(ng-click='click.export()', ng-if='status.logView == false')
                         i.fa.fa-book

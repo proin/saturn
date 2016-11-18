@@ -1,4 +1,8 @@
 app.controller("ctrl", function ($scope, $timeout) {
+    while (ACCESS_STATUS === 'LOADING') {
+    }
+    $scope.ACCESS_STATUS = ACCESS_STATUS;
+
     $scope.PATH = location.href.split('#')[1] ? JSON.parse(decodeURI(location.href.split('#')[1])) : [];
     $scope.current = [];
 
@@ -6,9 +10,9 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.createName = '';
 
     $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
-        $scope.current = data;
-        if ($scope.PATH.length > 0)
-            $scope.current.unshift({type: 'upper', name: '..'});
+        if (data.status !== false) $scope.current = data;
+        if ($scope.PATH.length > 0) $scope.current.unshift({type: 'upper', name: '..'});
+
         $timeout();
         setInterval(function () {
             $.get('/api/list/get?read_path=' + JSON.stringify($scope.PATH), function (data) {
@@ -23,6 +27,12 @@ app.controller("ctrl", function ($scope, $timeout) {
     $scope.event = {};
     $scope.status = {};
     $scope.click = {};
+
+    $scope.click.signout = function () {
+        $.get('/api/user/signout', function (data) {
+            location.href = '/';
+        });
+    };
 
     $scope.click.checkall = function () {
         var checkedCnt = 0;

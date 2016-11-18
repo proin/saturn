@@ -6,6 +6,9 @@ const fsext = require('fs-extra');
 const path = require('path');
 
 router.post("/", function (req, res) {
+    // only allow for user
+    if (req.user.check() !== 'GRANTALL') return;
+
     let {read_path, filetype, filename} = req.body;
 
     let CREATE_PATH = req.DIR.WORKSPACE_PATH;

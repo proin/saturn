@@ -12,6 +12,7 @@ Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
 npm install -g lwot
 git clone https://github.com/proin/saturn 
 cd saturn
+cp ./controller/express/config-sample.json ./controller/express/config.json
 lwot install
 lwot build
 lwot express run
@@ -33,6 +34,30 @@ cd saturn
 git pull
 lwot build
 lwot express run
+```
+
+### Configuration
+
+- you can change configuration editing by `./controller/express/config.json` file
+
+```json
+{
+    "port": 3000, // server port to bind
+    "home": "./saturn-project", // workspace home, start from USER HOME
+    "dev": true, // display express log
+    "log": true, // display thread log
+    "readonly": true, // readable project for whom not signin users
+    "user": "admin", // admin user
+    "password": "admin123", // admin password
+    "session": {
+        "secret": "sAtuRN-seSsIon-sEcreT",
+        "resave": false,
+        "saveUninitialized": false
+    },
+    "MAX_HEAP": 16, // node.js heap memory size
+    "MAX_LOG": 500, // display log size
+    "encrypt": "sAtuRn"
+}
 ```
 
 ## How to Use
