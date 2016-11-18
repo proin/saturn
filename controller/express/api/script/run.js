@@ -61,7 +61,6 @@ router.post("/", function (req, res) {
                     npmlibs.push(npms[i]);
             }
 
-            console.log(npmlibs);
             return thread.install(npmlibs, WORKSPACE_PATH);
         }).then(()=> {
             thread.log[name].push({module: `${name}`, status: `data`, msg: `installed dependencies...`});
