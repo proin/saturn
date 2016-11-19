@@ -69,7 +69,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                     }
                 }
 
-                localStorage['logs-' + $scope.app] = JSON.stringify($scope.singleLog);
+                localStorage['log-' + $scope.app] = JSON.stringify($scope.singleLog);
 
                 $scope.status.running = data.running;
                 $timeout(function () {
