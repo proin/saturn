@@ -4,7 +4,8 @@ app.controller("ctrl", function ($scope, $timeout) {
 
         $scope.app = decodeURI(location.href.split('#')[1]);
         $scope.appLog = [];
-        $scope.singleLog = localStorage.logs ? JSON.parse(localStorage.logs) : {};
+
+        $scope.singleLog = localStorage['log-' + $scope.app] ? JSON.parse(localStorage['log-' + $scope.app]) : {};
 
         if (ACCESS_STATUS !== 'GRANTALL') {
             $scope.singleLog = {};
@@ -25,7 +26,7 @@ app.controller("ctrl", function ($scope, $timeout) {
 
         $scope.status = {};
         $scope.status.focused = -1;
-        $scope.status.singleFocused = localStorage.preFocused ? localStorage.preFocused : 'libs';
+        $scope.status.singleFocused = localStorage['preFocused-' + $scope.app] ? localStorage['preFocused-' + $scope.app] : 'libs';
         $scope.status.indent = [];
         $scope.status.logView = false;
         $scope.status.running = false;
@@ -68,7 +69,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                     }
                 }
 
-                localStorage.logs = JSON.stringify($scope.singleLog);
+                localStorage['logs-' + $scope.app] = JSON.stringify($scope.singleLog);
 
                 $scope.status.running = data.running;
                 $timeout(function () {
@@ -326,7 +327,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                         $scope.singleLog[$scope.status.focused].splice(0);
                 }
 
-                localStorage.preFocused = $scope.status.singleFocused;
+                localStorage['preFocused-' + $scope.app] = $scope.status.singleFocused;
 
                 if ($scope.status.singleFocused === 'libs') {
                     var runnable = {
