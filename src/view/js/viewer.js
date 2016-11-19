@@ -37,6 +37,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                 foldGutter: true,
                 gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                 viewportMargin: Infinity,
+                indentUnit: 4,
                 readOnly: ACCESS_STATUS !== 'GRANTALL',
                 mode: "javascript"
             }).on('change', function (e) {
