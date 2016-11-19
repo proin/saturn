@@ -59,7 +59,6 @@ app.controller("ctrl", function ($scope, $timeout) {
                 if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
                 for (var i = 0; i < data.data.length; i++) {
                     if (data.data[i].status == 'start') {
-                        // $scope.appLog.splice(0);
                         if ($scope.singleLog[$scope.status.singleFocused])
                             $scope.singleLog[$scope.status.singleFocused].splice(0);
                     } else if ((data.data[i].status == 'data' || data.data[i].status == 'error') && $scope.status.singleFocused !== -1) {

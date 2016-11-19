@@ -26,7 +26,7 @@ var ACCESS_CHECK = function (callback) {
 
 var app = angular.module(
     'app',
-    ['ngMessages']
+    ['ngMessages', 'ngSanitize']
 ).directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
