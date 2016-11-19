@@ -63,7 +63,7 @@ html(ng-app="app")
                         .col-md-2(ng-click='outputLong.lib = !outputLong.lib')
                             b out [libs] &nbsp;
                         .col-md-10(ng-class='outputLong.lib ? "" : "scroll"')
-                            .output-messages
+                            pre.output-messages
                                 div(ng-repeat='log in singleLog.libs', ng-class='log.status') {{log.msg}}
 
                 .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == true ? "running": ""')
