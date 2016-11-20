@@ -59,7 +59,7 @@ app.controller("ctrl", function ($scope, $timeout) {
             $.get('/api/script/log?name=' + $scope.app, function (data) {
                 if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
                 for (var i = 0; i < data.data.length; i++) {
-                    if (data.data[i].status == 'start') {
+                    if (data.data[i].status == 'start' || data.data[i].status == 'install') {
                         if ($scope.singleLog[$scope.status.singleFocused])
                             $scope.singleLog[$scope.status.singleFocused].splice(0);
                     } else if ((data.data[i].status == 'data' || data.data[i].status == 'error') && $scope.status.singleFocused !== -1) {

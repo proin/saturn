@@ -22,7 +22,7 @@ router.post("/", function (req, res) {
     req.saturn.workspace.save(args)
         .then(()=> {
             if (!thread.log[name]) thread.log[name] = [];
-            thread.log[name].push({module: `${name}`, status: `data`, msg: `installing dependencies...`});
+            thread.log[name].push({module: `${name}`, status: `install`, msg: `installing dependencies...`});
             thread.status[name] = true;
 
             lib = JSON.parse(lib);
