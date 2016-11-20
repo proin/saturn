@@ -72,9 +72,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                 localStorage['log-' + $scope.app] = JSON.stringify($scope.singleLog);
 
                 $scope.status.running = data.running;
-                $timeout(function () {
-                    $('.code-container.running .output .col-md-10').scrollTop($('.code-container.running .output .col-md-10 .output-messages').height());
-                });
+                $timeout();
             });
         }, 1000);
 
