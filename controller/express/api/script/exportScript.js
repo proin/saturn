@@ -10,16 +10,14 @@ router.get("/", function (req, res) {
     // allow for everyone
     if (req.user.check() === 'DENIED') return;
 
-    let {name} = req.query;
+    if (!req.query.path) return res.send({err: new Error('not defined name')});
 
-    if (!name) return res.send({err: new Error('not defined name')});
-
-    const PRJ_PATH = path.resolve(req.DIR.WORKSPACE_PATH, `${name}.satbook`);
+    const PRJ_PATH = path.join(req.DIR.WORKSPACE_PATH, req.query.path);
     const LIB_PATH = path.resolve(PRJ_PATH, 'lib.json');
     const SCRIPTS_PATH = path.resolve(PRJ_PATH, 'scripts.json');
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
 
-    const TMP_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
+    const TMP_PATH = path.join(WORKSPACE_PATH, req.query.path);
 
     if (!fs.existsSync(LIB_PATH)) return res.send({err: new Error('no work')});
     if (!fs.existsSync(SCRIPTS_PATH)) return res.send({err: new Error('no work')});
@@ -28,7 +26,7 @@ router.get("/", function (req, res) {
     let scripts = JSON.parse(fs.readFileSync(SCRIPTS_PATH, 'utf-8'));
 
     let packageJSON = {dependencies: {flowpipe: ''}};
-    packageJSON.name = name;
+    packageJSON.name = path.basename(req.query.path, '.satbook');
 
     let npmlibs = ['flowpipe'];
     let npms = lib.value.match(/require\([^\)]+\)/gim);
@@ -135,9 +133,8 @@ router.get("/", function (req, res) {
 
     // download
     var data = zip.generate({base64: false, compression: 'DEFLATE'});
-    fs.writeFileSync(path.resolve(req.DIR.TMPD, name + '.zip'), data, 'binary');
-
-    res.download(path.resolve(req.DIR.TMPD, name + '.zip'));
+    fs.writeFileSync(path.resolve(req.DIR.TMPD, path.basename(req.query.path) + '.zip'), data, 'binary');
+    res.download(path.resolve(req.DIR.TMPD, path.basename(req.query.path) + '.zip'));
 });
 
 module.exports = router;

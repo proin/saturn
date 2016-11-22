@@ -1,9 +1,6 @@
-app.controller("ctrl", function ($scope) {
+app.controller("ctrl", function ($scope, API) {
     $scope.signin = function () {
-        $.post('/api/user/signin', {user: $scope.user, pw: $scope.password}, function (data) {
-            if (data.status) {
-                location.href = '/';
-            }
-        })
+        let {user, password} = $scope;
+        API.user.signin(user, password);
     };
 });

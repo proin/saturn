@@ -8,13 +8,9 @@ router.get("/", function (req, res) {
     // allow for everyone
     if (req.user.check() === 'DENIED') return;
 
-    let {name} = req.query;
-
-    if (!name) return res.send({err: new Error('not defined name')});
-
+    if (!req.query.path) return res.send({err: new Error('not defined path')});
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
-    const TMP_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
-
+    const TMP_PATH = path.join(WORKSPACE_PATH, req.query.path);
     if (!fs.existsSync(TMP_PATH)) return res.send({err: new Error('no work')});
 
     res.send({lib: JSON.parse(fs.readFileSync(path.resolve(TMP_PATH, 'lib.json'), 'utf-8')), scripts: JSON.parse(fs.readFileSync(path.resolve(TMP_PATH, 'scripts.json'), 'utf-8'))});

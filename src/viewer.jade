@@ -36,6 +36,7 @@ html(ng-app="app")
                 .container(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='click.save()')
                         i.fa.fa-floppy-o
+                    .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
             .code-editor(id='code-editor')
 

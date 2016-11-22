@@ -1,37 +1,13 @@
-app.controller("ctrl", function ($scope, $timeout) {
-    ACCESS_CHECK(function () {
-        $scope.ACCESS_STATUS = ACCESS_STATUS;
+app.controller("ctrl", ($scope, $timeout, API)=> {
+    API.user.check().then((ACCESS_INFO)=> {
+        $scope.ACCESS_STATUS = ACCESS_INFO.status;
+        $scope.ACCESS_POLICY = ACCESS_INFO.policy;
 
-        $scope.app = decodeURI(location.href.split('#')[1]);
-        $scope.appLog = [];
+        let PATH = decodeURI(location.href.split('#')[1]);
 
-        $scope.singleLog = localStorage['log-' + $scope.app] ? JSON.parse(localStorage['log-' + $scope.app]) : {};
+        $scope.app = decodeURI(location.href.split('#')[1]).basename();
 
-        if (ACCESS_STATUS !== 'GRANTALL') {
-            $scope.singleLog = {};
-        }
-
-        $scope.history = function () {
-            window.history.back();
-        };
-
-        for (var key in $scope.singleLog)
-            for (var i = 0; i < $scope.singleLog[key].length; i++)
-                delete $scope.singleLog[key][i]['$$hashKey'];
-
-        $scope.outputLong = {};
-
-        $scope.titleEdit = false;
-        $scope.appRename = $scope.app;
-
-        $scope.status = {};
-        $scope.status.focused = -1;
-        $scope.status.singleFocused = localStorage['preFocused-' + $scope.app] ? localStorage['preFocused-' + $scope.app] : 'libs';
-        $scope.status.indent = [];
-        $scope.status.logView = false;
-        $scope.status.running = false;
-        $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
-
+        // alert
         $scope.alert = {};
         $scope.alert.message = '';
         $scope.alert.show = function (message) {
@@ -40,23 +16,50 @@ app.controller("ctrl", function ($scope, $timeout) {
             $timeout();
         };
 
+        // log variables
+        $scope.singleLog = localStorage['log-' + $scope.app] ? JSON.parse(localStorage['log-' + $scope.app]) : {};
+        for (var key in $scope.singleLog)
+            for (var i = 0; i < $scope.singleLog[key].length; i++)
+                delete $scope.singleLog[key][i]['$$hashKey'];
+        if ($scope.ACCESS_STATUS !== 'GRANTALL') $scope.singleLog = {};
+
+        // history back
+        $scope.history = function () {
+            window.history.back();
+        };
+
+        // ui status
+        $scope.outputLong = {};
+        $scope.titleEdit = false;
+
+        // variables for function
+        $scope.appRename = $scope.app;
+
+        // status
+        $scope.status = {};
+        $scope.status.focused = -1;
+        $scope.status.singleFocused = localStorage['preFocused-' + $scope.app] ? localStorage['preFocused-' + $scope.app] : 'libs';
+        $scope.status.indent = [];
+        $scope.status.logView = false;
+        $scope.status.running = false;
+        $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
+
+        // script variables
         $scope.lib = {id: 'lib', type: 'lib', value: ''};
         $scope.flowpipe = [];
 
-        $timeout();
-
-        $.get('/api/script/get?name=' + $scope.app, function (data) {
-            if (data.err)
-                return;
+        // load script data
+        API.script.load(PATH).then((data)=> {
+            if (data.err) return;
             $scope.lib = data.lib;
             $scope.flowpipe = data.scripts;
-
             $scope.event.changed();
         });
 
+        // logger
         setInterval(function () {
             var MAX_LOG_SIZE = 100;
-            $.get('/api/script/log?name=' + $scope.app, function (data) {
+            API.script.log(PATH).then((data)=> {
                 if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
                 for (var i = 0; i < data.data.length; i++) {
                     if (data.data[i].status == 'start' || data.data[i].status == 'install') {
@@ -68,14 +71,13 @@ app.controller("ctrl", function ($scope, $timeout) {
                             $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
                     }
                 }
-
                 localStorage['log-' + $scope.app] = JSON.stringify($scope.singleLog);
-
                 $scope.status.running = data.running;
                 $timeout();
             });
         }, 1000);
 
+        // create codemirror
         var codemirror = function (_id) {
             var creator = function (id) {
                 var fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
@@ -119,7 +121,7 @@ app.controller("ctrl", function ($scope, $timeout) {
                     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                     viewportMargin: Infinity,
                     indentUnit: 4,
-                    readOnly: ACCESS_STATUS !== 'GRANTALL',
+                    readOnly: $scope.ACCESS_STATUS !== 'GRANTALL',
                     mode: "javascript"
                 }).on('change', function (e) {
                     var changeValue = e.getValue();
@@ -281,8 +283,13 @@ app.controller("ctrl", function ($scope, $timeout) {
         };
 
         $scope.click.save = function (isNotShow) {
-            var runnable = {name: $scope.app, lib: JSON.stringify($scope.lib), scripts: JSON.stringify($scope.flowpipe)};
-            $.post('/api/script/save', runnable, function (result) {
+            var runnable = {
+                path: PATH,
+                lib: JSON.stringify($scope.lib),
+                scripts: JSON.stringify($scope.flowpipe)
+            };
+
+            API.script.save(runnable).then((result)=> {
                 if (result.status) $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
                 if (result.status && !isNotShow) $scope.alert.show($scope.app + ' saved!');
                 $timeout();
@@ -290,11 +297,11 @@ app.controller("ctrl", function ($scope, $timeout) {
         };
 
         $scope.click.export = function () {
-            window.open('/api/script/export?name=' + encodeURI($scope.app), '_blank');
+            window.open('/api/script/export?path=' + encodeURI(PATH), '_blank');
         };
 
         $scope.click.exportRun = function () {
-            window.open('/api/script/exportScript?name=' + encodeURI($scope.app), '_blank');
+            window.open('/api/script/exportScript?path=' + encodeURI(PATH), '_blank');
         };
 
         $scope.click.log = function () {
@@ -303,19 +310,14 @@ app.controller("ctrl", function ($scope, $timeout) {
         };
 
         $scope.click.editTitle = function (rename) {
-            $.post('/api/script/rename', {name: $scope.app, rename: rename}, function (result) {
-                if (result.status) {
-                    location.href = '/project.html#' + encodeURI(rename);
-                    location.reload();
-                }
-            });
             $scope.titleEdit = false;
             $timeout();
+            API.script.rename(PATH, rename);
         };
 
         $scope.click.run = function () {
             if ($scope.status.running) {
-                $.get('/api/script/stop?name=' + $scope.app);
+                API.script.stop(PATH);
             } else {
                 if ($scope.status.focused == -1) {
                     $scope.status.singleFocused = 'libs';
@@ -328,22 +330,17 @@ app.controller("ctrl", function ($scope, $timeout) {
 
                 localStorage['preFocused-' + $scope.app] = $scope.status.singleFocused;
 
+                var runnable = {
+                    runpath: PATH,
+                    target: $scope.status.focused,
+                    lib: JSON.stringify($scope.lib),
+                    scripts: JSON.stringify($scope.flowpipe)
+                };
+
                 if ($scope.status.singleFocused === 'libs') {
-                    var runnable = {
-                        name: $scope.app,
-                        target: $scope.status.focused,
-                        lib: JSON.stringify($scope.lib),
-                        scripts: JSON.stringify($scope.flowpipe)
-                    };
-                    $.post('/api/script/run', runnable);
+                    API.script.run(runnable);
                 } else {
-                    var runnable = {
-                        name: $scope.app,
-                        target: $scope.status.focused,
-                        lib: JSON.stringify($scope.lib),
-                        scripts: JSON.stringify($scope.flowpipe)
-                    };
-                    $.post('/api/script/run-single', runnable);
+                    API.script.runSingle(runnable);
                 }
             }
         };

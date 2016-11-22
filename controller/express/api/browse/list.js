@@ -38,13 +38,13 @@ router.get("/", function (req, res) {
         if (path.extname(dirs[i]) == '.satbook' && fs.lstatSync(path.resolve(WORKSPACE_PATH, dirs[i])).isDirectory()) {
             let info = projectList[path.basename(dirs[i], path.extname(dirs[i]))] = {};
             info.type = 'project';
-            info.path = path.resolve(WORKSPACE_PATH, dirs[i]);
+            info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
             info.name = path.basename(dirs[i], path.extname(dirs[i]));
             info.status = thread.status[info.name];
         } else {
             let info = projectList[dirs[i]] = {};
             info.type = fs.lstatSync(path.resolve(WORKSPACE_PATH, dirs[i])).isDirectory() ? 'folder' : 'file';
-            info.path = path.resolve(WORKSPACE_PATH, dirs[i]);
+            info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
             info.name = dirs[i];
         }
     }
@@ -55,6 +55,9 @@ router.get("/", function (req, res) {
 
     result.sort((a, b)=> {
         if (b.name == 'node_modules') return 1;
+        if (a.name == 'node_modules') return -1;
+
+        if (a.type === b.type) return a.name.localeCompare(b.name);
         return b.type.localeCompare(a.type);
     });
 

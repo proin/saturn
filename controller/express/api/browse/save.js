@@ -11,12 +11,7 @@ router.post("/", function (req, res) {
 
     let {filepath, filevalue} = req.body;
 
-    try {
-        if (filepath.indexOf(req.DIR.USERHOME) !== 0) return res.send({status: false});
-    } catch (e) {
-        return res.send({status: false});
-    }
-
+    filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
 
     fs.writeFileSync(path.resolve(filepath), filevalue);
     res.send({status: true, data: filevalue});

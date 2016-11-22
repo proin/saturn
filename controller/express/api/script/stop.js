@@ -9,12 +9,12 @@ router.get("/", function (req, res) {
     if (req.user.check() !== 'GRANTALL') return;
 
     let {thread} = req.modules;
-    let {name} = req.query;
+    let {runpath} = req.query;
 
-    if (!name) return res.send({err: new Error('not defined name')});
+    if (!runpath) return res.send({err: new Error('not defined name')});
 
-    thread.stop(name).then(()=> {
-        res.send({running: false, data: thread.log[name] ? thread.log[name] : []});
+    thread.stop(runpath).then(()=> {
+        res.send({running: false, data: thread.log[runpath] ? thread.log[runpath] : []});
     });
 });
 

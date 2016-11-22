@@ -7,12 +7,10 @@ router.post("/", function (req, res) {
     // only allow for user
     if (req.user.check() !== 'GRANTALL') return;
 
-    let {name} = req.body;
-
-    if (!name) return res.send({err: new Error('not defined name')});
+    if (!req.body.path) return res.send({err: new Error('not defined path')});
 
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
-    const TMP_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
+    const TMP_PATH = path.join(WORKSPACE_PATH, req.body.path);
 
     let args = req.body;
     args.WORKSPACE_PATH = WORKSPACE_PATH;

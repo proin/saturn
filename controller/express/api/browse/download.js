@@ -10,11 +10,8 @@ router.get("/", function (req, res, next) {
     if (req.user.check() === 'DENIED') return;
 
     let {filepath} = req.query;
-    try {
-        if (filepath.indexOf(req.DIR.WORKSPACE_PATH) !== 0) return next();
-    } catch (e) {
-        return next();
-    }
+
+    filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
 
     if (path.extname(filepath) === '.json') {
         res.send(JSON.parse(fs.readFileSync(path.resolve(filepath), 'utf-8')));

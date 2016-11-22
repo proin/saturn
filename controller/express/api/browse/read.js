@@ -11,13 +11,9 @@ router.post("/", function (req, res) {
 
     let {filepath} = req.body;
 
-    try {
-        if (filepath.indexOf(req.DIR.WORKSPACE_PATH) !== 0) return res.send({status: false});
-    } catch (e) {
-        return res.send({status: false});
-    }
+    filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
 
-    res.send({status: true, data: fs.readFileSync(path.resolve(filepath), 'utf-8')});
+    res.send({status: true, data: fs.readFileSync(filepath, 'utf-8')});
 });
 
 module.exports = router;

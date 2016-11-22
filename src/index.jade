@@ -20,7 +20,7 @@ html(ng-app="app")
                         img(src='/images/saturn-ico.png', width='30', height='30', alt='')
                         | &nbsp;&nbsp;Saturn
                     ul.nav.navbar-nav
-                        li.nav-item
+                        li.nav-item(ng-if='ACCESS_POLICY !== "OPEN"')
                             a.nav-link(ng-if='ACCESS_STATUS !== "GRANTALL"', href='/signin.html') Sign in
                             a.nav-link(ng-if='ACCESS_STATUS === "GRANTALL"', ng-click='click.signout()') Sign Out
 
@@ -45,7 +45,7 @@ html(ng-app="app")
                             input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper" && ACCESS_STATUS === "GRANTALL"')
                             i.fa.fa-code-fork(ng-if='file.type == "project"')
                             i.fa.fa-folder-open(ng-if='file.type == "folder"')
-                            i.fa.fa-file(ng-if='file.type == "file"')
+                            i.fa.fa-file-o(ng-if='file.type == "file"')
                             div(style='display:inline-block; width: 80%;', ng-click='click.list(file)')
                                 | {{file.name}}
                                 span(ng-if='file.status', style='color: #8bc34a; margin-left: 8px;') [Running]

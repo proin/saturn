@@ -79,7 +79,7 @@ module.exports = (server, config)=> {
         runnable.log[name].push({module: `${name}`, status: `start`});
         runnable.status[name] = true;
 
-        run_terminal('node', [`--max-old-space-size=${MAX_HEAP * 1024}`, path.resolve(WORKSPACE_PATH, `${name}.satbook`, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
+        run_terminal('node', [`--max-old-space-size=${MAX_HEAP * 1024}`, path.join(WORKSPACE_PATH, name, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
             data = data + '';
             data = data.split('\n');
 
@@ -108,7 +108,9 @@ module.exports = (server, config)=> {
     });
 
     runnable.install = (libs, run_path)=> new Promise((resolve)=> {
-        let DEPS_PATH = path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn', 'workspace', 'node_modules');
+        let DEPS_PATH = path.resolve(run_path, 'node_modules'
+);
+
         let deps = ['install', '--save'];
         for (let i = 0; i < libs.length; i++)
             if (!fs.existsSync(path.resolve(DEPS_PATH, libs[i])))

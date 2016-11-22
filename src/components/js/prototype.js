@@ -1,6 +1,12 @@
 /*
  * String Prototypes
  */
+String.prototype.basename = function () {
+    var base = this.substring(this.lastIndexOf('/') + 1);
+    if (base.lastIndexOf(".") != -1)
+        base = base.substring(0, base.lastIndexOf("."));
+    return base;
+};
 
 String.prototype.startsWith = function (suffix) {
     return !(this.indexOf(suffix) !== 0);

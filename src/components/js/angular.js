@@ -1,29 +1,3 @@
-var ACCESS_STATUS = 'LOADING';
-
-$.get('/api/user/check', (data)=> {
-    ACCESS_STATUS = data.status;
-    if (ACCESS_STATUS === 'DENIED' || ACCESS_STATUS === false) {
-        if (location.href === location.protocol + '//' + location.host + '/signin.html') {
-            return;
-        }
-        location.href = '/signin.html';
-    } else if (location.href === location.protocol + '//' + location.host + '/signin.html' && ACCESS_STATUS !== 'READONLY') {
-        location.href = '/';
-    }
-});
-
-var ACCESS_CHECK = function (callback) {
-    if (ACCESS_STATUS === 'LOADING') {
-        setTimeout(function () {
-            ACCESS_CHECK(callback);
-        }, 500);
-
-        return;
-    }
-
-    callback();
-};
-
 var app = angular.module(
     'app',
     ['ngMessages', 'ngSanitize']

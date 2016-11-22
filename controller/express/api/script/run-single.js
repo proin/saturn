@@ -9,12 +9,12 @@ router.post("/", function (req, res) {
     if (req.user.check() !== 'GRANTALL') return;
 
     let {thread} = req.modules;
-    let {name, scripts, lib, target} = req.body;
+    let {runpath, scripts, lib, target} = req.body;
 
-    if (!name) return res.send({err: new Error('not defined name')});
+    if (!runpath) return res.send({err: new Error('not defined name')});
 
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
-    const TMP_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
+    const TMP_PATH = path.join(WORKSPACE_PATH, runpath);
 
     let args = req.body;
     args.WORKSPACE_PATH = WORKSPACE_PATH;
@@ -120,9 +120,9 @@ router.post("/", function (req, res) {
             resolve();
         }))
         .then(()=> {
-            if (!thread.log[name]) thread.log[name] = [];
-            thread.log[name].push({module: `${name}`, status: `install`, message: `installing dependencies...`});
-            thread.status[name] = true;
+            if (!thread.log[runpath]) thread.log[runpath] = [];
+            thread.log[runpath].push({module: `${runpath}`, status: `install`, message: `installing dependencies...`});
+            thread.status[runpath] = true;
 
             let npmlibs = ['flowpipe'];
             let npms = lib.value.match(/require\([^\)]+\)/gim);
@@ -163,8 +163,8 @@ router.post("/", function (req, res) {
 
             return thread.install(npmlibs, WORKSPACE_PATH);
         }).then(()=> {
-            thread.status[name] = false;
-            return thread.run(name, true);
+            thread.status[runpath] = false;
+            return thread.run(runpath, true);
         })
         .then(()=> {
             res.send({status: true});

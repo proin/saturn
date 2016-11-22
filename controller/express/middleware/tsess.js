@@ -23,12 +23,12 @@ module.exports = (config)=> (req, res, next)=> {
                 if (!req.session || !req.session.user) {
                     if (config.readonly)
                         return 'READONLY';
-                    res.send({status: false, err: 'ACCESS DENIED'});
+                    res.send({status: false, err: 'ACCESS DENIED', policy: config.readonly});
                     return 'DENIED';
                 }
             return 'GRANTALL';
         } catch (e) {
-            res.send({status: false, err: 'ACCESS DENIED'});
+            res.send({status: false, err: 'ACCESS DENIED', policy: config.readonly});
         }
         return 'DENIED';
     };

@@ -31,7 +31,7 @@ router.post("/", upload.array('files', 10000), function (req, res) {
         if (path.extname(req.files[i].originalname) === '.satbook') {
             let _DEST = path.resolve(req.DIR.TMPD, req.files[i].originalname);
             fs.writeFileSync(_DEST, req.files[i].buffer);
-            ASAR.push(_DEST);
+            ASAR.push({tmp: _DEST, dest: path.resolve(DEST, req.files[i].originalname)});
         } else {
             let _DEST = path.resolve(DEST, req.files[i].originalname);
             fs.writeFileSync(_DEST, req.files[i].buffer);
@@ -45,10 +45,7 @@ router.post("/", upload.array('files', 10000), function (req, res) {
         }
 
         let PRJ_PATH = ASAR.splice(0, 1)[0];
-        let NAME = path.basename(PRJ_PATH);
-        let _DEST = path.resolve(req.DIR.WORKSPACE_PATH, NAME);
-
-        asar.extractAll(PRJ_PATH, _DEST);
+        asar.extractAll(PRJ_PATH.tmp, PRJ_PATH.dest);
         unzipping();
     };
 

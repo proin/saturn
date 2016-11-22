@@ -9,19 +9,16 @@ router.post("/", function (req, res) {
     // only allow for user
     if (req.user.check() !== 'GRANTALL') return;
 
-    let {name, rename} = req.body;
-
-    if (!name) return res.send({err: new Error('not defined name')});
+    let {filepath, rename} = req.body;
+    if (!filepath) return res.send({err: new Error('not defined name')});
 
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
-    const ORG_PATH = path.resolve(WORKSPACE_PATH, `${name}.satbook`);
-    const MV_PATH = path.resolve(WORKSPACE_PATH, `${rename}.satbook`);
-
-    console.log(name, rename);
+    const ORG_PATH = path.join(WORKSPACE_PATH, filepath);
+    const MV_PATH = path.resolve(path.dirname(ORG_PATH), `${rename}.satbook`);
 
     fsext.move(ORG_PATH, MV_PATH, function (err) {
         if (err) res.send({status: false});
-        else res.send({status: true});
+        else res.send({status: true, path: MV_PATH.replace(req.DIR.WORKSPACE_PATH, '')});
     });
 });
 
