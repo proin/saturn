@@ -13,6 +13,9 @@ router.get("/", function (req, res, next) {
 
     filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
 
+    if (filepath.indexOf(req.DIR.WORKSPACE_PATH) == -1)
+        return res.send({status: false});
+
     if (path.extname(filepath) === '.json') {
         res.send(JSON.parse(fs.readFileSync(path.resolve(filepath), 'utf-8')));
     } else {

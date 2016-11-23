@@ -13,6 +13,9 @@ router.post("/", function (req, res) {
 
     filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
 
+    if (filepath.indexOf(req.DIR.WORKSPACE_PATH) == -1)
+        return res.send({status: false});
+
     res.send({status: true, data: fs.readFileSync(filepath, 'utf-8')});
 });
 

@@ -9,7 +9,11 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         // Variables
         $scope.status = {};
-        $scope.PATH = location.href.split('#')[1] ? JSON.parse(decodeURI(location.href.split('#')[1])) : [];
+
+        let PATH = location.href.split('#')[1] ? decodeURI(location.href.split('#')[1]) : '';
+        $scope.PATH = PATH.split('/');
+        $scope.PATH.splice(0, 1);
+
         $scope.current = [];
         $scope.createType = 'folder';
         $scope.createName = '';
@@ -101,6 +105,9 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.click.list = function (file) {
             if (file.type == 'upper') {
                 $scope.PATH.splice($scope.PATH.length - 1, 1);
+                file.path = '';
+                for (let i = 0; i < $scope.PATH.length; i++)
+                    file.path += '/' + $scope.PATH[i];
             } else if (file.type == 'folder') {
                 $scope.PATH.push(file.name);
             } else if (file.type == 'project') {
@@ -116,7 +123,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 return;
             }
 
-            location.href = `#${encodeURI(JSON.stringify($scope.PATH))}`;
+            location.href = `#${encodeURI(file.path)}`;
 
             API.browse.list($scope.PATH).then((data)=> {
                 if (data.status !== false) $scope.current = data;

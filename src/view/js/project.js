@@ -6,7 +6,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         let PATH = decodeURI(location.href.split('#')[1]);
         $scope.PATH = PATH;
 
-        $scope.ROOT_PATH = `/#${encodeURI(JSON.stringify(PATH.split('/').splice(1, PATH.split('/').length - 2)))}`;
+        $scope.ROOT_PATH = `/`;
 
         $scope.app = decodeURI(location.href.split('#')[1]).basename();
 
@@ -475,11 +475,13 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
                         node.narrower = data;
                         node.collapsed = !node.collapsed;
+                        $timeout();
                         localStorage.finder = JSON.stringify($scope.finder);
                     });
                 } else {
                     node.narrower = [];
                     node.collapsed = !node.collapsed;
+                    $timeout();
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             } else if (node.type == 'project') {
@@ -491,6 +493,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     scripts: JSON.stringify($scope.flowpipe)
                 };
 
+                if ($scope.ACCESS_POLICY === 'READONLY') {
+                    location.href = `/project.html#${encodeURI(node.path)}`;
+                    location.reload();
+                    return;
+                }
+
                 API.script.save(runnable).then(()=> {
                     location.href = `/project.html#${encodeURI(node.path)}`;
                     location.reload();
@@ -500,6 +508,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 var jsext = '.js';
                 if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
                     location.href = '/viewer.html#' + encodeURI(node.path);
+                    return;
                 } else {
                     window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
                 }
@@ -613,6 +622,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         }
                     }
                     CURRENT.splice(finding, 1);
+                    $timeout();
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             });

@@ -24,11 +24,7 @@ router.get("/", function (req, res) {
             WORKSPACE_PATH = path.resolve(WORKSPACE_PATH, read_path[i]);
     }
 
-    try {
-        if (WORKSPACE_PATH.indexOf(req.DIR.WORKSPACE_PATH) !== 0) return res.send({status: false});
-    } catch (e) {
-        return res.send({status: false});
-    }
+    if (WORKSPACE_PATH.indexOf(req.DIR.WORKSPACE_PATH) !== 0) return res.send({status: false});
 
     let dirs = fs.readdirSync(WORKSPACE_PATH);
     let ignores = {'package.json': true, '.git': true, '.idea': true};

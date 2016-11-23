@@ -1,10 +1,11 @@
 app.controller("ctrl", function ($scope, $timeout, API) {
     API.user.check().then((ACCESS_INFO)=> {
         $scope.ACCESS_STATUS = ACCESS_INFO.status;
+        $scope.ACCESS_POLICY = ACCESS_INFO.policy;
 
         let PATH = decodeURI(location.href.split('#')[1]);
         $scope.PATH = PATH;
-        $scope.ROOT_PATH = `/#${encodeURI(JSON.stringify(PATH.split('/').splice(1, PATH.split('/').length - 2)))}`;
+        $scope.ROOT_PATH = `/`;
         $scope.status = {};
         $scope.click = {};
 
@@ -213,6 +214,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                         }
                     }
                     CURRENT.splice(finding, 1);
+                    $timeout();
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             });
@@ -245,15 +247,22 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
                         node.narrower = data;
                         node.collapsed = !node.collapsed;
+                        $timeout();
                         localStorage.finder = JSON.stringify($scope.finder);
                     });
                 } else {
                     node.narrower = [];
                     node.collapsed = !node.collapsed;
+                    $timeout();
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             } else if (node.type == 'project') {
                 if ($scope.value && $scope.value.length > 0) {
+                    if ($scope.ACCESS_POLICY === 'READONLY') {
+                        location.href = `/project.html#${encodeURI(node.path)}`;
+                        return;
+                    }
+
                     API.browse.save($scope.file, $scope.value).then((data)=> {
                         location.href = `/project.html#${encodeURI(node.path)}`;
                     });
@@ -263,6 +272,12 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             } else {
                 var jsext = '.js';
                 if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
+                    if ($scope.ACCESS_POLICY === 'READONLY') {
+                        location.href = '/viewer.html#' + encodeURI(node.path);
+                        location.reload();
+                        return;
+                    }
+
                     if ($scope.value && $scope.value.length > 0) {
                         API.browse.save($scope.file, $scope.value).then((data)=> {
                             location.href = '/viewer.html#' + encodeURI(node.path);

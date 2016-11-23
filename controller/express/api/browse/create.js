@@ -18,6 +18,9 @@ router.post("/", function (req, res) {
             CREATE_PATH = path.resolve(CREATE_PATH, read_path[i]);
     }
 
+    if (CREATE_PATH.indexOf(req.DIR.WORKSPACE_PATH) == -1)
+        return res.send({status: false});
+
     if (filetype == 'folder') {
         fsext.mkdirsSync(path.resolve(CREATE_PATH, filename));
     } else if (filetype == 'js') {

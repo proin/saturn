@@ -17,7 +17,7 @@ router.post("/", function (req, res) {
         rm = JSON.parse(rm);
 
         for (let i = 0; i < rm.length; i++) {
-            console.log(path.join(WORKSPACE_PATH, rm[i]));
+            if (path.join(WORKSPACE_PATH, rm[i]).indexOf(req.DIR.WORKSPACE_PATH) == -1) continue;
             try {
                 fsext.removeSync(path.join(WORKSPACE_PATH, rm[i]));
             } catch (e) {
