@@ -53,7 +53,7 @@ lwot express run
 
 - you can change configuration editing by `./controller/express/config.json` file
 
-```json
+```js
 {
     "port": 3000, // server port to bind
     "home": "./saturn-project", // workspace home, start from USER HOME
