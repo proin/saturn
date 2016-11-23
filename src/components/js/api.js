@@ -5,9 +5,9 @@ app.factory('API', ()=> {
     // LIB: API Browse
     factory.browse = {};
 
-    factory.browse.list = (PATH)=> new Promise((resolve)=> {
+    factory.browse.list = (PATH, notUpper)=> new Promise((resolve)=> {
         $.get('/api/browse/list?read_path=' + JSON.stringify(PATH), (data)=> {
-            if (PATH.length > 0) data.unshift({type: 'upper', name: '..'});
+            if (PATH.length > 0 && !notUpper) data.unshift({type: 'upper', name: '..'});
             resolve(data);
         });
     });
@@ -138,6 +138,10 @@ app.factory('API', ()=> {
 
     factory.script.save = (runnable)=> new Promise((resolve)=> {
         $.post('/api/script/save', runnable, resolve);
+    });
+
+    factory.script.running= ()=> new Promise((resolve)=> {
+        $.get('/api/script/running', resolve);
     });
 
     factory.script.run = (runnable)=> new Promise(()=> {

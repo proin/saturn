@@ -24,6 +24,8 @@
     "bootstrap": "^4.0.0-alpha.5",
     "font-awesome": "^4.7.0",
     "blueimp-file-upload": "^9.14.0",
-    "angular-sanitize": "^1.5.8"
+    "angular-sanitize": "^1.5.8",
+    "ez-file-tree": "^0.5.1",
+    "ng-context-menu": "^1.0.3"
   }
 }

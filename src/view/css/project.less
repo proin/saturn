@@ -1,127 +1,209 @@
 body {
-  padding-top: 100px;
-  padding-bottom: 400px;
+    overflow: hidden;
 }
 
 .row {
-  margin: 0;
-
-  > div {
-    padding: 0;
     margin: 0;
 
-    &:first-child {
-      padding-right: 12px;
+    > div {
+        padding: 0;
+        margin: 0;
+
+        &:first-child {
+            padding-right: 12px;
+        }
     }
-  }
 }
 
-.running {
-  background: #b3e5fc;
-}
+.view-container {
+    width: 100%;
+    height: 100%;
 
-.row.code-box {
-  padding: 12px 8px;
-  border-bottom: 1px solid rgba(0, 0, 0, .1);
+    .finder-view {
+        position: fixed;
+        width: 250px;
+        height: 100%;
+        overflow: scroll;
+        display: inline-block;
+        top: 0;
+        padding-top: 100px;
+        background: #f7f7f9;
 
-  &.output {
-    background: #e0f2f1 !important;
+        *::-webkit-scrollbar {
+            display: none;
+        }
 
-    .scroll pre.output-messages {
-      max-height: 150px !important;
-      overflow: scroll;
-    }
-  }
+        @media only screen and (max-device-width: 768px) {
+            display: none;
+        }
 
-  &.active {
-    padding: 12px 4px;
-    background: rgba(0, 0, 0, .05);
-    border-left: 4px solid #2196f3;
-  }
+        i {
+            width: 16px;
+        }
 
-  > div:nth-child(2) {
-    padding-left: 12px;
-    border-left: 1px solid rgba(0, 0, 0, .1);
-  }
-}
+        div[data-angular-treeview] {
+            /* prevent user selection */
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
 
-.loop {
-  .row {
-    padding-top: 8px;
+            /* default */
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+        }
 
-    &:first-child {
-      padding-top: 0;
-    }
-  }
-}
+        div[data-tree-model] ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            border: none;
+        }
 
-.CodeMirror {
-  border: 1px solid #eee;
-  height: auto;
-}
+        div[data-tree-model] li {
+            position: relative;
+            padding: 0 0 0 20px;
+            line-height: 20px;
+            word-break: normal;
+            white-space: nowrap;
 
-.toolbar {
-  position: fixed;
-  top: 54px;
-  left: 0;
-  width: 100%;
-  padding: 8px 0;
-  background-color: #efefef;
-  font-size: 18px;
-  z-index: 5;
+            span {
+                padding-right: 12px;
 
-  .container-fluid button {
-    margin-right: 4px;
-  }
+                &.running {
+                    color: #8bc34a;
+                    font-weight: 600;
+                }
 
-  .container button {
-    margin-right: 4px;
-  }
-}
+                &.error {
+                    color: #e53935;
+                    font-weight: 600;
+                }
 
-.terminal-container {
-  max-width: 800px;
-  margin: 0 auto;
-  height: 400px;
-}
+                &.finish {
+                    color: #2196f3;
+                }
+            }
+        }
 
-.panel {
-  height: 500px;
-  background: #27292c;
-  padding: 20px;
-  overflow-y: scroll;
+        div[data-tree-model] li i, div[data-tree-model] li span {
+            cursor: pointer;
+        }
 
-  .action {
-    margin-bottom: 10px;
-
-    .command {
-      width: 100%;
-      height: 20px;
-      background: #27292c;
-      color: #c86762;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    span.in {
-      width: 90%;
-      background: #27292c;
-      border: none;
-      outline: none;
-      color: white;
-      margin-left: 5px;
-      font-size: 16px;
+        div[data-tree-model] li .selected {
+            background-color: rgba(0, 0, 0, .1);
+            padding-right: 0;
+            font-weight: bold;
+        }
     }
 
-    .output {
-      color: white;
-      font-weight: 300;
-      //margin-top: 5px;
-      //margin-left: 12px;
+    .editor-view {
+        position: fixed;
+        overflow: scroll;
+        height: 100%;
+        padding-top: 100px;
+        padding-bottom: 150px;
+        top: 0;
+        left: 250px;
+        width: calc(~'100% - 250px');
+        display: inline-block;
+
+        @media only screen and (max-device-width: 768px) {
+            left: 0;
+            width: 100%;
+        }
+
+        .running {
+            background: #b3e5fc;
+        }
+
+        .row.code-box {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, .1);
+
+            &.output {
+                background: #e0f2f1 !important;
+
+                .scroll pre.output-messages {
+                    max-height: 150px !important;
+                    overflow: scroll;
+                }
+            }
+
+            &.active {
+                padding: 12px 4px;
+                background: rgba(0, 0, 0, .05);
+                border-left: 4px solid #2196f3;
+            }
+
+            > div:nth-child(2) {
+                padding-left: 12px;
+                border-left: 1px solid rgba(0, 0, 0, .1);
+
+                @media only screen and (max-device-width: 768px) {
+                    padding-left: 0;
+                    border: none;
+                }
+            }
+        }
+
+        .loop {
+            .row {
+                padding-top: 8px;
+
+                &:first-child {
+                    padding-top: 0;
+                }
+            }
+        }
+
+        .CodeMirror {
+            border: 1px solid #eee;
+            height: auto;
+        }
+
+        .panel {
+            height: 500px;
+            background: #27292c;
+            padding: 20px;
+            overflow-y: scroll;
+
+            .action {
+                margin-bottom: 10px;
+
+                .command {
+                    width: 100%;
+                    height: 20px;
+                    background: #27292c;
+                    color: #c86762;
+                    font-size: 16px;
+                    font-weight: 700;
+                }
+
+                span.in {
+                    width: 90%;
+                    background: #27292c;
+                    border: none;
+                    outline: none;
+                    color: white;
+                    margin-left: 5px;
+                    font-size: 16px;
+                }
+
+                .output {
+                    color: white;
+                    font-weight: 300;
+                }
+            }
+        }
+
+        .code-container {
+            @media only screen and (max-device-width: 768px) {
+                margin: 0 !important;
+            }
+        }
     }
-  }
 }
-
-
-
 

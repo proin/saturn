@@ -21,24 +21,66 @@ html(ng-app="app")
         link(rel="stylesheet", href="{$ROOT}/view/css/viewer.css")
 
     body(ng-controller='ctrl')
-        .container.top-menu
+        .container-fluid.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
-                .container(ng-cloak)
+                .container-fluid(ng-cloak)
                     a.navbar-brand
                         img(src='/images/saturn-ico.png', width='30', height='30', alt='')
-                        | &nbsp;&nbsp;Saturn: {{file}}
+                        | &nbsp;Saturn: {{file}}
                     ul.nav.navbar-nav
                         li.nav-item
-                            a.nav-link(ng-click='history()') List
+                            a.nav-link(ng-href='{{ROOT_PATH}}') List
 
             .toolbar(ng-cloak)
-                .container(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
-                .container(ng-if="ACCESS_STATUS === 'GRANTALL'")
+                .container-fluid(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
+                .container-fluid(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='click.save()')
                         i.fa.fa-floppy-o
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
-            .code-editor(id='code-editor')
+        .view-container
+            .finder-view
+                div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
+            .editor-view
+                .code-editor(id='code-editor')
+
+        #create.modal.fade(tabindex='-1', role='dialog', aria-labelledby='create', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title New File
+                    .modal-body
+                        form
+                            .form-group
+                                label.form-control-label Type
+                                select.form-control(ng-model='status.finder.createType')
+                                    option(value='folder') Folder
+                                    option(value='js') Javascript
+                            .form-group
+                                label.form-control-label File or Folder Name:
+                                input.form-control(type='text', ng-model='status.finder.createName')
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.finder.create()') Create
+
+        #upload.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title Upload Files
+                    .modal-body
+                        .form-group
+                            label.form-control-label Select File or exported `*.satbook` project
+                            input.form-control(type='file', multiple)
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.finder.upload()') Upload
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm

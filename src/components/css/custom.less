@@ -1,5 +1,81 @@
+body {
+    font-family: Hack, inherit;
+    font-size: 14px;
+}
+
+.position-fixed {
+    position: fixed;
+}
+
+.dropdown.position-fixed.open {
+    .dropdown-menu {
+        font-size: 12px;
+        max-width: 80px;
+        min-width: 80px;
+        padding: 0;
+
+        .dropdown-item {
+            cursor: pointer;
+            max-width: 80px;
+            padding: 4px 12px;
+        }
+    }
+    z-index: 99999;
+}
+
+.CodeMirror {
+    font-size: 12px;
+    font-family: Hack !important;
+    font-weight: normal !important;
+    letter-spacing: 0;
+    word-spacing: 0;
+}
+
 .top-menu {
-  a {
-    cursor: pointer !important;
-  }
+    a {
+        cursor: pointer !important;
+    }
+
+    nav {
+        height: 56px;
+        word-break: normal;
+        white-space: nowrap;
+
+        .container-fluid {
+            @media only screen and (max-device-width: 768px) {
+                padding: 0;
+            }
+        }
+
+        ul {
+            @media only screen and (max-device-width: 768px) {
+                display: none;
+            }
+        }
+    }
+
+    .toolbar {
+        position: fixed;
+        top: 54px;
+        left: 0;
+        width: 100%;
+        padding: 8px 0;
+        background-color: #efefef;
+        font-size: 18px;
+        z-index: 5;
+
+        .container-fluid button {
+            margin-right: 4px;
+        }
+
+        .container button {
+            margin-right: 4px;
+        }
+
+        .save-time {
+            @media only screen and (max-device-width: 768px) {
+                display: none;
+            }
+        }
+    }
 }

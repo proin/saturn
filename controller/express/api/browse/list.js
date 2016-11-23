@@ -40,7 +40,7 @@ router.get("/", function (req, res) {
             info.type = 'project';
             info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
             info.name = path.basename(dirs[i], path.extname(dirs[i]));
-            info.status = thread.status[info.name];
+            info.status = thread.status[info.path];
         } else {
             let info = projectList[dirs[i]] = {};
             info.type = fs.lstatSync(path.resolve(WORKSPACE_PATH, dirs[i])).isDirectory() ? 'folder' : 'file';

@@ -1,6 +1,44 @@
+angular.module("ngTreeview", []).directive("treeModel", function ($compile) {
+    return {
+        restrict: "A", link: function (a, g, b) {
+            let f = b.treeModel;
+            let d = b.nodeLabel || "label";
+            let c = b.nodeChildren || "children";
+            let onSelect = b.onSelect;
+
+            d = '<ul><li data-ng-repeat="node in ' + f + '">' +
+                '<i class="fa fa-folder" data-ng-if="node.type== \'folder\' && node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
+                '<i class="fa fa-folder-open" data-ng-if="node.type == \'folder\' && !node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
+                '<i class="fa fa-code-fork" data-ng-if="node.type == \'project\'" data-ng-click="' + onSelect + '(node)"></i> ' +
+                '<i class="fa fa-file-o" data-ng-if="node.type == \'file\'" data-ng-click="' + onSelect + '(node)"></i> ' +
+                '<span ng-class="' +
+                'status.runningLog[node.path] && PATH == node.path ? ' +
+                'status.runningLog[node.path] + \' selected\' : ' +
+                'PATH == node.path ? \'selected\' : ' +
+                'status.runningLog[node.path] ? ' +
+                'status.runningLog[node.path] : ' +
+                '\'\'' +
+                '" data-ng-click="' + onSelect + '(node)" context-menu data-target="menu-{{ node.path }}">{{node.name}}</span>' +
+
+                // context menu
+                '<div class="dropdown position-fixed" id="menu-{{ node.path }}"><div class="dropdown-menu" role="menu">' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.add(node)">Add</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node)">Upload</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.delete(node)">Delete</a>' +
+                '</div></div>' +
+
+                '<div data-ng-hide="node.collapsed" data-tree-model="node.' + c + '" data-node-id=' + (b.path || "id") + " data-node-label=" + d + " data-node-children=" + c + " data-on-select='" + onSelect + "'></div></li></ul>";
+
+            f && f.length && (b.angularTreeview && (a.selectNode = function (a) {
+                a.collapsed = !a.collapsed;
+            }), g.html(null).append($compile(d)(a)))
+        }
+    }
+});
+
 var app = angular.module(
     'app',
-    ['ngMessages', 'ngSanitize']
+    ['ngMessages', 'ngSanitize', 'ngTreeview', 'ng-context-menu']
 ).directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {

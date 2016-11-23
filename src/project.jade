@@ -26,74 +26,117 @@ html(ng-app="app")
                 .container-fluid(ng-cloak)
                     a.navbar-brand(ng-click='titleEdit = true')
                         img(src='/images/saturn-ico.png', width='30', height='30', alt='')
-                        span(ng-if='!titleEdit') &nbsp;&nbsp;Saturn: {{app}}
+                        span(ng-if='!titleEdit') &nbsp;Saturn: {{app}}
                         input(type='text', ng-if='titleEdit', ng-model='appRename', ng-enter='click.editTitle(appRename)')
                     ul.nav.navbar-nav
                         li.nav-item
-                            a.nav-link(href='/') List
+                            a.nav-link(ng-href='{{ROOT_PATH}}') List
 
             .toolbar(ng-cloak)
                 .container-fluid
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-play(ng-if='!status.running')
-                        i.fa.fa-stop(ng-if='status.running')
-                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
+                        i.fa.fa-play(ng-if='status.running != "running"')
+                        i.fa.fa-stop(ng-if='status.running == "running"')
+                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-eraser
-                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
+                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-floppy-o
-                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
+                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-plus-square
-                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='status.logView == false && ACCESS_STATUS === "GRANTALL"')
+                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-minus-circle
-                    button.btn.btn-default.btn-sm(ng-click='click.export()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.export()')
                         i.fa.fa-book
-                    button.btn.btn-default.btn-sm(ng-click='click.exportRun()', ng-if='status.logView == false')
+                    button.btn.btn-default.btn-sm(ng-click='click.exportRun()')
                         i.fa.fa-rocket
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
-        .editor-view(ng-show='status.logView == false', ng-cloak)
-            .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == true ? "running": ""')
-                .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
-                    .col-md-1
-                        b in [libs]
-                    .col-md-11
-                        .code-editor#code-editor-libs
 
-                .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0')
-                    .col-md-1(ng-click='outputLong.lib = !outputLong.lib')
-                        b out [libs] &nbsp;
-                    .col-md-11(ng-class='outputLong.lib ? "" : "scroll"')
-                        pre.output-messages
-                            div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5', ng-bind-html='log.msg')
+        .view-container
+            .finder-view
+                div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
 
-            .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == true ? "running": ""')
-                .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
-                    .col-md-1
-                        b in [{{$index}}] &nbsp;
-                        select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
-                            option(value='work') work
-                            option(value='loop') loop
-                    .col-md-11
-                        .loop(ng-if='code.type == "loop"')
-                            .row
-                                .col-md-10
-                                    .code-editor(id='code-editor-{{code.id}}')
-                                .col-md-2(style='text-align: right;')
-                                    | end &nbsp;
-                                    select(ng-model='code.block_end', ng-change='event.changed()')
-                                        option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
+            .editor-view(ng-cloak)
+                .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == "running" ? "running": ""')
+                    .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
+                        .col-md-1
+                            b in [libs]
+                        .col-md-11
+                            .code-editor#code-editor-libs
 
-                        .work(ng-if='code.type == "work"')
-                            .code-editor(id='code-editor-{{code.id}}')
-                    .col-md-2
-                    .col-md-10
+                    .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0')
+                        .col-md-1(ng-click='outputLong.lib = !outputLong.lib')
+                            b out [libs] &nbsp;
+                        .col-md-11(ng-class='outputLong.lib ? "" : "scroll"')
+                            pre.output-messages
+                                div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5', ng-bind-html='log.msg')
 
-                .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
-                    .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
-                        b out [{{$index}}] &nbsp;
-                    .col-md-11(ng-class='outputLong[$index] ? "" : "scroll"')
-                        pre.output-messages
-                            div(ng-repeat='log in singleLog[$index] track by $index', ng-class='log.status', ng-show='outputLong[$parent.$index] || $index >= singleLog[$parent.$index].length - 5', ng-bind-html='log.msg')
+                .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == "running" ? "running": ""')
+                    .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
+                        .col-md-1
+                            b in [{{$index}}] &nbsp;
+                            select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
+                                option(value='work') work
+                                option(value='loop') loop
+                        .col-md-11
+                            .loop(ng-if='code.type == "loop"')
+                                .row
+                                    .col-md-10
+                                        .code-editor(id='code-editor-{{code.id}}')
+                                    .col-md-2(style='text-align: right;')
+                                        | end &nbsp;
+                                        select(ng-model='code.block_end', ng-change='event.changed()')
+                                            option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
+
+                            .work(ng-if='code.type == "work"')
+                                .code-editor(id='code-editor-{{code.id}}')
+                        .col-md-2
+                        .col-md-10
+
+                    .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
+                        .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
+                            b out [{{$index}}] &nbsp;
+                        .col-md-11(ng-class='outputLong[$index] ? "" : "scroll"')
+                            pre.output-messages
+                                div(ng-repeat='log in singleLog[$index] track by $index', ng-class='log.status', ng-show='outputLong[$parent.$index] || $index >= singleLog[$parent.$index].length - 5', ng-bind-html='log.msg')
+
+        #create.modal.fade(tabindex='-1', role='dialog', aria-labelledby='create', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title New File
+                    .modal-body
+                        form
+                            .form-group
+                                label.form-control-label Type
+                                select.form-control(ng-model='status.finder.createType')
+                                    option(value='folder') Folder
+                                    option(value='js') Javascript
+                            .form-group
+                                label.form-control-label File or Folder Name:
+                                input.form-control(type='text', ng-model='status.finder.createName')
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.finder.create()') Create
+
+        #upload.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title Upload Files
+                    .modal-body
+                        .form-group
+                            label.form-control-label Select File or exported `*.satbook` project
+                            input.form-control(type='file', multiple)
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                        | &nbsp;
+                        button.btn.btn-primary(type='button', ng-click='click.finder.upload()') Upload
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm

@@ -35,7 +35,7 @@ module.exports = (server, config)=> {
 
             runnable.log[name].push({module: `${name}`, status: `force stop`});
             if (runnable.log[name].length > MAX_LOG_SIZE) runnable.log[name].splice(0, runnable.log[name].length - MAX_LOG_SIZE);
-            runnable.status[name] = false;
+            runnable.status[name] = null;
             delete runnable.proc[name];
         }
 
@@ -43,7 +43,7 @@ module.exports = (server, config)=> {
     });
 
     runnable.run = (name, isSingle)=> new Promise((resolve)=> {
-        if (runnable.status[name]) return resolve();
+        if (runnable.status[name] === 'running') return resolve();
 
         let run_terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
             const _spawn = require('child_process').spawn;
@@ -77,18 +77,23 @@ module.exports = (server, config)=> {
 
         if (!runnable.log[name]) runnable.log[name] = [];
         runnable.log[name].push({module: `${name}`, status: `start`});
-        runnable.status[name] = true;
+        runnable.status[name] = 'running';
 
         run_terminal('node', [`--max-old-space-size=${MAX_HEAP * 1024}`, path.join(WORKSPACE_PATH, name, isSingle ? 'run-instance.js' : 'run.js')], {cwd: WORKSPACE_PATH}, (data)=> {
             data = data + '';
-            data = data.split('\n');
+            if (data.indexOf('[app] ERROR IN') != -1) {
+                runnable.status[name] = 'error';
+                runnable.log[name].push({module: `${name}`, status: 'data', msg: data});
+            } else {
+                data = data.split('\n');
 
-            for (var i = 0; i < data.length; i++) {
-                data[i] = data[i].trim();
-                if (data[i] && data[i].length > 0) {
-                    if (!runnable.log[name]) runnable.log[name] = [];
-                    runnable.log[name].push({module: `${name}`, status: 'data', msg: data[i]});
-                    if (runnable.log[name].length > MAX_LOG_SIZE) runnable.log[name].splice(0, runnable.log[name].length - MAX_LOG_SIZE);
+                for (var i = 0; i < data.length; i++) {
+                    data[i] = data[i].trim();
+                    if (data[i] && data[i].length > 0) {
+                        if (!runnable.log[name]) runnable.log[name] = [];
+                        runnable.log[name].push({module: `${name}`, status: 'data', msg: data[i]});
+                        if (runnable.log[name].length > MAX_LOG_SIZE) runnable.log[name].splice(0, runnable.log[name].length - MAX_LOG_SIZE);
+                    }
                 }
             }
         }, (err)=> {
@@ -96,12 +101,14 @@ module.exports = (server, config)=> {
             err = err.trim();
             if (!runnable.log[name]) runnable.log[name] = [];
             runnable.log[name].push({module: `${name}`, status: 'error', msg: err});
+            runnable.status[name] = 'error';
             if (runnable.log[name].length > MAX_LOG_SIZE) runnable.log[name].splice(0, runnable.log[name].length - MAX_LOG_SIZE);
         }).then(()=> {
             if (!runnable.log[name]) runnable.log[name] = [];
             runnable.log[name].push({module: `${name}`, status: `finish`});
             if (runnable.log[name].length > MAX_LOG_SIZE) runnable.log[name].splice(0, runnable.log[name].length - MAX_LOG_SIZE);
-            runnable.status[name] = false;
+            if (runnable.status[name] !== 'error' && runnable.status[name] != null)
+                runnable.status[name] = 'finish';
             delete runnable.proc[name];
         });
         resolve();
@@ -109,7 +116,7 @@ module.exports = (server, config)=> {
 
     runnable.install = (libs, run_path)=> new Promise((resolve)=> {
         let DEPS_PATH = path.resolve(run_path, 'node_modules'
-);
+        );
 
         let deps = ['install', '--save'];
         for (let i = 0; i < libs.length; i++)
