@@ -1,8 +1,20 @@
 # Saturn
 
-Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
+- Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
+- Demo in here, [http://workspace.proinlab.com](http://workspace.proinlab.com)
 
-![Image of Graph](docs/images/saturn.png)
+## Features
+
+- Easy install by [LWOT](http://github.com/searble/lwot)
+- Browsing file in your server
+- Intuitive asynchronous loop management
+- Unit test available, even though asynchronous loop
+- Visualized work status (running, finish, error)
+- Comming soon
+    - Mailing on error
+    - Work scheduling (once a day, once a week, etc..)
+
+![Image of Graph](docs/images/saturn-project.png)
 
 ## Installation
 
@@ -78,7 +90,7 @@ lwot express run
 
 ### Project
 
-![Image of Graph](docs/images/project.png)
+![Image of Graph](docs/images/saturn-project.png)
 
 - Structure
     - `libs`: global library & function in here 
