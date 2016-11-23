@@ -105,7 +105,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         };
 
         $scope.status.finder = {};
-        $scope.status.finder.createType = 'js';
+        $scope.status.finder.createType = 'project';
         $scope.status.finder.createName = 'new';
 
         if (localStorage.finder) {
@@ -160,6 +160,17 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 PARENT = finder.findParent(node);
                 if (!PARENT) return;
                 ROOT = PARENT.PATH;
+            }
+
+            if (createType == 'project') {
+                let projectRoot = PARENT.path;
+                if (projectRoot.indexOf('/') !== 0) projectRoot = '/' + projectRoot;
+                if (projectRoot.length === 1)
+                    projectRoot = '';
+
+                location.href = '#' + encodeURI(projectRoot + '/' + createName + '.satbook');
+                location.reload();
+                return;
             }
 
             if (PARENT && ROOT && createName && createType) {
