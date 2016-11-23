@@ -448,6 +448,65 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         $scope.status.finder.createType = 'js';
         $scope.status.finder.createName = 'new';
 
+        $scope.click.finderList = (node)=> {
+            if (node.type == 'folder') {
+                if (node.collapsed) {
+                    node.narrower = [{type: 'none', path: 'none', name: 'loading ...', narrower: [], PATH: []}];
+                    $timeout();
+                    API.browse.list(node.PATH, true).then((data)=> {
+                        if (!node.narrower) node.narrower = [];
+
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i].type == 'folder') {
+                                data[i].narrower = [];
+                                data[i].collapsed = true;
+                            }
+
+                            data[i].PATH = data[i].path.split('/');
+                            data[i].PATH.splice(0, 1);
+                        }
+
+                        data.sort((a, b)=> {
+                            if (b.name == 'node_modules') return 1;
+                            if (a.name == 'node_modules') return -1;
+                            if (a.type === b.type) return a.name.localeCompare(b.name);
+                            return b.type.localeCompare(a.type);
+                        });
+
+                        node.narrower = data;
+                        node.collapsed = !node.collapsed;
+                        localStorage.finder = JSON.stringify($scope.finder);
+                    });
+                } else {
+                    node.narrower = [];
+                    node.collapsed = !node.collapsed;
+                    localStorage.finder = JSON.stringify($scope.finder);
+                }
+            } else if (node.type == 'project') {
+                if (node.path == PATH) return;
+
+                var runnable = {
+                    path: PATH,
+                    lib: JSON.stringify($scope.lib),
+                    scripts: JSON.stringify($scope.flowpipe)
+                };
+
+                API.script.save(runnable).then(()=> {
+                    location.href = `/project.html#${encodeURI(node.path)}`;
+                    location.reload();
+                    $timeout();
+                });
+            } else {
+                var jsext = '.js';
+                if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
+                    location.href = '/viewer.html#' + encodeURI(node.path);
+                } else {
+                    window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
+                }
+                return;
+            }
+        };
+
         if (localStorage.finder) {
             $scope.finder = JSON.parse(localStorage.finder);
         } else {
@@ -557,65 +616,6 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             });
-        };
-
-        $scope.click.finderList = (node)=> {
-            if (node.type == 'folder') {
-                if (node.collapsed) {
-                    node.narrower = [{type: 'none', path: 'none', name: 'loading ...', narrower: [], PATH: []}];
-                    $timeout();
-                    API.browse.list(node.PATH, true).then((data)=> {
-                        if (!node.narrower) node.narrower = [];
-
-                        for (let i = 0; i < data.length; i++) {
-                            if (data[i].type == 'folder') {
-                                data[i].narrower = [];
-                                data[i].collapsed = true;
-                            }
-
-                            data[i].PATH = data[i].path.split('/');
-                            data[i].PATH.splice(0, 1);
-                        }
-
-                        data.sort((a, b)=> {
-                            if (b.name == 'node_modules') return 1;
-                            if (a.name == 'node_modules') return -1;
-                            if (a.type === b.type) return a.name.localeCompare(b.name);
-                            return b.type.localeCompare(a.type);
-                        });
-
-                        node.narrower = data;
-                        node.collapsed = !node.collapsed;
-                        localStorage.finder = JSON.stringify($scope.finder);
-                    });
-                } else {
-                    node.narrower = [];
-                    node.collapsed = !node.collapsed;
-                    localStorage.finder = JSON.stringify($scope.finder);
-                }
-            } else if (node.type == 'project') {
-                if (node.path == PATH) return;
-
-                var runnable = {
-                    path: PATH,
-                    lib: JSON.stringify($scope.lib),
-                    scripts: JSON.stringify($scope.flowpipe)
-                };
-
-                API.script.save(runnable).then(()=> {
-                    location.href = `/project.html#${encodeURI(node.path)}`;
-                    location.reload();
-                    $timeout();
-                });
-            } else {
-                var jsext = '.js';
-                if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
-                    location.href = '/viewer.html#' + encodeURI(node.path);
-                } else {
-                    window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
-                }
-                return;
-            }
         };
     });
 });
