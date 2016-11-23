@@ -3,6 +3,7 @@
 - Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
 - Demo in here, [http://workspace.proinlab.com](http://workspace.proinlab.com)
 - Node.js version upper than 6.x.x
+- Only tested at Chrome Browser
 
 ## Features
 

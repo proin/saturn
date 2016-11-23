@@ -47,7 +47,10 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.click.add = function () {
             let {addName, PATH} = $scope;
             if (!addName) return;
-            location.href = `/project.html#${encodeURI(addName)}#${encodeURI(JSON.stringify(PATH))}`;
+            let rootPath = '';
+            for (let i = 0; i < PATH.length; i++)
+                rootPath += '/' + PATH[i];
+            location.href = `/project.html#${encodeURI(rootPath + '/' + addName +'.satbook')}`;
         };
 
         // Signout
