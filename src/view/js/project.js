@@ -86,9 +86,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         logger();
 
-        /*
-         * Code Editor
-         */
+        // lib: Code Editor
 
         // create codemirror
         var codemirror = function (_id) {
@@ -417,9 +415,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         $scope.event.changed();
 
-        /*
-         * LIB File Browser
-         */
+        // lib: File Browser
 
         let finder = {};
         finder.findParent = (node)=> {

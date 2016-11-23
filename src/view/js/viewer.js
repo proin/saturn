@@ -74,9 +74,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             });
         };
 
-        /*
-         * LIB File Browser
-         */
+        // lib: File Browser
 
         let finder = {};
         finder.findParent = (node)=> {
