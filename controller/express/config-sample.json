@@ -1,7 +1,19 @@
 {
-    "port": 3000,
     "dev": true,
     "log": true,
+    "port": 3000,
+    "hostname": "http://localhost",
+    "smtp": {
+        "host": "smtp.your-site.net",
+        "user": "user@your-site.net",
+        "password": "password",
+        "ssl": true
+    },
+    "mailingList": "your@mail-address.net",
+    "mailingOn": {
+        "error": true,
+        "finish": true
+    },
     "readonly": true,
     "home": "./workspace/saturn",
     "user": "admin",

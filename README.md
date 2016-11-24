@@ -61,6 +61,18 @@ lwot express run
     "home": "./saturn-project", // workspace home, start from USER HOME
     "dev": true, // display express log
     "log": true, // display thread log
+    "hostname": "http://localhost", // direct url
+    "smtp": { // emailjs configuration object
+        "host": "smtp.your-site.net",
+        "user": "user@your-site.net",
+        "password": "password",
+        "ssl": true
+    },
+    "mailingList": "your@mail-address.net, co-worker@mail-address.net", // who are received? 
+    "mailingOn": {
+        "error": true, // mail when error occured 
+        "finish": true // mail when work finished
+    },
     "readonly": true, // readable project for whom not signin users
     "user": "admin", // admin user
     "password": "admin123", // admin password
