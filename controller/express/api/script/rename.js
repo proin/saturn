@@ -17,8 +17,11 @@ router.post("/", function (req, res) {
     const MV_PATH = path.resolve(path.dirname(ORG_PATH), `${rename}.satbook`);
 
     fsext.move(ORG_PATH, MV_PATH, function (err) {
+        let RESULT_PATH = MV_PATH.replace(req.DIR.WORKSPACE_PATH, '');
+        if (process.platform == 'win32') RESULT_PATH = RESULT_PATH.replace(/\\/gim, '/');
+
         if (err) res.send({status: false});
-        else res.send({status: true, path: MV_PATH.replace(req.DIR.WORKSPACE_PATH, '')});
+        else res.send({status: true, path: RESULT_PATH});
     });
 });
 
