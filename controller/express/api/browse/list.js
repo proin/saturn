@@ -35,12 +35,14 @@ router.get("/", function (req, res) {
             let info = projectList[path.basename(dirs[i], path.extname(dirs[i]))] = {};
             info.type = 'project';
             info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
+            if (process.platform == 'win32') info.path = info.path.replace(/\\/gim, '/');
             info.name = path.basename(dirs[i], path.extname(dirs[i]));
             info.status = thread.status[info.path];
         } else {
             let info = projectList[dirs[i]] = {};
             info.type = fs.lstatSync(path.resolve(WORKSPACE_PATH, dirs[i])).isDirectory() ? 'folder' : 'file';
             info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
+            if (process.platform == 'win32') info.path = info.path.replace(/\\/gim, '/');
             info.name = dirs[i];
         }
     }
