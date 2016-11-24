@@ -32,7 +32,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         // ui status
-        $scope.inputLong = {};
+        $scope.inputLong = localStorage.inputLong ? JSON.parse(localStorage.inputLong) : {};
         $scope.outputLong = {};
         $scope.titleEdit = false;
 
@@ -415,6 +415,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         $scope.$watch('inputLong', ()=> {
+            localStorage.inputLong = JSON.stringify($scope.inputLong);
             $scope.event.changed();
         }, true);
 

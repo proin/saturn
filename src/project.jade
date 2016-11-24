@@ -61,9 +61,8 @@ html(ng-app="app")
                     .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
                         .col-md-1
                             b(ng-click='inputLong.lib = !inputLong.lib') in [libs]
-                        .col-md-11(ng-hide='inputLong.lib')
+                        .col-md-11(ng-class='inputLong.lib ? "scroll" : ""')
                             .code-editor#code-editor-libs
-                        .col-md-11(ng-show='inputLong.lib') Folding
 
                     .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0')
                         .col-md-1(ng-click='outputLong.lib = !outputLong.lib')
@@ -79,7 +78,7 @@ html(ng-app="app")
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
                                 option(value='work') work
                                 option(value='loop') loop
-                        .col-md-11(ng-hide='inputLong[$index]')
+                        .col-md-11(ng-class='inputLong[$index] ? "scroll" : ""')
                             .loop(ng-if='code.type == "loop"')
                                 .row
                                     .col-md-10
@@ -91,7 +90,6 @@ html(ng-app="app")
 
                             .work(ng-if='code.type == "work"')
                                 .code-editor(id='code-editor-{{code.id}}')
-                        .col-md-11(ng-show='inputLong[$index]') Folding
 
                     .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
                         .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
