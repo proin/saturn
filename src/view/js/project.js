@@ -32,6 +32,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         // ui status
+        $scope.inputLong = {};
         $scope.outputLong = {};
         $scope.titleEdit = false;
 
@@ -413,7 +414,9 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $timeout();
         };
 
-        $scope.event.changed();
+        $scope.$watch('inputLong', ()=> {
+            $scope.event.changed();
+        }, true);
 
         // lib: File Browser
 
