@@ -8,7 +8,8 @@ module.exports = (server, config)=> {
     const MAX_HEAP = config.MAX_HEAP ? config.MAX_HEAP : 4;
 
     let terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
-        const _spawn = require('child_process').spawn;
+        let _spawn = require('child_process').spawn;
+        if (process.platform == 'win32') _spawn = require('cross-spawn');
         let term = _spawn(cmd, args, opts);
 
         term.stdout.on('data', data ? data : ()=> {
@@ -46,7 +47,9 @@ module.exports = (server, config)=> {
         if (runnable.status[name] === 'running') return resolve();
 
         let run_terminal = (cmd, args, opts, data, err)=> new Promise((resolve)=> {
-            const _spawn = require('child_process').spawn;
+            let _spawn = require('child_process').spawn;
+            if (process.platform == 'win32') _spawn = require('cross-spawn');
+
             let term = _spawn(cmd, args, opts);
             term.stdout.on('data', (log)=> {
                 if (config.log)
