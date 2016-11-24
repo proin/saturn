@@ -12,8 +12,8 @@
 - Intuitive asynchronous loop management
 - Unit test available, even though asynchronous loop
 - Visualized work status (running, finish, error)
+- Mailing on event (error, finish)
 - Comming soon
-    - Mailing on error
     - Work scheduling (once a day, once a week, etc..)
 
 ![Image of Graph](docs/images/saturn-project.png)
@@ -110,6 +110,12 @@ lwot express run
     - `libs`: global library & function in here 
     - `work`: if you are using async functions, you must call `resolve()` in the end
     - `loop`: set loop processing condition, `e.g) index < 10`, if condition is true, run under works
+
+### Email Alert
+
+![Image of Graph](docs/images/mailer-message.png)
+    
+- you can set on this function at `./controller/express/config.json` file
     
 ### Examples Usage
 
