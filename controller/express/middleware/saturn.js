@@ -64,9 +64,11 @@ module.exports = (config)=> (req, res, next)=> {
         if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
         if (!fs.existsSync(path.resolve(WORKSPACE_PATH, 'package.json'))) fs.writeFileSync(path.resolve(WORKSPACE_PATH, 'package.json'), '{}');
 
+        if (!fs.existsSync(TMP_PATH)) fsext.mkdirsSync(TMP_PATH);
+        
         // save project info.
-        fs.writeFileSync(path.resolve(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
-        fs.writeFileSync(path.resolve(TMP_PATH, 'lib.json'), JSON.stringify(lib));
+        fs.writeFileSync(path.join(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
+        fs.writeFileSync(path.join(TMP_PATH, 'lib.json'), JSON.stringify(lib));
 
         // check node requirements
         let libVal = lib.value;

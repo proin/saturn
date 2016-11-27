@@ -36,8 +36,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 $scope.status.runningLog[name] = data;
             }
 
-            console.log($scope.status.runningLog);
-
             for (let i = 0; i < $scope.current.length; i++) {
                 if ($scope.current[i].path) {
                     if ($scope.status.runningLog[$scope.current[i].path])
