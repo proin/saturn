@@ -9,17 +9,36 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.status = {};
         $scope.click = {};
 
-        // logger
-        let logger = ()=> {
-            var MAX_LOG_SIZE = 500;
-            API.script.running().then((data)=> {
+        // class: socket
+        let socketHandler = {};
+
+        socketHandler.status = (message)=> {
+            let {type, data, name} = message;
+
+            if (type == 'list') {
                 $scope.status.runningLog = data;
-                $timeout(logger, 1000);
-            });
+                $scope.status.running = data[PATH];
+            } else if (type == 'message') {
+                $scope.status.runningLog[name] = data;
+                if (name == PATH)
+                    $scope.status.running = data;
+            }
+
+            $timeout();
         };
 
-        logger();
+        let socket = new io.connect('/');
 
+        socket.on('connect', ()=> {
+            socket.send({channel: 'status', name: PATH});
+        });
+
+        socket.on('message', function (data) {
+            if (socketHandler[data.channel])
+                socketHandler[data.channel](data);
+        });
+
+        // class: file
         $scope.file = location.href.split('#')[1];
 
         $scope.value = '';
@@ -301,7 +320,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 } else {
                     window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
                 }
-                return;
             }
         };
     });

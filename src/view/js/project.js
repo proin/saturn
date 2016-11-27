@@ -20,11 +20,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         // log variables
-        $scope.singleLog = localStorage['log-' + $scope.app] ? JSON.parse(localStorage['log-' + $scope.app]) : {};
-        for (var key in $scope.singleLog)
-            for (var i = 0; i < $scope.singleLog[key].length; i++)
-                delete $scope.singleLog[key][i]['$$hashKey'];
-        if ($scope.ACCESS_STATUS !== 'GRANTALL') $scope.singleLog = {};
+        $scope.singleLog = {};
 
         // history back
         $scope.history = function () {
@@ -46,6 +42,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         $scope.status.indent = [];
         $scope.status.logView = false;
         $scope.status.running = null;
+        $scope.status.runningLog = {};
         $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
 
         // script variables
@@ -60,35 +57,73 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.event.changed();
         });
 
-        // logger
-        let logger = ()=> {
-            var MAX_LOG_SIZE = 500;
-            API.script.log(PATH).then((data)=> {
-                if (!$scope.singleLog[$scope.status.singleFocused]) $scope.singleLog[$scope.status.singleFocused] = [];
-                for (var i = 0; i < data.data.length; i++) {
-                    if (data.data[i].status == 'start' || data.data[i].status == 'install') {
-                        if ($scope.singleLog[$scope.status.singleFocused])
-                            $scope.singleLog[$scope.status.singleFocused].splice(0);
-                    } else if ((data.data[i].status == 'data' || data.data[i].status == 'error') && $scope.status.singleFocused !== -1) {
-                        $scope.singleLog[$scope.status.singleFocused].push(data.data[i]);
-                        if ($scope.singleLog[$scope.status.singleFocused].length > MAX_LOG_SIZE)
-                            $scope.singleLog[$scope.status.singleFocused].splice(0, $scope.singleLog[$scope.status.singleFocused].length - MAX_LOG_SIZE);
-                    }
-                }
-                localStorage['log-' + $scope.app] = JSON.stringify($scope.singleLog);
-                $scope.status.running = data.running;
-                $timeout();
-                return API.script.running();
-            }).then((data)=> {
+        // class: socket
+        let socketHandler = {};
+
+        socketHandler.status = (message)=> {
+            let {type, data, name} = message;
+
+            if (type == 'list') {
                 $scope.status.runningLog = data;
-                $timeout(logger, 1000);
-            });
+                $scope.status.running = data[PATH];
+            } else if (type == 'message') {
+                $scope.status.runningLog[name] = data;
+                if (name == PATH)
+                    $scope.status.running = data;
+            }
+
+            $timeout();
         };
 
-        logger();
+        socketHandler.log = (log)=> {
+            let {type, data} = log;
 
-        // lib: Code Editor
+            if (type == 'list') {
+                for (let work in data) {
+                    let row = [];
+                    for (let i = data[work].length - 1; i >= 0; i--) {
+                        let status = data[work][i].status;
+                        if (status == 'finish' || status == 'install') continue;
+                        if (status == 'start') break;
 
+                        row.unshift(data[work][i]);
+                    }
+                    data[work] = row;
+                }
+                $scope.singleLog = data;
+            } else if (type == 'message') {
+                let {status, target} = data;
+
+                if (!$scope.singleLog[target])
+                    $scope.singleLog[target] = [];
+                if (status == 'finish' || status == 'install')
+                    return;
+
+                if (status == 'start') {
+                    $scope.singleLog[target] = [];
+                    $timeout();
+                    return;
+                }
+
+                $scope.singleLog[target].push(data);
+            }
+
+            $timeout();
+        };
+
+        let socket = new io.connect('/');
+
+        socket.on('connect', ()=> {
+            socket.send({channel: 'log', name: PATH});
+            socket.send({channel: 'status', name: PATH});
+        });
+
+        socket.on('message', function (data) {
+            if (socketHandler[data.channel])
+                socketHandler[data.channel](data);
+        });
+
+        // class: Code Editor
         // create codemirror
         var codemirror = function (_id) {
             var creator = function (id) {
@@ -290,7 +325,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         $scope.click.clean = function () {
-            $scope.singleLog = {};
+            socket.send({channel: 'logclear', name: PATH});
             $timeout();
         };
 
@@ -383,11 +418,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     scripts: JSON.stringify($scope.flowpipe)
                 };
 
-                if ($scope.status.singleFocused === 'libs') {
-                    API.script.run(runnable);
-                } else {
-                    API.script.runSingle(runnable);
-                }
+                API.script.run(runnable);
             }
         };
 
@@ -419,8 +450,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.event.changed();
         }, true);
 
-        // lib: File Browser
-
+        // class: File Browser
         let finder = {};
         finder.findParent = (node)=> {
             let PARENT = node.PATH.slice(0, node.PATH.length - 1);

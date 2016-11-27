@@ -1,29 +1,74 @@
 'use strict';
 
 module.exports = (config)=> (req, res, next)=> {
-    req.config = config;
-
     const fs = require('fs');
     const path = require('path');
     const fsext = require('fs-extra');
 
+    let {thread} = req.modules;
+
     let app = {};
 
-    app.workspace = {};
-    app.workspace.save = (args)=> new Promise((resolve)=> {
-        let {WORKSPACE_PATH, TMP_PATH, lib, scripts} = args;
-        if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
-        if (!fs.existsSync(path.resolve(WORKSPACE_PATH, 'package.json'))) fs.writeFileSync(path.resolve(WORKSPACE_PATH, 'package.json'), '{}');
+    app.install = (args)=> new Promise((resolve)=> {
+        let {WORKSPACE_PATH, lib} = args;
+        lib = JSON.parse(lib);
 
-        fsext.removeSync(path.resolve(TMP_PATH, 'scripts'));
-        fsext.mkdirsSync(path.resolve(TMP_PATH, 'scripts'));
+        let npmlibs = ['flowpipe'];
+        let npms = lib.value.match(/require\([^\)]+\)/gim);
 
+        for (let i = 0; i < npms.length; i++) {
+            npms[i] = npms[i].replace(/ /gim, '');
+            npms[i] = npms[i].replace(/\n/gim, '');
+            npms[i] = npms[i].replace(/\t/gim, '');
+            npms[i] = npms[i].replace("require('", '');
+            npms[i] = npms[i].replace("')", '');
+
+            let exists = true;
+            try {
+                require(npms[i]);
+            } catch (e) {
+                exists = false;
+            }
+
+            let list = fs.readdirSync(path.resolve(__dirname, '..', '..', '..', 'node_modules'));
+            for (let j = 0; j < list.length; j++)
+                if (list[j] == npms[i])
+                    exists = false;
+
+            if (fs.existsSync(path.resolve(WORKSPACE_PATH, npms[i]))) {
+                exists = true;
+            }
+
+            if (fs.existsSync(path.resolve(WORKSPACE_PATH, 'node_modules'))) {
+                list = fs.readdirSync(path.resolve(WORKSPACE_PATH, 'node_modules'));
+                for (let j = 0; j < list.length; j++)
+                    if (list[j] == npms[i])
+                        exists = true;
+            }
+
+            if (!exists)
+                npmlibs.push(npms[i]);
+        }
+
+        thread.install(npmlibs, WORKSPACE_PATH).then(resolve);
+    });
+
+    app.save = (args)=> new Promise((resolve)=> {
+        // initialize variables
+        let {WORKSPACE_PATH, TMP_PATH, lib, scripts, target} = args;
+        target = target && target != -1 ? target : 'libs';
         lib = JSON.parse(lib);
         scripts = JSON.parse(scripts);
 
+        // check required files
+        if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
+        if (!fs.existsSync(path.resolve(WORKSPACE_PATH, 'package.json'))) fs.writeFileSync(path.resolve(WORKSPACE_PATH, 'package.json'), '{}');
+
+        // save project info.
         fs.writeFileSync(path.resolve(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
         fs.writeFileSync(path.resolve(TMP_PATH, 'lib.json'), JSON.stringify(lib));
 
+        // check node requirements
         let libVal = lib.value;
         let requirestr = libVal.match(/require\([^\)]+\)/gim);
         for (let i = 0; i < requirestr.length; i++) {
@@ -32,14 +77,15 @@ module.exports = (config)=> (req, res, next)=> {
             requirestr[i] = requirestr[i].replace(/\t/gim, '');
             requirestr[i] = requirestr[i].replace("require('", '');
             requirestr[i] = requirestr[i].replace("')", '');
+            requirestr[i] = requirestr[i].trim();
+
+            if (!requirestr[i] || requirestr[i].length == 0) continue;
+
             if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
                 lib.value = lib.value.replace(requirestr[i], path.resolve(WORKSPACE_PATH, requirestr[i]));
         }
 
-        let runjs = lib.value + '\n';
-        runjs += `const Flowpipe = require('flowpipe');\n`;
-        runjs += `let flowpipe = Flowpipe.instance('app');\n`;
-
+        // find loop location
         let runInsert = {};
         for (let i = 0; i < scripts.length; i++) {
             if (scripts[i].type == 'loop') {
@@ -55,29 +101,105 @@ module.exports = (config)=> (req, res, next)=> {
             }
         }
 
-        for (let i = 0; i < scripts.length; i++) {
-            if (scripts[i].type == 'work') {
-                let jsm = '';
-                jsm += `(args)=> new Promise((resolve)=> {\n`;
-                jsm += `${scripts[i].value}\n`;
+        // runjs
+        let runjs = `
+            ${lib.value}
+            
+            const Flowpipe = require('flowpipe');
+            let flowpipe = Flowpipe.instance('app');
+        `;
 
-                if (jsm.indexOf('resolve()') == -1)
-                    jsm += `resolve();\n`;
-                jsm += `})\n`;
+        // run all
+        if (target === 'libs') {
+            // insert scripts
+            for (let i = 0; i < scripts.length; i++) {
+                if (scripts[i].type == 'work') {
+                    runjs += `
+                        flowpipe.then('${i}', (args)=> new Promise((resolve)=> {
+                            ${scripts[i].value}
+                            ${scripts[i].value.indexOf('resolve()') == -1 ? 'resolve();' : ''}
+                        }));
+                    `;
 
-                fs.writeFileSync(path.resolve(TMP_PATH, 'scripts', `script-${i}.js`), jsm);
+                    if (runInsert[i])
+                        for (let j = 0; j < runInsert[i].length; j++)
+                            runjs += `
+                                flowpipe.loop('${runInsert[i][j].start}', (args)=> ${runInsert[i][j].condition.replace(';', '')});
+                            `;
+                }
+            }
+        } else {
+            runjs += `
+                flowpipe.then(()=> new Promise((resolve)=> {
+                    try {
+                        let variables = JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, 'variable.json'), 'utf-8'));
+                        for(let key in variables)
+                            try {
+                                global[key] = JSON.parse(variables[key]);
+                            } catch(e) {
+                                try {
+                                    global[key] = variables[key];
+                                } catch(e) {}
+                            }
+                    } catch(e) {}
+                    
+                    resolve();
+                }));
+            `;
 
-                runjs += `flowpipe.then('${i}', ${jsm});\n`;
+            let variables = `
+                flowpipe.then(()=> new Promise((resolve)=> {
+                    let variables = {};
+                    for(let key in global)
+                        try {
+                            if(typeof global[key] == 'object')
+                                variables[key] = JSON.stringify(global[key]);
+                            else
+                                variables[key] = global[key];
+                        } catch(e) {}
+                    
+                    require('fs').writeFileSync(require('path').resolve(__dirname, 'variable.json'), JSON.stringify(variables));
+                    resolve();
+                }));
+            `;
 
-                if (runInsert[i])
-                    for (let j = 0; j < runInsert[i].length; j++)
-                        runjs += `flowpipe.loop('${runInsert[i][j].start}', (args)=> ${runInsert[i][j].condition.replace(';', '')});\n`
+            if (scripts[target].type == 'work') {
+                runjs += `
+                    flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
+                        ${scripts[target].value}
+                        ${scripts[target].value.indexOf('resolve') == -1 ? 'resolve();' : ''}
+                    }));
+                    
+                    ${variables}
+                `;
+            } else if (scripts[target].type == 'loop') {
+                for (let i = target; i <= scripts[target].block_end; i++) {
+                    if (scripts[i].type == 'work') {
+                        runjs += `
+                            flowpipe.then('${i}', (args)=> new Promise((resolve)=> {
+                                ${scripts[i].value}
+                                ${scripts[i].value.indexOf('resolve()') == -1 ? 'resolve();' : ''}
+                            }));
+                            
+                            ${variables}
+                        `;
+
+                        if (runInsert[i])
+                            for (let j = 0; j < runInsert[i].length; j++)
+                                runjs += `
+                                    flowpipe.loop('${runInsert[i][j].start}', (args)=> ${runInsert[i][j].condition.replace(';', '')});
+                                `;
+                    }
+                }
             }
         }
 
-        runjs += `flowpipe.run()\n`;
+        runjs += `
+            flowpipe.run();
+        `;
 
-        fs.writeFileSync(path.resolve(TMP_PATH, 'run.js'), runjs);
+        let SAVE_NAME = target == 'libs' ? 'run.js' : `run-${target}.js`;
+        fs.writeFileSync(path.resolve(TMP_PATH, SAVE_NAME), runjs);
 
         resolve();
     });

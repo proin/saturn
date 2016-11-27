@@ -51,7 +51,6 @@ html(ng-app="app")
                         i.fa.fa-rocket
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
-
         .view-container
             .finder-view
                 div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
@@ -69,7 +68,7 @@ html(ng-app="app")
                             b out [libs] &nbsp;
                         .col-md-11(ng-class='outputLong.lib ? "" : "scroll"')
                             pre.output-messages
-                                div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5', ng-bind-html='log.msg')
+                                div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5', ng-bind-html='log.message')
 
                 .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == "running" ? "running": ""')
                     .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')

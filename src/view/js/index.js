@@ -20,25 +20,52 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         // Load and Update List
         API.browse.list($scope.PATH).then((data)=> {
-            if (data.status !== false) $scope.current = data;
+            $scope.current = data;
             $timeout();
         });
 
-        setInterval(function () {
-            API.browse.list($scope.PATH).then((data)=> {
-                for (var i = 0; i < $scope.current.length; i++)
-                    if ($scope.current[i].type == 'project') $scope.current[i].status = data[i].status;
-                $timeout();
-            });
-        }, 1000);
+        // class: socket
+        let socketHandler = {};
+
+        socketHandler.status = (message)=> {
+            let {type, data, name} = message;
+
+            if (type == 'list') {
+                $scope.status.runningLog = data;
+            } else if (type == 'message') {
+                $scope.status.runningLog[name] = data;
+            }
+
+            console.log($scope.status.runningLog);
+
+            for (let i = 0; i < $scope.current.length; i++) {
+                if ($scope.current[i].path) {
+                    if ($scope.status.runningLog[$scope.current[i].path])
+                        $scope.current[i].status = $scope.status.runningLog[$scope.current[i].path];
+                }
+            }
+
+            $timeout();
+        };
+
+        let socket = new io.connect('/');
+
+        socket.on('connect', ()=> {
+            socket.send({channel: 'status', name: PATH});
+        });
+
+        socket.on('message', function (data) {
+            if (socketHandler[data.channel])
+                socketHandler[data.channel](data);
+        });
 
         // Check All
         $scope.click.checkall = function () {
-            var checkedCnt = 0;
-            for (var i = 0; i < $scope.current.length; i++)
+            let checkedCnt = 0;
+            for (let i = 0; i < $scope.current.length; i++)
                 if ($scope.current[i].checked)
                     checkedCnt++;
-            for (var i = 0; i < $scope.current.length; i++)
+            for (let i = 0; i < $scope.current.length; i++)
                 $scope.current[i].checked = checkedCnt != $scope.current.length
             $timeout();
         };
@@ -50,7 +77,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             let rootPath = '';
             for (let i = 0; i < PATH.length; i++)
                 rootPath += '/' + PATH[i];
-            location.href = `/project.html#${encodeURI(rootPath + '/' + addName +'.satbook')}`;
+            location.href = `/project.html#${encodeURI(rootPath + '/' + addName + '.satbook')}`;
         };
 
         // Signout
@@ -72,7 +99,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             let {PATH, current} = $scope;
 
             let checked = [];
-            for (var i = 0; i < current.length; i++)
+            for (let i = 0; i < current.length; i++)
                 if (current[i].checked)
                     checked.push(current[i].path);
 

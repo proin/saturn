@@ -12,10 +12,6 @@ router.get("/", function (req, res) {
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
     const TMP_PATH = path.join(WORKSPACE_PATH, req.query.path);
     if (!fs.existsSync(TMP_PATH)) return res.send({err: new Error('no work')});
-
-    if (req.modules.thread.status[req.query.path] === 'finish')
-        req.modules.thread.status[req.query.path] = null;
-
     res.send({lib: JSON.parse(fs.readFileSync(path.resolve(TMP_PATH, 'lib.json'), 'utf-8')), scripts: JSON.parse(fs.readFileSync(path.resolve(TMP_PATH, 'scripts.json'), 'utf-8'))});
 });
 

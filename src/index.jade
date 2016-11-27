@@ -48,7 +48,8 @@ html(ng-app="app")
                             i.fa.fa-file-o(ng-if='file.type == "file"')
                             div(style='display:inline-block;', ng-click='click.list(file)')
                                 | {{file.name}}
-                                span(ng-if='file.status', style='color: #8bc34a; margin-left: 8px;') [Running]
+                                span(ng-if='file.status == "running"', style='color: #8bc34a; margin-left: 8px;') [Running]
+                                span(ng-if='file.status == "error"', style='color: #e53935; margin-left: 8px;') [Error]
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm

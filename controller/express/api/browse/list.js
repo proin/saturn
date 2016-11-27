@@ -8,7 +8,6 @@ router.get("/", function (req, res) {
     // allow for everyone
     if (req.user.check() === 'DENIED') return;
 
-    let {thread} = req.modules;
     let {read_path} = req.query;
 
     let WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
@@ -37,7 +36,6 @@ router.get("/", function (req, res) {
             info.path = path.resolve(WORKSPACE_PATH, dirs[i]).replace(req.DIR.WORKSPACE_PATH, '');
             if (process.platform == 'win32') info.path = info.path.replace(/\\/gim, '/');
             info.name = path.basename(dirs[i], path.extname(dirs[i]));
-            info.status = thread.status[info.path];
         } else {
             let info = projectList[dirs[i]] = {};
             info.type = fs.lstatSync(path.resolve(WORKSPACE_PATH, dirs[i])).isDirectory() ? 'folder' : 'file';

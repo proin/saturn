@@ -16,7 +16,6 @@ router.get("/", function (req, res) {
     let running = thread.status[path];
 
     res.send({running: running, data: thread.log[path] ? thread.log[path] : []});
-    if (thread.log[path]) thread.log[path].splice(0);
 });
 
 module.exports = router;

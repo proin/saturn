@@ -16,7 +16,7 @@ router.post("/", function (req, res) {
     args.WORKSPACE_PATH = WORKSPACE_PATH;
     args.TMP_PATH = TMP_PATH;
 
-    req.saturn.workspace.save(args).then(()=> {
+    req.saturn.save(args).then(()=> {
         res.send({status: true});
     });
 });

@@ -14,7 +14,7 @@ router.get("/", function (req, res) {
     if (!runpath) return res.send({err: new Error('not defined name')});
 
     thread.stop(runpath).then(()=> {
-        res.send({running: false, data: thread.log[runpath] ? thread.log[runpath] : []});
+        res.send({running: false});
     });
 });
 
