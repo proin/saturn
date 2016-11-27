@@ -13,22 +13,18 @@ router.get("/", function (req, res) {
     if (!req.query.path) return res.send({err: new Error('not defined name')});
 
     const PRJ_PATH = path.join(req.DIR.WORKSPACE_PATH, req.query.path);
+    const RUN_PATH = path.resolve(PRJ_PATH, 'run.js');
     const LIB_PATH = path.resolve(PRJ_PATH, 'lib.json');
     const SCRIPTS_PATH = path.resolve(PRJ_PATH, 'scripts.json');
     const WORKSPACE_PATH = req.DIR.WORKSPACE_PATH;
 
-    const TMP_PATH = path.join(WORKSPACE_PATH, req.query.path);
-
     if (!fs.existsSync(LIB_PATH)) return res.send({err: new Error('no work')});
-    if (!fs.existsSync(SCRIPTS_PATH)) return res.send({err: new Error('no work')});
 
     let lib = JSON.parse(fs.readFileSync(LIB_PATH, 'utf-8'));
-    let scripts = JSON.parse(fs.readFileSync(SCRIPTS_PATH, 'utf-8'));
 
     let packageJSON = {dependencies: {flowpipe: ''}};
     packageJSON.name = path.basename(req.query.path, '.satbook');
 
-    let npmlibs = ['flowpipe'];
     let npms = lib.value.match(/require\([^\)]+\)/gim);
     for (let i = 0; i < npms.length; i++) {
         npms[i] = npms[i].replace(/ /gim, '');
@@ -74,61 +70,7 @@ router.get("/", function (req, res) {
         }
     }
 
-    // runjs
-    let libVal = lib.value;
-    let requirestr = libVal.match(/require\([^\)]+\)/gim);
-    for (let i = 0; i < requirestr.length; i++) {
-        requirestr[i] = requirestr[i].replace(/ /gim, '');
-        requirestr[i] = requirestr[i].replace(/\n/gim, '');
-        requirestr[i] = requirestr[i].replace(/\t/gim, '');
-        requirestr[i] = requirestr[i].replace("require('", '');
-        requirestr[i] = requirestr[i].replace("')", '');
-        if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i])))
-            lib.value = lib.value.replace(requirestr[i], './' + path.basename(requirestr[i]));
-    }
-
-    let runjs = lib.value + '\n';
-    runjs += `const Flowpipe = require('flowpipe');\n`;
-    runjs += `let flowpipe = Flowpipe.instance('app');\n`;
-
-    let runInsert = {};
-    for (let i = 0; i < scripts.length; i++) {
-        if (scripts[i].type == 'loop') {
-            let start = i + 1;
-            for (let j = i + 1; j < scripts.length; j++) {
-                if (scripts[j].type != 'loop') {
-                    start = j;
-                    break;
-                }
-            }
-            if (!runInsert[scripts[i].block_end]) runInsert[scripts[i].block_end] = [];
-            runInsert[scripts[i].block_end].unshift({start: start, end: scripts[i].block_end, condition: scripts[i].value});
-        }
-    }
-
-    for (let i = 0; i < scripts.length; i++) {
-        if (scripts[i].type == 'work') {
-            let jsm = '';
-            jsm += `(args)=> new Promise((resolve)=> {\n`;
-            jsm += `${scripts[i].value}\n`;
-
-            if (jsm.indexOf('resolve()') == -1)
-                jsm += `resolve();\n`;
-            jsm += `})\n`;
-
-            fs.writeFileSync(path.resolve(TMP_PATH, 'scripts', `script-${i}.js`), jsm);
-
-            runjs += `flowpipe.then('${i}', ${jsm});\n`;
-
-            if (runInsert[i])
-                for (let j = 0; j < runInsert[i].length; j++)
-                    runjs += `flowpipe.loop('${runInsert[i][j].start}', (args)=> ${runInsert[i][j].condition.replace(';', '')});\n`
-        }
-    }
-
-    runjs += `flowpipe.run()\n`;
-
-    zip.file('run.js', runjs);
+    zip.file('run.js', fs.readFileSync(RUN_PATH, 'utf-8'));
     zip.file('package.json', JSON.stringify(packageJSON));
 
     // download
