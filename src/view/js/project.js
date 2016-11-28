@@ -68,11 +68,20 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             if (!data.message.data.options) data.message.data.options = {};
             data.message.data.options.responsive = false;
 
-            $timeout(()=> {
-                Chart.defaults.global.animation.duration = 0;
+            let render = ()=> {
                 var ctx = document.getElementById('chart-' + target + '-' + data.message.id);
+                if (!ctx) {
+                    setTimeout(()=> {
+                        render();
+                    }, 100);
+                    return;
+                }
+
+                Chart.defaults.global.animation.duration = 0;
                 new Chart(ctx, data.message.data);
-            }, 100);
+            };
+
+            render();
         };
 
         // class: socket
@@ -99,18 +108,23 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             if (type == 'list') {
                 for (let work in data) {
                     let row = [];
+                    let chartOrdered = [];
                     for (let i = data[work].length - 1; i >= 0; i--) {
                         let status = data[work][i].status;
                         if (status == 'finish' || status == 'install') continue;
                         if (status == 'start') break;
                         if (status == 'chart') {
                             data[work][i].message = JSON.parse(data[work][i].message);
-                            drawChart(work, data[work][i]);
+                            chartOrdered.unshift({name: work, data: data[work][i]});
                             continue;
                         }
 
                         row.unshift(data[work][i]);
                     }
+
+                    for (let i = 0; i < chartOrdered.length; i++)
+                        drawChart(chartOrdered[i].name, chartOrdered[i].data);
+
                     data[work] = row;
                 }
 
