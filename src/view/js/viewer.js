@@ -322,5 +322,32 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 }
             }
         };
+
+        // rename
+        $scope.click.finder.rename = (node)=> {
+            let PARENT = finder.findParent(node);
+            if (!PARENT) PARENT = $scope.finder[0];
+
+            API.browse.rename(node.path, node.type, node.rename).then((resp)=> {
+                $('#rename').modal('hide');
+                $scope.click.finderList(PARENT);
+                $scope.click.finderList(PARENT);
+
+                if (PATH.indexOf(node.path) == 0)
+                    PATH = PATH.replace(node.path, resp.path);
+
+                location.href = '/viewer.html#' + PATH;
+                location.reload();
+
+                $timeout();
+            });
+        };
+
+        $scope.click.finderRight.rename = (node)=> {
+            $scope.status.finder.node = node;
+            $scope.status.finder.node.rename = $scope.status.finder.node.name;
+            $timeout();
+            $('#rename').modal('show');
+        };
     });
 });

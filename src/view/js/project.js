@@ -515,6 +515,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         $scope.status.finder = {};
         $scope.status.finder.createType = 'project';
         $scope.status.finder.createName = 'new';
+        $scope.click.finder = {};
+        $scope.click.finderRight = {};
 
         $scope.click.finderList = (node)=> {
             if (node.type == 'folder') {
@@ -591,8 +593,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.click.finderList($scope.finder[0]);
         }
 
-        $scope.click.finder = {};
-
+        // upload
         $scope.click.finder.upload = function () {
             let {node} = $scope.status.finder;
 
@@ -624,6 +625,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             }
         };
 
+        $scope.click.finderRight.upload = (node)=> {
+            $scope.status.finder.node = node;
+            $('#upload').modal('show');
+        };
+
+        // add
         $scope.click.finder.create = ()=> {
             let {node, createType, createName} = $scope.status.finder;
 
@@ -660,18 +667,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             }
         };
 
-        $scope.click.finderRight = {};
-
-        $scope.click.finderRight.upload = (node)=> {
-            $scope.status.finder.node = node;
-            $('#upload').modal('show');
-        };
-
         $scope.click.finderRight.add = (node)=> {
             $scope.status.finder.node = node;
             $('#create').modal('show');
         };
 
+        // delete
         $scope.click.finderRight.delete = (node)=> {
             let PARENT = node.PATH.slice(0, node.PATH.length - 1);
 
@@ -705,6 +706,33 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             });
+        };
+
+        // rename
+        $scope.click.finder.rename = (node)=> {
+            let PARENT = finder.findParent(node);
+            if (!PARENT) PARENT = $scope.finder[0];
+
+            API.browse.rename(node.path, node.type, node.rename).then((resp)=> {
+                $('#rename').modal('hide');
+                $scope.click.finderList(PARENT);
+                $scope.click.finderList(PARENT);
+
+                if (PATH.indexOf(node.path) == 0)
+                    PATH = PATH.replace(node.path, resp.path);
+
+                location.href = '/project.html#' + PATH;
+                location.reload();
+
+                $timeout();
+            });
+        };
+
+        $scope.click.finderRight.rename = (node)=> {
+            $scope.status.finder.node = node;
+            $scope.status.finder.node.rename = $scope.status.finder.node.name;
+            $timeout();
+            $('#rename').modal('show');
         };
     });
 });

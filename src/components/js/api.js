@@ -25,6 +25,16 @@ app.factory('API', ()=> {
         });
     });
 
+    factory.browse.rename = (filepath, type, rename)=> new Promise((resolve)=> {
+        $.post('/api/browse/rename', {
+            filepath: filepath,
+            type: type,
+            rename: rename
+        }, function (data) {
+            resolve(data);
+        });
+    });
+
     factory.browse.delete = (PATH, checked)=> new Promise((resolve)=> {
         $.post('/api/browse/delete', {
             read_path: JSON.stringify(PATH),
@@ -140,7 +150,7 @@ app.factory('API', ()=> {
         $.post('/api/script/save', runnable, resolve);
     });
 
-    factory.script.running= ()=> new Promise((resolve)=> {
+    factory.script.running = ()=> new Promise((resolve)=> {
         $.get('/api/script/running', resolve);
     });
 
