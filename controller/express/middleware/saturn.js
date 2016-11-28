@@ -53,6 +53,8 @@ module.exports = (config)=> (req, res, next)=> {
             }
         }
 
+        console.log(npmlibs);
+
         thread.install(npmlibs, WORKSPACE_PATH).then(resolve);
     });
 
