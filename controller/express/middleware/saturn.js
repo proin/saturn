@@ -31,7 +31,7 @@ module.exports = (config)=> (req, res, next)=> {
                     exists = false;
                 }
 
-                let list = fs.readdirSync(path.resolve(__dirname, '..', '..', '..', 'node_modules'));
+                let list = fs.readdirSync(path.resolve(__dirname, '..', '..', 'node_modules'));
                 for (let j = 0; j < list.length; j++)
                     if (list[j] == npms[i])
                         exists = false;
