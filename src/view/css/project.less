@@ -127,12 +127,23 @@ body {
             padding: 12px 8px;
             border-bottom: 1px solid rgba(0, 0, 0, .1);
 
+            &.chart {
+                background: #e0f2f1 !important;
+
+                canvas {
+                    margin: 0 8px;
+                }
+            }
+
             &.output {
                 background: #e0f2f1 !important;
 
-                .scroll pre.output-messages {
+                .scroll .output-messages {
                     max-height: 150px !important;
-                    overflow: scroll;
+                }
+
+                pre {
+                    margin: 0;
                 }
             }
 

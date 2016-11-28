@@ -7,16 +7,17 @@
 
 ## Features
 
+![Image of Graph](docs/images/sort.gif)
+
 - Easy install by [LWOT](http://github.com/searble/lwot)
 - Browsing file in your server
 - Intuitive asynchronous loop management
 - Unit test available, even though asynchronous loop
 - Visualized work status (running, finish, error)
 - Mailing on event (error, finish)
+- Live Graph Log (refer Chart section)
 - Comming soon
     - Work scheduling (once a day, once a week, etc..)
-
-![Image of Graph](docs/images/saturn-project.png)
 
 ## Installation
 
@@ -150,4 +151,46 @@ setTimeout(()=> {
 
 ```javascript
 index < 10 // run condition, if true, it run! 
+```
+
+#### Chart Log
+
+- we can use [chart.js](http://www.chartjs.org) for display chart log
+- refer [chart.js document](http://www.chartjs.org/docs) for use
+- additionally, we can set `width`, `height`, `id` in code
+    - `width` and `height` is set before rendering graph
+    - `id` indicates specific graph, if you not set, it is auto created
+        - if you set id, it replace older chart which has same id
+- when `console.graph(data)` called in your code, it will update your graph
+- below is examples for drawing chart, you write it in work code.
+
+```js
+let data = {
+    id: 'mychart',
+    width: 300,
+    height: 300,
+    type: 'bar',
+    animation: false,
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: "Bubble Sorting",
+                backgroundColor: background,
+                data: values,
+            }
+        ]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+};
+
+console.graph(data);
 ```

@@ -253,6 +253,7 @@ module.exports = (server, config)=> {
         let runjs = target == 'libs' ? 'run.js' : `run-${target}.js`;
         let parg = [`--max-old-space-size=${MAX_HEAP * 1024}`, path.join(WORKSPACE_PATH, name, runjs)];
         let popt = {cwd: WORKSPACE_PATH};
+
         let onData = (data)=> {
             if (config.log) process.stdout.write(data);
             data = data + '';
@@ -263,10 +264,17 @@ module.exports = (server, config)=> {
             } else {
                 data = data.split('\n');
                 for (let i = 0; i < data.length; i++)
-                    if (data[i] && data[i].length > 0)
-                        logger.send(name, target, `data`, data[i]);
+                    if (data[i] && data[i].length > 0) {
+                        if (data[i].indexOf('[chartjs]') === 0) {
+                            data[i] = data[i].replace('[chartjs] ', '');
+                            logger.send(name, target, `chart`, data[i]);
+                        } else {
+                            logger.send(name, target, `data`, data[i]);
+                        }
+                    }
             }
         };
+
         let onError = (err)=> {
             if (config.log) process.stdout.write(err);
             err = err + '';

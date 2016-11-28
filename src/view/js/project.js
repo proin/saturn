@@ -21,6 +21,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         // log variables
         $scope.singleLog = {};
+        $scope.chartLog = {};
 
         // history back
         $scope.history = function () {
@@ -57,6 +58,23 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.event.changed();
         });
 
+        // class: chart
+        let drawChart = (target, data)=> {
+            if (!$scope.chartLog[target]) $scope.chartLog[target] = {};
+            $scope.chartLog[target][data.message.id] = data.message;
+
+            if (!data.message.data.width) data.message.data.width = 300;
+            if (!data.message.data.height) data.message.data.height = 300;
+            if (!data.message.data.options) data.message.data.options = {};
+            data.message.data.options.responsive = false;
+
+            $timeout(()=> {
+                Chart.defaults.global.animation.duration = 0;
+                var ctx = document.getElementById('chart-' + target + '-' + data.message.id);
+                new Chart(ctx, data.message.data);
+            }, 100);
+        };
+
         // class: socket
         let socketHandler = {};
 
@@ -85,11 +103,17 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         let status = data[work][i].status;
                         if (status == 'finish' || status == 'install') continue;
                         if (status == 'start') break;
+                        if (status == 'chart') {
+                            data[work][i].message = JSON.parse(data[work][i].message);
+                            drawChart(work, data[work][i]);
+                            continue;
+                        }
 
                         row.unshift(data[work][i]);
                     }
                     data[work] = row;
                 }
+
                 $scope.singleLog = data;
             } else if (type == 'message') {
                 let {status, target} = data;
@@ -102,6 +126,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 if (status == 'start') {
                     $scope.singleLog[target] = [];
                     $timeout();
+                    return;
+                }
+
+                if (status == 'chart') {
+                    data.message = JSON.parse(data.message);
+                    drawChart(target, data);
                     return;
                 }
 
@@ -326,6 +356,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         $scope.click.clean = function () {
             socket.send({channel: 'logclear', name: PATH});
+            $scope.chartLog = {};
             $timeout();
         };
 
@@ -408,6 +439,9 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     if ($scope.singleLog[$scope.status.focused])
                         $scope.singleLog[$scope.status.focused].splice(0);
                 }
+
+                if ($scope.chartLog[$scope.status.singleFocused])
+                    $scope.chartLog[$scope.status.singleFocused] = {};
 
                 localStorage['preFocused-' + $scope.app] = $scope.status.singleFocused;
 

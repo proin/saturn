@@ -21,6 +21,7 @@ html(ng-app="app")
         link(rel="stylesheet", href="{$ROOT}/view/css/project.css")
 
     body(ng-controller='ctrl')
+        // component: nav
         .container-fluid.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container-fluid(ng-cloak)
@@ -51,11 +52,15 @@ html(ng-app="app")
                         i.fa.fa-rocket
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
+        // component: view
         .view-container
+            // component: file browse
             .finder-view
                 div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
 
+            // component: code editor
             .editor-view(ng-cloak)
+                // component: lib code editor
                 .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == "running" ? "running": ""')
                     .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')
                         .col-md-1
@@ -63,13 +68,18 @@ html(ng-app="app")
                         .col-md-11(ng-class='inputLong.lib ? "scroll" : ""')
                             .code-editor#code-editor-libs
 
-                    .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0')
+                    .row.code-box.output(ng-if='singleLog.libs && singleLog.libs.length > 0', ng-class='status.focused == -1 ? "active":""')
                         .col-md-1(ng-click='outputLong.lib = !outputLong.lib')
                             b out [libs] &nbsp;
                         .col-md-11(ng-class='outputLong.lib ? "" : "scroll"')
-                            pre.output-messages
-                                div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5', ng-bind-html='log.message')
+                            .output-messages
+                                div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5')
+                                    pre(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
 
+                    .row.code-box.chart(ng-if='chartLog.libs' style='width: 100%; text-align: center; min-height: 0;', ng-class='status.focused == -1 ? "active":""')
+                        canvas(ng-repeat='chart in chartLog.libs', id='chart-libs-{{chart.id}}', width='{{chart.data.width}}', height='{{chart.data.height}}', style='display: inline-block !important;')
+
+                // component: additional code editor
                 .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == "running" ? "running": ""')
                     .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
                         .col-md-1
@@ -78,6 +88,7 @@ html(ng-app="app")
                                 option(value='work') work
                                 option(value='loop') loop
                         .col-md-11(ng-class='inputLong[$index] ? "scroll" : ""')
+                            // component: if loop
                             .loop(ng-if='code.type == "loop"')
                                 .row
                                     .col-md-10
@@ -86,7 +97,7 @@ html(ng-app="app")
                                         | end &nbsp;
                                         select(ng-model='code.block_end', ng-change='event.changed()')
                                             option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
-
+                            // component: if work
                             .work(ng-if='code.type == "work"')
                                 .code-editor(id='code-editor-{{code.id}}')
 
@@ -94,9 +105,15 @@ html(ng-app="app")
                         .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
                             b out [{{$index}}] &nbsp;
                         .col-md-11(ng-class='outputLong[$index] ? "" : "scroll"')
-                            pre.output-messages
-                                div(ng-repeat='log in singleLog[$index] track by $index', ng-class='log.status', ng-show='outputLong[$parent.$index] || $index >= singleLog[$parent.$index].length - 5', ng-bind-html='log.message')
+                            .output-messages
+                                div(ng-repeat='log in singleLog[$index] track by $index', ng-class='log.status', ng-show='outputLong[$parent.$index] || $index >= singleLog[$parent.$index].length - 5')
+                                    pre(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
 
+                    .row.code-box.chart(ng-if='chartLog[$index]', style='width: 100%; text-align: center;', ng-class='status.focused == $index ? "active":""')
+                        canvas(ng-repeat='chart in chartLog[$index]', id='chart-{{$parent.$index}}-{{chart.id}}', width='{{chart.data.width}}', height='{{chart.data.height}}', style='display: inline-block !important;')
+
+
+        // component: dialogs
         #create.modal.fade(tabindex='-1', role='dialog', aria-labelledby='create', aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content

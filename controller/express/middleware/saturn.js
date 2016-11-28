@@ -109,6 +109,14 @@ module.exports = (config)=> (req, res, next)=> {
             
             const Flowpipe = require('flowpipe');
             let flowpipe = Flowpipe.instance('app');
+            
+            let graphId = 1;
+            
+            console.graph = (data)=> {
+                let resp = JSON.stringify({ id: (data.id ? data.id : 'chartjs-' + graphId), data: data });
+                console.log('[chartjs] ' + resp);
+                graphId++;
+            }
         `;
 
         // run all
