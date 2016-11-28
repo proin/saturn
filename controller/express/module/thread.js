@@ -315,7 +315,11 @@ module.exports = (server, config)=> {
                 deps.push(libs[i]);
         if (deps.length == 2) return resolve();
 
-        terminal('npm', deps, {cwd: run_path}, ()=> null, ()=> null).then(resolve);
+        terminal('npm', deps, {cwd: run_path}, (data)=> {
+            if (config.log) process.stdout.write(data);
+        }, (err)=> {
+            if (config.log) process.stdout.write(err);
+        }).then(resolve);
     });
 
     runnable.stop = (name)=> new Promise((resolve)=> {
