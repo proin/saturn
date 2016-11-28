@@ -31,7 +31,25 @@ module.exports = (config)=> (req, res, next)=> {
                     exists = false;
                 }
 
-                npmlibs.push(npms[i]);
+                let list = fs.readdirSync(path.resolve(__dirname, '..', '..', 'node_modules'));
+                for (let j = 0; j < list.length; j++)
+                    if (list[j] == npms[i])
+                        exists = false;
+
+                if (fs.existsSync(path.join(WORKSPACE_PATH, npms[i]))) {
+                    exists = true;
+                }
+
+                if (fs.existsSync(path.resolve(WORKSPACE_PATH, 'node_modules'))) {
+                    list = fs.readdirSync(path.resolve(WORKSPACE_PATH, 'node_modules'));
+                    for (let j = 0; j < list.length; j++)
+                        if (list[j] == npms[i])
+                            exists = true;
+                }
+
+                if (!exists)
+                    npmlibs.push(npms[i]);
+
             } catch (e) {
             }
         }
@@ -68,6 +86,11 @@ module.exports = (config)=> (req, res, next)=> {
             requirestr[i] = requirestr[i].trim();
 
             if (!requirestr[i] || requirestr[i].length == 0) continue;
+
+            if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i]))) {
+                lib.value = lib.value.replace('"' + requirestr[i] + '"', '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
+                lib.value = lib.value.replace("'" + requirestr[i] + "'", '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
+            }
         }
 
         // find loop location
