@@ -36,10 +36,6 @@ module.exports = (config)=> (req, res, next)=> {
                     if (list[j] == npms[i])
                         exists = false;
 
-                if (fs.existsSync(path.resolve(WORKSPACE_PATH, 'node_modules', npms[i]))) {
-                    exists = true;
-                }
-
                 if (fs.existsSync(path.resolve(WORKSPACE_PATH, 'node_modules'))) {
                     list = fs.readdirSync(path.resolve(WORKSPACE_PATH, 'node_modules'));
                     for (let j = 0; j < list.length; j++)
