@@ -5,6 +5,13 @@
 - Node.js version upper than 6.x.x
 - Only tested at Chrome Browser
 
+## Quick Reference
+
+- [common usage](http://workspace.proinlab.com:3000/#/basic)
+- [chart demo](http://workspace.proinlab.com:3000/#/chart-example)
+- [crawler demo](http://workspace.proinlab.com:3000/#/crawler)
+- [machine learning](http://workspace.proinlab.com:3000/#/machine-learning)
+
 ## Features
 
 ![Image of Graph](docs/images/sort.gif)
@@ -163,6 +170,7 @@ index < 10 // run condition, if true, it run!
         - if you set id, it replace older chart which has same id
 - when `console.graph(data)` called in your code, it will update your graph
 - below is examples for drawing chart, you write it in work code.
+- chart example in here, [chart demo](http://workspace.proinlab.com:3000/#/chart-example)
 
 ```js
 let data = {
