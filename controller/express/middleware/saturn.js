@@ -31,12 +31,12 @@ module.exports = (config)=> (req, res, next)=> {
                     exists = false;
                 }
 
-                let list = fs.readdirSync(path.resolve(__dirname, '..', '..', 'node_modules'));
+                let list = fs.readdirSync(path.resolve(__dirname, '..', '..', '..', 'node_modules'));
                 for (let j = 0; j < list.length; j++)
                     if (list[j] == npms[i])
                         exists = false;
 
-                if (fs.existsSync(path.join(WORKSPACE_PATH, npms[i]))) {
+                if (fs.existsSync(path.join(WORKSPACE_PATH, npms[i])) && fs.lstatSync(path.join(WORKSPACE_PATH, npms[i])).isDirectory() == false) {
                     exists = true;
                 }
 
@@ -49,7 +49,6 @@ module.exports = (config)=> (req, res, next)=> {
 
                 if (!exists)
                     npmlibs.push(npms[i]);
-
             } catch (e) {
             }
         }
@@ -87,7 +86,7 @@ module.exports = (config)=> (req, res, next)=> {
 
             if (!requirestr[i] || requirestr[i].length == 0) continue;
 
-            if (fs.existsSync(path.resolve(WORKSPACE_PATH, requirestr[i]))) {
+            if (fs.existsSync(path.join(WORKSPACE_PATH, requirestr[i])) && fs.lstatSync(path.join(WORKSPACE_PATH, requirestr[i])).isDirectory() == false) {
                 lib.value = lib.value.replace('"' + requirestr[i] + '"', '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
                 lib.value = lib.value.replace("'" + requirestr[i] + "'", '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
             }
