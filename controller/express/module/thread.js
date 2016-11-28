@@ -313,6 +313,9 @@ module.exports = (server, config)=> {
         for (let i = 0; i < libs.length; i++)
             if (!fs.existsSync(path.resolve(DEPS_PATH, libs[i])))
                 deps.push(libs[i]);
+
+        console.log(deps);
+
         if (deps.length == 2) return resolve();
 
         terminal('npm', deps, {cwd: run_path}, (data)=> {
