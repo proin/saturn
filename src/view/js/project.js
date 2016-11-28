@@ -77,6 +77,9 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     return;
                 }
 
+                ctx.width = data.message.data.width;
+                ctx.height = data.message.data.height;
+
                 Chart.defaults.global.animation.duration = 0;
                 new Chart(ctx, data.message.data);
             };
