@@ -35,7 +35,7 @@ html(ng-app="app")
 
             .toolbar(ng-cloak)
                 .container-fluid
-                    button.btn.btn-default.btn-sm(ng-click='click.list()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
+                    button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-list
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-play(ng-if='status.running != "running"')
