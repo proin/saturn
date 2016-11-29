@@ -24,6 +24,7 @@
     "bootstrap": "4.0.0-alpha.5",
     "font-awesome": "4.7.0",
     "ng-context-menu": "1.0.3",
-    "chart.js": "^2.4.0"
+    "chart.js": "^2.4.0",
+    "vis": "^4.17.0"
   }
 }

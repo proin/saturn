@@ -5,10 +5,13 @@ module.exports = (config)=> (req, res, next)=> {
     const path = require('path');
     const fsext = require('fs-extra');
 
+    // work manager thread
     let {thread} = req.modules;
 
+    // express saturn middleware
     let app = {};
 
+    // npm install @workspace
     app.install = (args)=> new Promise((resolve)=> {
         let {WORKSPACE_PATH, lib} = args;
         lib = JSON.parse(lib);
@@ -16,30 +19,38 @@ module.exports = (config)=> (req, res, next)=> {
         let npmlibs = ['flowpipe'];
         let npms = lib.value.match(/require\([^\)]+\)/gim);
 
+        // find npm modules
         for (let i = 0; i < npms.length; i++) {
             try {
+                // in libs
                 npms[i] = npms[i].replace(/ /gim, '');
                 npms[i] = npms[i].replace(/\n/gim, '');
                 npms[i] = npms[i].replace(/\t/gim, '');
                 npms[i] = npms[i].replace("require('", '');
                 npms[i] = npms[i].replace("')", '');
 
+                // check already exists in workspace
                 let exists = true;
+
+                // check is default modules
                 try {
                     require(npms[i]);
                 } catch (e) {
                     exists = false;
                 }
 
+                // if saturn app have it, remove!
                 let list = fs.readdirSync(path.resolve(__dirname, '..', '..', 'node_modules'));
                 for (let j = 0; j < list.length; j++)
                     if (list[j] == npms[i])
                         exists = false;
 
+                // check require module is file
                 if (fs.existsSync(path.join(WORKSPACE_PATH, npms[i])) && fs.lstatSync(path.join(WORKSPACE_PATH, npms[i])).isDirectory() == false) {
                     exists = true;
                 }
 
+                // check already exists
                 if (fs.existsSync(path.resolve(WORKSPACE_PATH, 'node_modules'))) {
                     list = fs.readdirSync(path.resolve(WORKSPACE_PATH, 'node_modules'));
                     for (let j = 0; j < list.length; j++)
@@ -86,6 +97,7 @@ module.exports = (config)=> (req, res, next)=> {
 
             if (!requirestr[i] || requirestr[i].length == 0) continue;
 
+            // replace if it has file dependency
             if (fs.existsSync(path.join(WORKSPACE_PATH, requirestr[i])) && fs.lstatSync(path.join(WORKSPACE_PATH, requirestr[i])).isDirectory() == false) {
                 lib.value = lib.value.replace('"' + requirestr[i] + '"', '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
                 lib.value = lib.value.replace("'" + requirestr[i] + "'", '"' + path.resolve(WORKSPACE_PATH, requirestr[i]) + '"');
@@ -114,13 +126,25 @@ module.exports = (config)=> (req, res, next)=> {
             
             const Flowpipe = require('flowpipe');
             let flowpipe = Flowpipe.instance('app');
-            
-            let graphId = 1;
-            
+        `;
+
+        // add chartjs log function
+        runjs += `
+            console.graphId = 1;
             console.graph = (data)=> {
-                let resp = JSON.stringify({ id: (data.id ? data.id : 'chartjs-' + graphId), data: data });
+                let resp = JSON.stringify({ id: (data.id ? data.id : 'chartjs-' + console.graphId), data: data });
                 console.log('[chartjs] ' + resp);
-                graphId++;
+                console.graphId++;
+            }
+        `;
+
+        // add vis log function
+        runjs += `
+            console.visId = 1;
+            console.vis = (visType, data, options)=> {
+                let resp = JSON.stringify({ id: (data.id ? data.id : 'vis-' + console.visId), type: visType, data: data, options: options });
+                console.log('[visjs] ' + resp);
+                console.visId++;
             }
         `;
 

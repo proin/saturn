@@ -59,32 +59,65 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         });
 
         // class: chart
-        let drawChart = (target, data)=> {
+        let drawChart = (target, data, type)=> {
+            data.message.graph = type;
             if (!$scope.chartLog[target]) $scope.chartLog[target] = {};
             $scope.chartLog[target][data.message.id] = data.message;
 
             if (!data.message.data.width) data.message.data.width = 300;
             if (!data.message.data.height) data.message.data.height = 300;
             if (!data.message.data.options) data.message.data.options = {};
-            data.message.data.options.responsive = false;
 
-            let render = ()=> {
-                var ctx = document.getElementById('chart-' + target + '-' + data.message.id);
-                if (!ctx) {
-                    setTimeout(()=> {
-                        render();
-                    }, 100);
-                    return;
-                }
+            if (type == 'vis') {
+                let visData = data.message.data;
 
-                ctx.width = data.message.data.width;
-                ctx.height = data.message.data.height;
+                let nodes = new vis.DataSet(visData.nodes);
+                let edges = new vis.DataSet(visData.edges);
 
-                Chart.defaults.global.animation.duration = 0;
-                new Chart(ctx, data.message.data);
-            };
+                let visNetworkData = {
+                    nodes: nodes,
+                    edges: edges
+                };
 
-            render();
+                let render = ()=> {
+                    let ctx = document.getElementById('chart-' + target + '-' + data.message.id);
+                    if (!ctx) {
+                        $timeout(()=> {
+                            render();
+                        }, 100);
+                        return;
+                    }
+
+                    ctx.style.width = data.message.data.width;
+                    ctx.style.height = data.message.data.height;
+
+                    new vis.Network(ctx, visNetworkData, visData.options ? visData.options : {});
+                };
+
+                render();
+            }
+
+            if (type == 'chart') {
+                data.message.data.options.responsive = false;
+
+                let render = ()=> {
+                    let ctx = document.getElementById('chart-' + target + '-' + data.message.id);
+                    if (!ctx) {
+                        $timeout(()=> {
+                            render();
+                        }, 100);
+                        return;
+                    }
+
+                    ctx.width = data.message.data.width;
+                    ctx.height = data.message.data.height;
+
+                    Chart.defaults.global.animation.duration = 0;
+                    new Chart(ctx, data.message.data);
+                };
+
+                render();
+            }
         };
 
         // class: socket
@@ -116,17 +149,17 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         let status = data[work][i].status;
                         if (status == 'finish' || status == 'install') continue;
                         if (status == 'start') break;
-                        if (status == 'chart') {
+                        if (status == 'chart' || status == 'vis') {
                             data[work][i].message = JSON.parse(data[work][i].message);
-                            chartOrdered.unshift({name: work, data: data[work][i]});
+                            chartOrdered.unshift({type: status, name: work, data: data[work][i]});
                             continue;
                         }
 
                         row.unshift(data[work][i]);
                     }
 
-                    for (let i = 0; i < chartOrdered.length; i++)
-                        drawChart(chartOrdered[i].name, chartOrdered[i].data);
+                    for (let i = chartOrdered.length - 1; i >= 0; i--)
+                        drawChart(chartOrdered[i].name, chartOrdered[i].data, chartOrdered[i].type);
 
                     data[work] = row;
                 }
@@ -146,9 +179,9 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     return;
                 }
 
-                if (status == 'chart') {
+                if (status == 'chart' || status == 'vis') {
                     data.message = JSON.parse(data.message);
-                    drawChart(target, data);
+                    drawChart(target, data, status);
                     return;
                 }
 
@@ -333,6 +366,11 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         };
 
         $scope.click = {};
+
+        $scope.click.list = ()=> {
+            $('.finder-view').toggleClass('fixed');
+        };
+
         $scope.click.codebox = function (idx) {
             $scope.status.focused = idx;
             $timeout();

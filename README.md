@@ -1,7 +1,7 @@
 # Saturn
 
 - Saturn is opensource, node.js workspace framework (like `Python Jupyter`)
-- Demo in here, [http://workspace.proinlab.com](http://workspace.proinlab.com)
+- Demo in here, [http://saturn.proinlab.com:3000](http://saturn.proinlab.com:3000)
 - Node.js version upper than 6.x.x
 - Only tested at Chrome Browser
 
@@ -55,6 +55,7 @@ lwot express forever log # show logs
 ```bash
 cd saturn
 git pull
+bower install
 lwot build
 lwot express run
 ```
@@ -95,7 +96,7 @@ lwot express run
 }
 ```
 
-## How to Use
+## Overview
 
 ### Project & File List
 
@@ -125,9 +126,9 @@ lwot express run
     
 - you can set on this function at `./controller/express/config.json` file
     
-### Examples Usage
+## How to Use
 
-#### code in libs
+### code in libs
 
 ```javascript
 // this calls node_modules
@@ -141,7 +142,7 @@ const myFunction = require('./work.js');
 let myApp = (a,b)=> return a + b;
 ```
 
-#### code in work
+### code in work
 
 ```javascript
 index = 0; // define global variable
@@ -154,15 +155,15 @@ setTimeout(()=> {
 }, 1000);
 ```
 
-#### code in loop
+### code in loop
 
 ```javascript
 index < 10 // run condition, if true, it run! 
 ```
 
-#### Chart Log
+### Chart.js
 
-- we can use [chart.js](http://www.chartjs.org) for display chart log
+- we can use [chart.js](http://www.chartjs.org) for log
 - refer [chart.js document](http://www.chartjs.org/docs) for use
 - additionally, we can set `width`, `height`, `id` in code
     - `width` and `height` is set before rendering graph
@@ -201,4 +202,40 @@ let data = {
 };
 
 console.graph(data);
+```
+
+### Vis.js Network Graph
+
+- we can use [vis.js network graph](http://visjs.org/docs/network/) for log
+- when `console.vis(type, data, option)` called in your code, it will update your graph
+- below is examples for drawing chart, you write it in work code.
+
+```js
+let nodes = [
+    {id: 1, label: 'Node 1'},
+    {id: 2, label: 'Node 2'},
+    {id: 3, label: 'Node 3'},
+    {id: 4, label: 'Node 4'},
+    {id: 5, label: 'Node 5'}
+];
+
+// create an array with edges
+let edges = [
+    {from: 1, to: 3},
+    {from: 1, to: 2},
+    {from: 2, to: 4},
+    {from: 2, to: 5}
+];
+
+let data = {
+    width: '500px',
+    height: '300px',
+    nodes: nodes,
+    edges: edges
+};
+
+var options = {};
+
+// only use network graph at this time, other type of graph is now developing.
+console.vis('network', data, options);
 ```

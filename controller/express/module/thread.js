@@ -268,6 +268,9 @@ module.exports = (server, config)=> {
                         if (data[i].indexOf('[chartjs]') === 0) {
                             data[i] = data[i].replace('[chartjs] ', '');
                             logger.send(name, target, `chart`, data[i]);
+                        } else if (data[i].indexOf('[visjs]') === 0) {
+                            data[i] = data[i].replace('[visjs] ', '');
+                            logger.send(name, target, `vis`, data[i]);
                         } else {
                             logger.send(name, target, `data`, data[i]);
                         }
