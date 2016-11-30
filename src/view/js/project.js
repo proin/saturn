@@ -133,6 +133,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 $scope.status.runningLog[name] = data;
                 if (name == PATH)
                     $scope.status.running = data;
+            } else if (type == 'install') {
+                if (data == 'finish') {
+                    $scope.status.running = null;
+                } else {
+                    $scope.status.running = 'running';
+                }
             }
 
             $timeout();
@@ -158,7 +164,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         row.unshift(data[work][i]);
                     }
 
-                    for (let i = 0; i < chartOrdered.length ; i++)
+                    for (let i = 0; i < chartOrdered.length; i++)
                         drawChart(chartOrdered[i].name, chartOrdered[i].data, chartOrdered[i].type);
 
                     data[work] = row;

@@ -13,7 +13,7 @@ module.exports = (config)=> (req, res, next)=> {
 
     // npm install @workspace
     app.install = (args)=> new Promise((resolve)=> {
-        let {WORKSPACE_PATH, lib} = args;
+        let {WORKSPACE_PATH, lib, runpath} = args;
         lib = JSON.parse(lib);
 
         let npmlibs = ['flowpipe'];
@@ -64,7 +64,7 @@ module.exports = (config)=> (req, res, next)=> {
             }
         }
 
-        thread.install(npmlibs, WORKSPACE_PATH).then(resolve);
+        thread.install(npmlibs, WORKSPACE_PATH, runpath).then(resolve);
     });
 
     app.save = (args)=> new Promise((resolve)=> {

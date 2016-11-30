@@ -9,7 +9,6 @@ const zip = new require('node-zip')();
 router.get("/", function (req, res) {
     // allow for everyone
     if (req.user.check() === 'DENIED') return;
-
     if (!req.query.path) return res.send({err: new Error('not defined name')});
 
     const PRJ_PATH = path.join(req.DIR.WORKSPACE_PATH, req.query.path);

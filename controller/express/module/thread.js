@@ -228,6 +228,8 @@ module.exports = (server, config)=> {
 
     // class: work manager
     manager.stop = (name)=> {
+        if (manager.status[name] == 'install') return;
+
         if (manager.proc[name]) {
             manager.proc[name].stdin.pause();
             manager.proc[name].kill();
@@ -239,7 +241,7 @@ module.exports = (server, config)=> {
     };
 
     manager.run = (name, target)=> {
-        if (manager.proc[name]) {
+        if (manager.proc[name] || manager.status[name] == 'install') {
             sockets.broadcast(name, {channel: 'status', type: 'message', name: name, data: 'running'}, true);
             return;
         }
@@ -309,7 +311,7 @@ module.exports = (server, config)=> {
     // class: thread modules
     let runnable = {};
 
-    runnable.install = (libs, run_path)=> new Promise((resolve)=> {
+    runnable.install = (libs, run_path, name)=> new Promise((resolve)=> {
         if (fs.existsSync(path.resolve(run_path, 'package.json')))
             fs.unlinkSync(path.resolve(run_path, 'package.json'));
 
@@ -319,9 +321,17 @@ module.exports = (server, config)=> {
         for (let i = 0; i < libs.length; i++)
             if (!fs.existsSync(path.resolve(DEPS_PATH, libs[i])))
                 deps.push(libs[i]);
-        if (deps.length == 2) return resolve();
 
-        terminal('npm', deps, {cwd: run_path}, ()=> null, ()=> null).then(resolve);
+        if (deps.length == 1) return resolve();
+
+        manager.status[name] = 'install';
+        sockets.broadcast(name, {channel: 'status', type: 'install', name: name, data: libs}, true);
+
+        terminal('npm', deps, {cwd: run_path}, ()=> null, ()=> null).then(()=> {
+            delete manager.status[name];
+            sockets.broadcast(name, {channel: 'status', type: 'install', name: name, data: 'finish'}, true);
+            resolve();
+        });
     });
 
     runnable.stop = (name)=> new Promise((resolve)=> {
