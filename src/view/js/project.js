@@ -633,15 +633,16 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     $timeout();
                 });
             } else {
-                var jsext = '.js';
-                var htmlext = '.html';
-                if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
-                    location.href = '/viewer.html#' + encodeURI(node.path);
-                } else if (node.name.indexOf(htmlext) == node.name.length - htmlext.length) {
-                    location.href = '/viewer.html#' + encodeURI(node.path);
-                } else {
-                    window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
+                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+                for (let i = 0; i < allowed.length; i++) {
+                    if (node.name.indexOf(allowed[i]) == node.name.length - allowed[i].length) {
+                        location.href = '/viewer.html#' + encodeURI(node.path);
+                        location.reload();
+                        return;
+                    }
                 }
+
+                window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
             }
         };
 

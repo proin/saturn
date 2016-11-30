@@ -21,14 +21,19 @@ router.post("/", function (req, res) {
     if (CREATE_PATH.indexOf(req.DIR.WORKSPACE_PATH) == -1)
         return res.send({status: false});
 
+    let allowed = ['js', 'html', 'jade', 'less', 'css'];
+
     if (filetype == 'folder') {
         fsext.mkdirsSync(path.resolve(CREATE_PATH, filename));
-    } else if (filetype == 'js') {
-        if (path.extname(filename) != '.js') filename = filename + '.js';
-        fs.writeFileSync(path.resolve(CREATE_PATH, filename), '');
-    } else if (filetype == 'html') {
-        if (path.extname(filename) != '.html') filename = filename + '.html';
-        fs.writeFileSync(path.resolve(CREATE_PATH, filename), '');
+    } else {
+        for (let i = 0; i < allowed.length; i++) {
+            if (filetype == allowed[i]) {
+                if (path.extname(filename) != `.${allowed[i]}`)
+                    filename = filename + `.${allowed[i]}`;
+                fs.writeFileSync(path.resolve(CREATE_PATH, filename), '');
+                break;
+            }
+        }
     }
 
     res.send({status: true});

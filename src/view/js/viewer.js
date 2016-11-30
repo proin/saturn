@@ -68,6 +68,13 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 $scope.click.save(true);
             };
 
+            let codeMode = 'javascript';
+
+            if (EXT.toLowerCase() == 'html') codeMode = 'application/x-ejs';
+            if (EXT.toLowerCase() == 'jade') codeMode = 'jade';
+            if (EXT.toLowerCase() == 'css') codeMode = 'css';
+            if (EXT.toLowerCase() == 'less') codeMode = 'text/x-less';
+
             CodeMirror(document.getElementById('code-editor'), {
                 height: 'auto',
                 value: data.data,
@@ -79,8 +86,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 viewportMargin: Infinity,
                 indentUnit: 4,
                 readOnly: $scope.ACCESS_STATUS !== 'GRANTALL',
-                mode: EXT == 'html'
-                    ? "application/x-ejs" : 'javascript'
+                mode: codeMode
             }).on('change', function (e) {
                 var changeValue = e.getValue();
                 $scope.value = changeValue;
@@ -189,17 +195,16 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                     $timeout();
                 });
             } else {
-                var jsext = '.js';
-                var htmlext = '.html';
-                if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
-                    location.href = '/viewer.html#' + encodeURI(node.path);
-                    location.reload();
-                } else if (node.name.indexOf(htmlext) == node.name.length - htmlext.length) {
-                    location.href = '/viewer.html#' + encodeURI(node.path);
-                    location.reload();
-                } else {
-                    window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
+                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+                for (let i = 0; i < allowed.length; i++) {
+                    if (node.name.indexOf(allowed[i]) == node.name.length - allowed[i].length) {
+                        location.href = '/viewer.html#' + encodeURI(node.path);
+                        location.reload();
+                        return;
+                    }
                 }
+
+                window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
             }
         };
 
