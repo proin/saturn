@@ -793,5 +793,14 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $timeout();
             $('#rename').modal('show');
         };
+
+        // download
+        $scope.click.finderRight.download = (node)=> {
+            if(node.type =='project') {
+                window.open('/api/script/export?path=' + encodeURI(node.path), '_blank');
+            } else {
+                window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
+            }
+        };
     });
 });

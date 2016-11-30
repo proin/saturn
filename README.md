@@ -27,6 +27,15 @@
 - Comming soon
     - Work scheduling (once a day, once a week, etc..)
 
+## Versions
+
+When we finish that we think about, we will update version upper 1.x.x
+
+- 0.x.__***x***__ 
+    - bug fixed
+- 0.__***x***__.0
+    - functional added
+
 ## Installation
 
 ### How to start

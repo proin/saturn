@@ -26,6 +26,7 @@ angular.module("ngTreeview", []).directive("treeModel", function ($compile) {
                 '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.add(node)">add</a>' +
                 '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node)">upload</a>' +
                 '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.delete(node)">delete</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.download(node)">download</a>' +
                 '</div></div>' +
 
                 '<div data-ng-hide="node.collapsed" data-tree-model="node.' + c + '" data-node-id=' + (b.path || "id") + " data-node-label=" + d + " data-node-children=" + c + " data-on-select='" + onSelect + "'></div></li></ul>";
