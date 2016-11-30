@@ -176,24 +176,8 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 }
             } else if (node.type == 'project') {
                 if (node.path == PATH) return;
-
-                var runnable = {
-                    path: PATH,
-                    lib: JSON.stringify($scope.lib),
-                    scripts: JSON.stringify($scope.flowpipe)
-                };
-
-                if ($scope.ACCESS_POLICY === 'READONLY') {
-                    location.href = `/project.html#${encodeURI(node.path)}`;
-                    location.reload();
-                    return;
-                }
-
-                API.script.save(runnable).then(()=> {
-                    location.href = `/project.html#${encodeURI(node.path)}`;
-                    location.reload();
-                    $timeout();
-                });
+                location.href = `/project.html#${encodeURI(node.path)}`;
+                $timeout();
             } else {
                 let allowed = ['.js', '.html', '.jade', '.css', '.less'];
                 for (let i = 0; i < allowed.length; i++) {

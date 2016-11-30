@@ -637,7 +637,6 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 for (let i = 0; i < allowed.length; i++) {
                     if (node.name.indexOf(allowed[i]) == node.name.length - allowed[i].length) {
                         location.href = '/viewer.html#' + encodeURI(node.path);
-                        location.reload();
                         return;
                     }
                 }
