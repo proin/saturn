@@ -158,7 +158,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         row.unshift(data[work][i]);
                     }
 
-                    for (let i = chartOrdered.length - 1; i >= 0; i--)
+                    for (let i = 0; i < chartOrdered.length ; i++)
                         drawChart(chartOrdered[i].name, chartOrdered[i].data, chartOrdered[i].type);
 
                     data[work] = row;

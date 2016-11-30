@@ -79,8 +79,9 @@ html(ng-app="app")
                                     pre(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
 
                     .row.code-box.chart(ng-if='chartLog.libs' style='width: 100%; text-align: center; min-height: 0;', ng-class='status.focused == -1 ? "active":""')
-                        div(ng-repeat='chart in chartLog.libs', id='chart-libs-{{chart.id}}', style='display: inline-block !important; width: {{chart.data.width}}; height: {{chart.data.height}}', ng-if='chart.graph=="vis"')
-                        canvas(ng-repeat='chart in chartLog.libs', id='chart-libs-{{chart.id}}', width='{{chart.data.width}}', height='{{chart.data.height}}', style='display: inline-block !important;', ng-if='chart.graph=="chart"')
+                        div(ng-repeat='chart in chartLog.libs', style='display: inline-block;')
+                            div(id='chart-libs-{{chart.id}}', style='display: inline-block !important; width: {{chart.data.width}}; height: {{chart.data.height}}', ng-if='chart.graph=="vis"')
+                            canvas(id='chart-libs-{{chart.id}}', width='{{chart.data.width}}', height='{{chart.data.height}}', style='display: inline-block !important;', ng-if='chart.graph=="chart"')
 
                 // component: additional code editor
                 .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == "running" ? "running": ""')
