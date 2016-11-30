@@ -142,12 +142,15 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 location.href = `/project.html#${encodeURI(file.path)}`;
                 return;
             } else {
-                var jsext = '.js';
-                if (file.name.indexOf(jsext) == file.name.length - jsext.length) {
-                    location.href = '/viewer.html#' + encodeURI(file.path);
-                } else {
-                    window.open('/api/browse/download?filepath=' + encodeURI(file.path), '_blank');
+                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+                for (let i = 0; i < allowed.length; i++) {
+                    if (file.name.indexOf(allowed[i]) == file.name.length - allowed[i].length) {
+                        location.href = '/viewer.html#' + encodeURI(file.path);
+                        return;
+                    }
                 }
+
+                window.open('/api/browse/download?filepath=' + encodeURI(file.path), '_blank');
                 return;
             }
 
