@@ -27,6 +27,8 @@ module.exports = (config)=> (req, res, next)=> {
                 npms[i] = npms[i].replace(/\n/gim, '');
                 npms[i] = npms[i].replace(/\t/gim, '');
                 npms[i] = npms[i].replace("require('", '');
+                npms[i] = npms[i].replace('require("', '');
+                npms[i] = npms[i].replace('")', '');
                 npms[i] = npms[i].replace("')", '');
 
                 // check already exists in workspace
@@ -91,6 +93,8 @@ module.exports = (config)=> (req, res, next)=> {
             requirestr[i] = requirestr[i].replace(/\n/gim, '');
             requirestr[i] = requirestr[i].replace(/\t/gim, '');
             requirestr[i] = requirestr[i].replace("require('", '');
+            requirestr[i] = requirestr[i].replace('require("', '');
+            requirestr[i] = requirestr[i].replace('")', '');
             requirestr[i] = requirestr[i].replace("')", '');
             requirestr[i] = requirestr[i].trim();
 
