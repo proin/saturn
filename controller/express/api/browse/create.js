@@ -26,6 +26,9 @@ router.post("/", function (req, res) {
     } else if (filetype == 'js') {
         if (path.extname(filename) != '.js') filename = filename + '.js';
         fs.writeFileSync(path.resolve(CREATE_PATH, filename), '');
+    } else if (filetype == 'html') {
+        if (path.extname(filename) != '.html') filename = filename + '.html';
+        fs.writeFileSync(path.resolve(CREATE_PATH, filename), '');
     }
 
     res.send({status: true});

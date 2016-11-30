@@ -5,12 +5,14 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         let PATH = decodeURI(location.href.split('#')[1]);
         $scope.PATH = PATH;
-
         $scope.ROOT_PATH = `/`;
-
         $scope.app = decodeURI(location.href.split('#')[1]).basename();
 
-        // alert
+        $scope.click = {};
+        $scope.event = {};
+        $scope.status = {};
+
+        // class: alert
         $scope.alert = {};
         $scope.alert.message = '';
         $scope.alert.show = function (message) {
@@ -19,39 +21,30 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $timeout();
         };
 
-        // log variables
-        $scope.singleLog = {};
-        $scope.chartLog = {};
-
-        // history back
+        // class: history back
         $scope.history = function () {
             window.history.back();
         };
 
-        // ui status
+        // variable: ui
         $scope.inputLong = localStorage.inputLong ? JSON.parse(localStorage.inputLong) : {};
         $scope.outputLong = {};
         $scope.titleEdit = false;
-
-        // variables for function
         $scope.appRename = $scope.app;
 
-        // status
-        $scope.status = {};
+        // variable: status
         $scope.status.focused = -1;
         $scope.status.singleFocused = localStorage['preFocused-' + $scope.app] ? localStorage['preFocused-' + $scope.app] : 'libs';
         $scope.status.indent = [];
         $scope.status.logView = false;
-        $scope.status.running = null;
-        $scope.status.runningLog = {};
         $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
 
-        // script variables
+        // variable: script variables
         $scope.lib = {id: 'lib', type: 'lib', value: ''};
         $scope.flowpipe = [];
 
-        // load script data
-        API.script.load(PATH).then((data)=> {
+        // api: load script data
+        API.script.load($scope.PATH).then((data)=> {
             if (data.err) return;
             $scope.lib = data.lib;
             $scope.flowpipe = data.scripts;
@@ -120,12 +113,17 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             }
         };
 
-        // class: socket
+        // variable: logger
+        $scope.status.running = null;
+        $scope.status.runningLog = {};
+        $scope.singleLog = {};
+        $scope.chartLog = {};
+
+        // class: socket for logger
         let socketHandler = {};
 
         socketHandler.status = (message)=> {
             let {type, data, name} = message;
-
             if (type == 'list') {
                 $scope.status.runningLog = data;
                 $scope.status.running = data[PATH];
@@ -210,7 +208,6 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         });
 
         // class: Code Editor
-        // create codemirror
         var codemirror = function (_id) {
             var creator = function (id) {
                 var fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
@@ -517,7 +514,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             }
         };
 
-        $scope.loogwork = {};
+        $scope.loopwork = {};
 
         $scope.worklist = function () {
             for (var k = 0; k < $scope.flowpipe.length; k++) {
@@ -534,7 +531,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     if ($scope.flowpipe[i] && $scope.flowpipe[i].type == 'work')
                         list.push(i);
                 if (!code.block_end) code.block_end = list[0] + '';
-                $scope.loogwork[k] = list;
+                $scope.loopwork[k] = list;
             }
 
             $timeout();
@@ -545,7 +542,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.event.changed();
         }, true);
 
-        // class: File Browser
+        // class: finder
         let finder = {};
         finder.findParent = (node)=> {
             let PARENT = node.PATH.slice(0, node.PATH.length - 1);
@@ -637,13 +634,14 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 });
             } else {
                 var jsext = '.js';
+                var htmlext = '.html';
                 if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
                     location.href = '/viewer.html#' + encodeURI(node.path);
-                    return;
+                } else if (node.name.indexOf(htmlext) == node.name.length - htmlext.length) {
+                    location.href = '/viewer.html#' + encodeURI(node.path);
                 } else {
                     window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
                 }
-                return;
             }
         };
 

@@ -4,6 +4,9 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.ACCESS_POLICY = ACCESS_INFO.policy;
 
         let PATH = decodeURI(location.href.split('#')[1]);
+        let EXT = PATH.split('.');
+        EXT = EXT[EXT.length - 1];
+
         $scope.PATH = PATH;
         $scope.ROOT_PATH = `/`;
         $scope.status = {};
@@ -76,7 +79,8 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 viewportMargin: Infinity,
                 indentUnit: 4,
                 readOnly: $scope.ACCESS_STATUS !== 'GRANTALL',
-                mode: "javascript"
+                mode: EXT == 'html'
+                    ? "application/x-ejs" : 'javascript'
             }).on('change', function (e) {
                 var changeValue = e.getValue();
                 $scope.value = changeValue;
@@ -94,8 +98,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             });
         };
 
-        // lib: File Browser
-
+        // class: finder
         let finder = {};
         finder.findParent = (node)=> {
             let PARENT = node.PATH.slice(0, node.PATH.length - 1);
@@ -126,129 +129,8 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.status.finder = {};
         $scope.status.finder.createType = 'project';
         $scope.status.finder.createName = 'new';
-
-        if (localStorage.finder) {
-            $scope.finder = JSON.parse(localStorage.finder);
-        } else {
-            $scope.finder = [{type: 'folder', path: '/', name: 'root', narrower: [], PATH: [], collapsed: true}];
-            $scope.click.finderList($scope.finder[0]);
-        }
-
         $scope.click.finder = {};
-
-        $scope.click.finder.upload = function () {
-            let {node} = $scope.status.finder;
-
-            let ROOT = null;
-            let PARENT = null;
-            if (node.type == 'folder') {
-                PARENT = node;
-                ROOT = node.PATH;
-            } else {
-                PARENT = finder.findParent(node);
-                if (!PARENT) return;
-                ROOT = PARENT.PATH;
-            }
-
-            if (PARENT && ROOT) {
-                let files = $('#upload input')[0].files;
-                if (files.length <= 0) return;
-
-                $scope.status.uploading = true;
-
-                API.browse.upload(ROOT, {'./': files}).then((data)=> {
-                    $scope.status.uploading = false;
-                    $scope.current = data;
-                    $scope.click.finderList(PARENT);
-                    $scope.click.finderList(PARENT);
-                    $('#upload').modal('hide');
-                    $('#upload input').val('');
-                });
-            }
-        };
-
-        $scope.click.finder.create = ()=> {
-            let {node, createType, createName} = $scope.status.finder;
-
-            let ROOT = null;
-            let PARENT = null;
-            if (node.type == 'folder') {
-                PARENT = node;
-                ROOT = node.PATH;
-            } else {
-                PARENT = finder.findParent(node);
-                if (!PARENT) return;
-                ROOT = PARENT.PATH;
-            }
-
-            if (createType == 'project') {
-                let projectRoot = PARENT.path;
-                if (projectRoot.indexOf('/') !== 0) projectRoot = '/' + projectRoot;
-                if (projectRoot.length === 1)
-                    projectRoot = '';
-
-                location.href = '#' + encodeURI(projectRoot + '/' + createName + '.satbook');
-                location.reload();
-                return;
-            }
-
-            if (PARENT && ROOT && createName && createType) {
-                API.browse.create(ROOT, createType, createName).then(()=> {
-                    $('#create').modal('hide');
-                    $scope.status.finder.createName = 'new';
-                    $scope.click.finderList(PARENT);
-                    $scope.click.finderList(PARENT);
-                    $timeout();
-                });
-            }
-        };
-
         $scope.click.finderRight = {};
-
-        $scope.click.finderRight.upload = (node)=> {
-            $scope.status.finder.node = node;
-            $('#upload').modal('show');
-        };
-
-        $scope.click.finderRight.add = (node)=> {
-            $scope.status.finder.node = node;
-            $('#create').modal('show');
-        };
-
-        $scope.click.finderRight.delete = (node)=> {
-            let PARENT = node.PATH.slice(0, node.PATH.length - 1);
-
-            let CURRENT = $scope.finder[0].narrower;
-            for (let i = 0; i < PARENT.length; i++) {
-                let changed = false;
-                for (let j = 0; j < CURRENT.length; j++) {
-                    if (CURRENT[j].name == PARENT[i]) {
-                        CURRENT = CURRENT[j].narrower;
-                        changed = true;
-                        break;
-                    }
-                }
-
-                if (!changed) {
-                    CURRENT = null;
-                    break;
-                }
-            }
-
-            API.browse.delete(node.PATH.slice(0, node.PATH.length - 1), [node.path]).then((data)=> {
-                if (CURRENT) {
-                    let finding = -1;
-                    for (let i = 0; i < CURRENT.length; i++) {
-                        if (CURRENT[i].path == node.path) {
-                            finding = i;
-                        }
-                    }
-                    CURRENT.splice(finding, 1);
-                    $timeout();
-                    localStorage.finder = JSON.stringify($scope.finder);
-                }
-            });
-        };
 
         $scope.click.finderList = (node)=> {
             if (node.type == 'folder') {
@@ -287,40 +169,160 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                     localStorage.finder = JSON.stringify($scope.finder);
                 }
             } else if (node.type == 'project') {
-                if ($scope.value && $scope.value.length > 0) {
-                    if ($scope.ACCESS_POLICY === 'READONLY') {
-                        location.href = `/project.html#${encodeURI(node.path)}`;
-                        return;
-                    }
+                if (node.path == PATH) return;
 
-                    API.browse.save($scope.file, $scope.value).then((data)=> {
-                        location.href = `/project.html#${encodeURI(node.path)}`;
-                    });
-                } else {
+                var runnable = {
+                    path: PATH,
+                    lib: JSON.stringify($scope.lib),
+                    scripts: JSON.stringify($scope.flowpipe)
+                };
+
+                if ($scope.ACCESS_POLICY === 'READONLY') {
                     location.href = `/project.html#${encodeURI(node.path)}`;
+                    location.reload();
+                    return;
                 }
+
+                API.script.save(runnable).then(()=> {
+                    location.href = `/project.html#${encodeURI(node.path)}`;
+                    location.reload();
+                    $timeout();
+                });
             } else {
                 var jsext = '.js';
+                var htmlext = '.html';
                 if (node.name.indexOf(jsext) == node.name.length - jsext.length) {
-                    if ($scope.ACCESS_POLICY === 'READONLY') {
-                        location.href = '/viewer.html#' + encodeURI(node.path);
-                        location.reload();
-                        return;
-                    }
-
-                    if ($scope.value && $scope.value.length > 0) {
-                        API.browse.save($scope.file, $scope.value).then((data)=> {
-                            location.href = '/viewer.html#' + encodeURI(node.path);
-                            location.reload();
-                        });
-                    } else {
-                        location.href = '/viewer.html#' + encodeURI(node.path);
-                        location.reload();
-                    }
+                    location.href = '/viewer.html#' + encodeURI(node.path);
+                    location.reload();
+                } else if (node.name.indexOf(htmlext) == node.name.length - htmlext.length) {
+                    location.href = '/viewer.html#' + encodeURI(node.path);
+                    location.reload();
                 } else {
                     window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
                 }
             }
+        };
+
+        if (localStorage.finder) {
+            $scope.finder = JSON.parse(localStorage.finder);
+        } else {
+            $scope.finder = [{type: 'folder', path: '/', name: 'root', narrower: [], PATH: [], collapsed: true}];
+            $scope.click.finderList($scope.finder[0]);
+        }
+
+        // upload
+        $scope.click.finder.upload = function () {
+            let {node} = $scope.status.finder;
+
+            let ROOT = null;
+            let PARENT = null;
+            if (node.type == 'folder') {
+                PARENT = node;
+                ROOT = node.PATH;
+            } else {
+                PARENT = finder.findParent(node);
+                if (!PARENT) return;
+                ROOT = PARENT.PATH;
+            }
+
+            if (PARENT && ROOT) {
+                let files = $('#upload input')[0].files;
+                if (files.length <= 0) return;
+
+                $scope.status.uploading = true;
+
+                API.browse.upload(ROOT, {'./': files}).then((data)=> {
+                    $scope.status.uploading = false;
+                    $scope.current = data;
+                    $scope.click.finderList(PARENT);
+                    $scope.click.finderList(PARENT);
+                    $('#upload').modal('hide');
+                    $('#upload input').val('');
+                });
+            }
+        };
+
+        $scope.click.finderRight.upload = (node)=> {
+            $scope.status.finder.node = node;
+            $('#upload').modal('show');
+        };
+
+        // add
+        $scope.click.finder.create = ()=> {
+            let {node, createType, createName} = $scope.status.finder;
+
+            let ROOT = null;
+            let PARENT = null;
+            if (node.type == 'folder') {
+                PARENT = node;
+                ROOT = node.PATH;
+            } else {
+                PARENT = finder.findParent(node);
+                if (!PARENT) return;
+                ROOT = PARENT.PATH;
+            }
+
+            if (createType == 'project') {
+                let projectRoot = PARENT.path;
+                if (projectRoot.indexOf('/') !== 0) projectRoot = '/' + projectRoot;
+                if (projectRoot.length === 1)
+                    projectRoot = '';
+
+                location.href = '#' + encodeURI(projectRoot + '/' + createName + '.satbook');
+                location.reload();
+                return;
+            }
+
+            if (PARENT && ROOT && createName && createType) {
+                API.browse.create(ROOT, createType, createName).then(()=> {
+                    $('#create').modal('hide');
+                    $scope.status.finder.createName = 'new';
+                    $scope.click.finderList(PARENT);
+                    $scope.click.finderList(PARENT);
+                    $timeout();
+                });
+            }
+        };
+
+        $scope.click.finderRight.add = (node)=> {
+            $scope.status.finder.node = node;
+            $('#create').modal('show');
+        };
+
+        // delete
+        $scope.click.finderRight.delete = (node)=> {
+            let PARENT = node.PATH.slice(0, node.PATH.length - 1);
+
+            let CURRENT = $scope.finder[0].narrower;
+            for (let i = 0; i < PARENT.length; i++) {
+                let changed = false;
+                for (let j = 0; j < CURRENT.length; j++) {
+                    if (CURRENT[j].name == PARENT[i]) {
+                        CURRENT = CURRENT[j].narrower;
+                        changed = true;
+                        break;
+                    }
+                }
+
+                if (!changed) {
+                    CURRENT = null;
+                    break;
+                }
+            }
+
+            API.browse.delete(node.PATH.slice(0, node.PATH.length - 1), [node.path]).then((data)=> {
+                if (CURRENT) {
+                    let finding = -1;
+                    for (let i = 0; i < CURRENT.length; i++) {
+                        if (CURRENT[i].path == node.path) {
+                            finding = i;
+                        }
+                    }
+                    CURRENT.splice(finding, 1);
+                    $timeout();
+                    localStorage.finder = JSON.stringify($scope.finder);
+                }
+            });
         };
 
         // rename
@@ -336,7 +338,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 if (PATH.indexOf(node.path) == 0)
                     PATH = PATH.replace(node.path, resp.path);
 
-                location.href = '/viewer.html#' + PATH;
+                location.href = '/project.html#' + PATH;
                 location.reload();
 
                 $timeout();

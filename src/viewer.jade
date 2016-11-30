@@ -4,7 +4,12 @@ html(ng-app="app")
         include components/jade/header
 
         script(src="{$ROOT}/components/js/codemirror/codemirror.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/xml/xml.js")
         script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/css/css.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/htmlmixed/htmlmixed.js")
+        script(src="{$ROOT}/components/js/codemirror/addon/mode/multiplex.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/htmlembedded/htmlembedded.js")
 
         // fold code
         script(src='{$ROOT}/components/js/codemirror/addon/fold/foldcode.js')
