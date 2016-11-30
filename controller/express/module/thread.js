@@ -310,9 +310,12 @@ module.exports = (server, config)=> {
     let runnable = {};
 
     runnable.install = (libs, run_path)=> new Promise((resolve)=> {
+        if (fs.existsSync(path.resolve(run_path, 'package.json')))
+            fs.unlinkSync(path.resolve(run_path, 'package.json'));
+
         let DEPS_PATH = path.resolve(run_path, 'node_modules');
 
-        let deps = ['install', '--save'];
+        let deps = ['install'];
         for (let i = 0; i < libs.length; i++)
             if (!fs.existsSync(path.resolve(DEPS_PATH, libs[i])))
                 deps.push(libs[i]);

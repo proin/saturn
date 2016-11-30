@@ -76,7 +76,6 @@ module.exports = (config)=> (req, res, next)=> {
 
         // check required files
         if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
-        if (!fs.existsSync(path.resolve(WORKSPACE_PATH, 'package.json'))) fs.writeFileSync(path.resolve(WORKSPACE_PATH, 'package.json'), '{}');
 
         if (!fs.existsSync(TMP_PATH)) fsext.mkdirsSync(TMP_PATH);
 
