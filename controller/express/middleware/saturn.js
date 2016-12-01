@@ -128,7 +128,7 @@ module.exports = (config)=> (req, res, next)=> {
             ${lib.value}
             
             const Flowpipe = require('flowpipe');
-            let flowpipe = Flowpipe.instance('app');
+            let flowpipe = Flowpipe.instance('SATURN');
         `;
 
         // add chartjs log function
@@ -148,6 +148,14 @@ module.exports = (config)=> (req, res, next)=> {
                 let resp = JSON.stringify({ id: (data.id ? data.id : 'vis-' + console.visId), type: visType, data: data, options: options });
                 console.log('[visjs] ' + resp);
                 console.visId++;
+            }
+        `;
+
+        // add warning function
+        runjs += `
+            console.warning = (err)=> {
+                console.log('[SATURN] WARNING IN WORK');
+                console.log(err);
             }
         `;
 

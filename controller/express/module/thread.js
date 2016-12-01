@@ -165,12 +165,16 @@ module.exports = (server, config)=> {
 
     // join logger at sockets
     logger.send = (name, target, status, message)=> {
-        let logData = logger.push(name, target, status, message);
-        sockets.broadcast(name, {channel: 'log', type: 'message', data: logData});
+        message = message.split('\n');
+
+        for (let i = 0; i < message.length; i++) {
+            let logData = logger.push(name, target, status, message[i]);
+            sockets.broadcast(name, {channel: 'log', type: 'message', data: logData});
+        }
     };
 
     // class: mailing
-    let mailer = (type, name) => new Promise((resolve)=> {
+    let mailer = (type, name, target) => new Promise((resolve)=> {
         if (!config.smtp) return resolve();
         if (!config.mailingList) return resolve();
         if (!config.smtp.user) return resolve();
@@ -191,9 +195,12 @@ module.exports = (server, config)=> {
         let url = `${config.hostname}:${config.port}/project.html#${path}`;
         let message = '';
         if (type === 'error') message += `<h3 style="color: #e53935;">${type}</h3><code style="color: #e53935;>`;
+        else if (type === 'error') message += `<h3 style="color: #f9a825;">${type}</h3><code style="color: #f9a825;>`;
         else message += `<h3>${type}</h3><pre><code style="font-size: 12px;">`;
 
-        let log = logger.read(name);
+        let log = logger.read(name)[target];
+        if (!log) log = [];
+
         let msgCnt = 0;
         let inner = '';
         for (let i = log.length - 1; i >= 0; i--) {
@@ -207,6 +214,7 @@ module.exports = (server, config)=> {
                 msgCnt++;
             }
         }
+
         message += inner + '</code></pre>';
 
         let mailFormat = fs.readFileSync(path.resolve(__dirname, '..', 'resource', 'mail-format.html'), 'utf-8');
@@ -259,8 +267,9 @@ module.exports = (server, config)=> {
         let onData = (data)=> {
             if (config.log) process.stdout.write(data);
             data = data + '';
+            let warningCnt = -1;
 
-            if (data.indexOf('[app] ERROR IN') != -1) {
+            if (data.indexOf('[SATURN] ERROR IN') != -1) {
                 manager.status[name] = 'error';
                 logger.send(name, target, `error`, data);
             } else {
@@ -275,6 +284,15 @@ module.exports = (server, config)=> {
                             logger.send(name, target, `vis`, data[i]);
                         } else {
                             logger.send(name, target, `data`, data[i]);
+                        }
+
+                        if (data[i].indexOf('[SATURN] WARNING IN WORK') != -1)
+                            warningCnt = 0;
+                        if (warningCnt !== -1)
+                            warningCnt++;
+                        if (warningCnt >= 10 || i == data.length - 1) {
+                            mailer('warning', name, target);
+                            warningCnt = -1;
                         }
                     }
             }
@@ -294,12 +312,12 @@ module.exports = (server, config)=> {
         // terminal
         terminal('node', parg, popt, onData, onError, onStart).then(()=> {
             if (manager.status[name] === 'error')
-                mailer('error', name);
+                mailer('error', name, target);
 
             if (manager.status[name] !== 'error' && manager.status[name] != null) {
                 logger.send(name, target, `finish`, `finish ${name}`);
                 manager.status[name] = 'finish';
-                mailer('finish', name);
+                mailer('finish', name, target);
             }
 
             delete manager.proc[name];
