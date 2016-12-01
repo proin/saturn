@@ -100,7 +100,7 @@ html(ng-app="app")
                                     .col-md-2(style='text-align: right;')
                                         | end &nbsp;
                                         select(ng-model='code.block_end', ng-change='event.changed()')
-                                            option(ng-repeat='works in loogwork[$index]', value='{{works}}') {{works}}
+                                            option(ng-repeat='works in loopwork[$index]', value='{{works}}') {{works}}
                             // component: if work
                             .work(ng-if='code.type == "work"')
                                 .code-editor(id='code-editor-{{code.id}}')
