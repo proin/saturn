@@ -3,14 +3,14 @@ html(ng-app="app")
     head
         include components/jade/header
 
-        script(src="{$ROOT}/components/js/codemirror/codemirror.js")
-        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
-        link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
+        script(src="{$ROOT}/components/js/finderjs/finder.min.js")
+        script(src="{$ROOT}/components/js/finderjs/jquery.finder.js")
+        link(rel="stylesheet", href="{$ROOT}/components/css/finder.css")
 
         script(src="{$ROOT}/view/js/index.js")
         link(rel="stylesheet", href="{$ROOT}/view/css/index.css")
 
-    body(ng-controller='ctrl', ng-drop='event.upload')
+    body(ng-controller='ctrl', ng-drop='event.upload', ng-show='preLoading === false')
         .on-dragging
             h2 Drag & Drop Here!
         .container.top-menu
@@ -38,18 +38,7 @@ html(ng-app="app")
                     button.btn.btn-default.btn-sm(ng-click='click.delete()')
                         i.fa.fa-trash
         .container
-            table.table.table-hover
-                tbody
-                    tr(ng-repeat='file in current')
-                        td(ng-cloak)
-                            input(type='checkbox', ng-model='file.checked', ng-checked='file.checked', ng-if='file.type != "upper" && ACCESS_STATUS === "GRANTALL"')
-                            i.fa.fa-code-fork(ng-if='file.type == "project"')
-                            i.fa.fa-folder-open(ng-if='file.type == "folder"')
-                            i.fa.fa-file-o(ng-if='file.type == "file"')
-                            div(style='display:inline-block;', ng-click='click.list(file)')
-                                | {{file.name}}
-                                span(ng-if='file.status == "running"', style='color: #8bc34a; margin-left: 8px;') [Running]
-                                span(ng-if='file.status == "error"', style='color: #e53935; margin-left: 8px;') [Error]
+            #finder
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
             .modal-dialog.modal-sm

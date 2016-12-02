@@ -1,7 +1,11 @@
 app.controller("ctrl", function ($scope, $timeout, API) {
+    $scope.preLoading = true;
+
     API.user.check().then((ACCESS_INFO)=> {
         $scope.ACCESS_STATUS = ACCESS_INFO.status;
         $scope.ACCESS_POLICY = ACCESS_INFO.policy;
+
+        $timeout();
 
         // Function
         $scope.event = {};
@@ -11,62 +15,13 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.status = {};
 
         let PATH = location.href.split('#')[1] ? decodeURI(location.href.split('#')[1]) : '';
-        $scope.PATH = PATH.split('/');
-        $scope.PATH.splice(0, 1);
+        $scope.PATH = [];
 
-        $scope.current = [];
+        var preSelectedNode = {};
+        var preSelectedFolder = {};
+
         $scope.createType = 'folder';
         $scope.createName = '';
-
-        // Load and Update List
-        API.browse.list($scope.PATH).then((data)=> {
-            $scope.current = data;
-            $timeout();
-        });
-
-        // class: socket
-        let socketHandler = {};
-
-        socketHandler.status = (message)=> {
-            let {type, data, name} = message;
-
-            if (type == 'list') {
-                $scope.status.runningLog = data;
-            } else if (type == 'message') {
-                $scope.status.runningLog[name] = data;
-            }
-
-            for (let i = 0; i < $scope.current.length; i++) {
-                if ($scope.current[i].path) {
-                    if ($scope.status.runningLog[$scope.current[i].path])
-                        $scope.current[i].status = $scope.status.runningLog[$scope.current[i].path];
-                }
-            }
-
-            $timeout();
-        };
-
-        let socket = new io.connect('/');
-
-        socket.on('connect', ()=> {
-            socket.send({channel: 'status', name: PATH});
-        });
-
-        socket.on('message', function (data) {
-            if (socketHandler[data.channel])
-                socketHandler[data.channel](data);
-        });
-
-        // Check All
-        $scope.click.checkall = function () {
-            let checkedCnt = 0;
-            for (let i = 0; i < $scope.current.length; i++)
-                if ($scope.current[i].checked)
-                    checkedCnt++;
-            for (let i = 0; i < $scope.current.length; i++)
-                $scope.current[i].checked = checkedCnt != $scope.current.length
-            $timeout();
-        };
 
         // Add Project
         $scope.click.add = function () {
@@ -81,29 +36,205 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         // Signout
         $scope.click.signout = API.user.signout;
 
+        let reloadView = ()=> {
+            let isFolder = true;
+            if (preSelectedNode && preSelectedNode.type != 'folder')
+                isFolder = false;
+
+            let activated = $('.fjs-active');
+            if (isFolder) {
+                if (activated.length == 0) {
+                    location.reload();
+                } else {
+                    $(activated[activated.length - 1]).click();
+                }
+            } else {
+                if (activated.length <= 1) {
+                    location.reload();
+                } else {
+                    $(activated[activated.length - 2]).click();
+                }
+            }
+        };
+
+        let openFile = (parent)=> {
+            if (parent.type == 'project') {
+                location.href = `/project.html#${encodeURI(parent.path)}`;
+            } else {
+                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+                for (let i = 0; i < allowed.length; i++) {
+                    if (parent.name.indexOf(allowed[i]) == parent.name.length - allowed[i].length) {
+                        location.href = '/viewer.html#' + encodeURI(parent.path);
+                        return;
+                    }
+                }
+
+                window.open('/api/browse/download?filepath=' + encodeURI(parent.path), '_blank');
+            }
+        };
+
+        // Load and Update List
+        let loaderStatus = false;
+
+        let preLoader = (PRE_PATH, idx, cnt)=> {
+            if (!cnt) cnt = 0;
+            if (PRE_PATH.length <= idx) {
+                $scope.preLoading = false;
+                console.log($scope.preLoading);
+                $timeout();
+                return;
+            }
+
+            let clickable = '';
+
+            for (let ci = 1; ci <= idx; ci++)
+                clickable += '/' + PRE_PATH[ci];
+
+            if (clickable == 'path-')
+                clickable += '/';
+
+            if (clickable == '') clickable = '/';
+
+            location.href = '#' + clickable;
+
+            let spanFileName = $('span.fjs-filename');
+
+            for (let i = 0; i < spanFileName.length; i++) {
+                let attr = $(spanFileName[i]).attr('value');
+                if (attr == clickable) {
+                    if (loaderStatus) {
+                        setTimeout(()=> {
+                            preLoader(PRE_PATH, idx, cnt + 1);
+                        }, 200);
+                        return;
+                    }
+
+                    loaderStatus = true;
+                    $(spanFileName[i]).click();
+                    preLoader(PRE_PATH, idx + 1);
+                    return;
+                }
+            }
+
+            if (cnt < 5) {
+                setTimeout(()=> {
+                    preLoader(PRE_PATH, idx, cnt + 1);
+                }, 200);
+            }
+        };
+
+        let emitter = finder(document.getElementById('finder'), (parent, cfg, callback)=> {
+            let setData = (data, isTop)=> {
+                let result = [];
+                for (let i = 0; i < data.length; i++) {
+                    if (isTop == false && data[i].type == 'upper') continue;
+                    let fa = '';
+                    if (data[i].type == 'folder') fa += '<i class="fa fa-folder"></i>';
+                    else if (data[i].type == 'file') fa += '<i class="fa fa-file-o"></i>';
+                    else if (data[i].type == 'project') fa += '<i class="fa fa-code-fork"></i>';
+                    result.push({
+                        label: `${fa} <span class="fjs-filename" value="${data[i].path}">${data[i].name}</span>`,
+                        name: data[i].name,
+                        type: data[i].type,
+                        path: data[i].path
+                    });
+                }
+                return result;
+            };
+
+            if (!parent) {
+                callback([{
+                    label: '<i class="fa fa-folder"></i> <span class="fjs-filename" value="/">root</span>',
+                    name: 'root',
+                    type: 'folder',
+                    path: '/'
+                }]);
+
+                preLoader(PATH.split('/'), 0);
+            } else if (parent.type == 'folder') {
+                preSelectedFolder = parent;
+                preSelectedNode = parent;
+                $scope.PATH = parent.path.split('/');
+                $scope.PATH.splice(0, 1);
+                location.href = `#${encodeURI(parent.path)}`;
+
+                API.browse.list($scope.PATH).then((data)=> {
+                    callback(setData(data, false));
+                    loaderStatus = false;
+                });
+            } else if (parent.type == 'upper') {
+                $scope.PATH.splice($scope.PATH.length - 1, 1);
+                let path = '';
+                for (let i = 0; i < $scope.PATH.length; i++)
+                    path += '/' + $scope.PATH[i];
+                PATH = path;
+                location.href = `#${encodeURI(path)}`;
+                location.reload();
+            } else {
+                if (preSelectedNode.path == parent.path)
+                    openFile(parent);
+
+                let fa = '';
+                if (parent.type == 'folder') fa += '<i class="fa fa-folder"></i>';
+                else if (parent.type == 'file') fa += '<i class="fa fa-file-o"></i>';
+                else if (parent.type == 'project') fa += '<i class="fa fa-code-fork"></i>';
+
+                let div = $(
+                    `<div class="fjs-col leaf-col"><div class="leaf-col"><div class="leaf-col-container">
+                        <div class="icon">
+                            ${fa}
+                        </div>
+                        <div class="title">
+                            ${parent.name}
+                        </div>
+                        <div class="action-button">
+                            <button class="btn btn-default open">Open</button>
+                            <button class="btn btn-default delete">Delete</button>
+                        </div>
+                    </div></div></div>`
+                );
+
+                emitter.emit('create-column', div[0]);
+
+                $('.leaf-col-container .delete').each(function () {
+                    $(this).click(()=> {
+                        API.browse.delete($scope.PATH, [preSelectedNode.path]).then(()=> {
+                            reloadView();
+                        });
+                    });
+                });
+
+                $('.leaf-col-container .open').each(function () {
+                    $(this).click(()=> {
+                        openFile(parent);
+                    });
+                });
+
+                preSelectedNode = parent;
+            }
+        });
+
         // File or Folder Create
         $scope.click.create = ()=> {
             let {PATH, createType, createName} = $scope;
-            API.browse.create(PATH, createType, createName).then((data)=> {
+            API.browse.create(PATH, createType, createName).then(()=> {
                 $('#create').modal('hide');
                 $scope.createName = '';
-                $scope.current = data;
+                reloadView();
                 $timeout();
             });
         };
 
         // Delete Files
         $scope.click.delete = function () {
-            let {PATH, current} = $scope;
-
-            let checked = [];
-            for (let i = 0; i < current.length; i++)
-                if (current[i].checked)
-                    checked.push(current[i].path);
-
-            API.browse.delete(PATH, checked).then((data)=> {
-                $scope.current = data;
-                $timeout();
+            API.browse.delete($scope.PATH, [preSelectedNode.path]).then(()=> {
+                $scope.PATH.splice($scope.PATH.length - 1, 1);
+                let path = '';
+                for (let i = 0; i < $scope.PATH.length; i++)
+                    path += '/' + $scope.PATH[i];
+                PATH = path;
+                location.href = `#${encodeURI(path)}`;
+                location.reload();
             });
         };
 
@@ -112,9 +243,9 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             let {PATH} = $scope;
             $scope.status.uploading = true;
 
-            API.browse.upload(PATH, files).then((data)=> {
+            API.browse.upload(PATH, files).then(()=> {
                 $scope.status.uploading = false;
-                $scope.current = data;
+                reloadView();
                 $timeout(resolve);
             });
         });
@@ -126,39 +257,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             $scope.event.upload({'./': $('#upload input')[0].files}).then(()=> {
                 $('#upload').modal('hide');
                 $('#upload input').val('');
-            });
-        };
-
-        // click list item
-        $scope.click.list = function (file) {
-            if (file.type == 'upper') {
-                $scope.PATH.splice($scope.PATH.length - 1, 1);
-                file.path = '';
-                for (let i = 0; i < $scope.PATH.length; i++)
-                    file.path += '/' + $scope.PATH[i];
-            } else if (file.type == 'folder') {
-                $scope.PATH.push(file.name);
-            } else if (file.type == 'project') {
-                location.href = `/project.html#${encodeURI(file.path)}`;
-                return;
-            } else {
-                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
-                for (let i = 0; i < allowed.length; i++) {
-                    if (file.name.indexOf(allowed[i]) == file.name.length - allowed[i].length) {
-                        location.href = '/viewer.html#' + encodeURI(file.path);
-                        return;
-                    }
-                }
-
-                window.open('/api/browse/download?filepath=' + encodeURI(file.path), '_blank');
-                return;
-            }
-
-            location.href = `#${encodeURI(file.path)}`;
-
-            API.browse.list($scope.PATH).then((data)=> {
-                if (data.status !== false) $scope.current = data;
-                $timeout();
             });
         };
     });

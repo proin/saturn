@@ -41,6 +41,22 @@
                 | &nbsp;
                 button.btn.btn-primary(type='button', ng-click='click.finder.upload()') Upload
 
+#upload-folder.modal.fade(tabindex='-1', role='dialog', aria-labelledby='add', aria-hidden='true')
+    .modal-dialog(role='document')
+        .modal-content
+            .modal-header
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') ×
+                h4.modal-title Upload Folder
+            .modal-body
+                .form-group
+                    label.form-control-label Select File or exported `*.satbook` project
+                    input.form-control(type='file', webkitdirectory, directory, multiple)
+            .modal-footer
+                button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+                | &nbsp;
+                button.btn.btn-primary(type='button', ng-click='click.finder.upload(true)') Upload
+
 #rename.modal.fade(tabindex='-1', role='dialog', aria-labelledby='create', aria-hidden='true')
     .modal-dialog(role='document')
         .modal-content

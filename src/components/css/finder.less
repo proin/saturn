@@ -1,0 +1,168 @@
+.fjs-container {
+    background-color: white;
+    border: solid 1px lightgray;
+    display: flex;
+    font-size: .9em;
+    height: 600px;
+    overflow: auto;
+
+    @media only screen and (max-device-width: 768px) {
+        height: 400px;
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    .fjs-col {
+        border-right: solid 1px lightgray;
+        height: 100%;
+        min-width: 200px;
+        overflow-y: auto;
+
+        &.leaf-col {
+            min-width: 300px;
+        }
+
+        .fjs-item {
+            i {
+                width: 16px;
+                text-align: center;
+            }
+            a {
+                align-items: flex-end;
+                color: black;
+                display: flex;
+                padding: 5px;
+                text-decoration: none;
+
+                &:focus {
+                    outline: none;
+                }
+
+                span {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+
+                    i {
+                        padding-right: 5px;
+                    }
+                }
+            }
+        }
+
+        .fjs-active a {
+            background-color: #DEDEDE;
+        }
+
+        &:nth-last-child(2) .fjs-active a,
+        &:last-child .fjs-active a {
+            background-color: dodgerblue;
+            color: white;
+        }
+
+    }
+}
+
+.fjs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fjs-item-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fa-folder {
+    color: #90E4FF;
+}
+
+.fa-file-o {
+    color: #A7A7A7;
+}
+
+.fa-external-link {
+    color: #629EFF;
+    font-size: smaller;
+}
+
+.fa-caret-right {
+    color: gray;
+    padding: 0 0 0 .5em;
+}
+
+.fjs-col:nth-last-child(2) .fjs-active a .fa-caret-right,
+.fjs-col:last-child .fjs-active a .fa-caret-right {
+    color: white;
+}
+
+.leaf-col {
+    align-items: center;
+    border-right: 0;
+    display: flex;
+    flex: 2;
+    justify-content: center;
+    padding: 0 1.5em;
+
+    .leaf-col-container {
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+
+        .icon {
+            display: block;
+            i {
+                width: 150px;
+                height: 150px;
+                font-size: 150px;
+            }
+        }
+
+        .title {
+            margin: 24px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .action-button {
+            button {
+                color: white;
+            }
+        }
+    }
+}
+
+.leaf-row {
+    display: flex;
+    flex-direction: column;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.leaf-row .fa {
+    color: #A7A7A7;
+    font-size: 4em;
+    margin: 20px 0;
+}
+
+.leaf-row .fa-refresh {
+    font-size: 2em;
+}
+
+.leaf-col .meta {
+    font-size: .7em;
+}
+
+.leaf-col .meta strong {
+    color: #C1C1C1;
+    font-weight: normal;
+}
+
+.leaf-col .meta:first-of-type {
+    margin-top: 1.5em;
+}

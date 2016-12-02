@@ -25,17 +25,16 @@ html(ng-app="app")
         .container-fluid.top-menu
             nav.navbar.navbar-fixed-top.navbar-light.bg-faded
                 .container-fluid(ng-cloak)
-                    a.navbar-brand(ng-click='titleEdit = true')
+                    a.navbar-brand
                         img(src='/images/saturn-ico.png', width='30', height='30', alt='')
-                        span(ng-if='!titleEdit') &nbsp;Saturn: {{app}}
-                        input(type='text', ng-if='titleEdit', ng-model='appRename', ng-enter='click.editTitle(appRename)')
+                        span &nbsp;Saturn: {{app}}
                     ul.nav.navbar-nav
                         li.nav-item
-                            a.nav-link(ng-href='{{ROOT_PATH}}') List
+                            a.nav-link(ng-click='history()') List
 
             .toolbar(ng-cloak)
                 .container-fluid
-                    button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
+                    button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
                         i.fa.fa-list
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
                         i.fa.fa-play(ng-if='status.running != "running"')

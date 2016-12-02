@@ -10,13 +10,13 @@ body {
 .dropdown.position-fixed.open {
     .dropdown-menu {
         font-size: 12px;
-        max-width: 80px;
-        min-width: 80px;
+        max-width: 100px;
+        min-width: 100px;
         padding: 0;
 
         .dropdown-item {
             cursor: pointer;
-            max-width: 80px;
+            max-width: 100px;
             padding: 4px 12px;
         }
     }
@@ -76,6 +76,94 @@ body {
             @media only screen and (max-device-width: 768px) {
                 display: none;
             }
+        }
+    }
+}
+
+.view-container {
+    .finder-view {
+        position: fixed;
+        width: 250px;
+        height: 100%;
+        overflow: scroll;
+        display: inline-block;
+        top: 0;
+        padding-top: 100px;
+        background: #f7f7f9;
+
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media only screen and (max-device-width: 768px) {
+            display: none;
+
+            &.fixed {
+                display: block;
+                position: fixed;
+                z-index: 4;
+            }
+        }
+
+        i {
+            width: 16px;
+        }
+
+        div[data-angular-treeview] {
+            /* prevent user selection */
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            /* default */
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+        }
+
+        div[data-tree-model] ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            border: none;
+        }
+
+        div[data-tree-model] li {
+            position: relative;
+            padding: 0 0 0 20px;
+            line-height: 20px;
+            word-break: normal;
+            white-space: nowrap;
+
+            span {
+                padding-right: 12px;
+
+                &.running {
+                    color: #8bc34a;
+                    font-weight: 600;
+                }
+
+                &.error {
+                    color: #e53935;
+                    font-weight: 600;
+                }
+
+                &.finish {
+                    color: #2196f3;
+                }
+            }
+        }
+
+        div[data-tree-model] li i, div[data-tree-model] li span {
+            cursor: pointer;
+        }
+
+        div[data-tree-model] li .selected {
+            background-color: rgba(0, 0, 0, .1);
+            padding-right: 0;
+            font-weight: bold;
         }
     }
 }

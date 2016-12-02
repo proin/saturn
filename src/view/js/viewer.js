@@ -47,7 +47,13 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.value = '';
 
         $scope.history = function () {
-            window.history.back();
+            let PATH = $scope.PATH.splice('/');
+            PATH.splice(0, 1);
+            PATH.splice(PATH.length - 1, 1);
+            let path = '';
+            for (let i = 0; i < PATH.length; i++)
+                path += '/' + PATH[i];
+            location.href = `/#${encodeURI(path)}`;
         };
 
         API.browse.read($scope.file).then((data)=> {
@@ -200,7 +206,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         }
 
         // upload
-        $scope.click.finder.upload = function () {
+        $scope.click.finder.upload = function (isFolder) {
             let {node} = $scope.status.finder;
 
             let ROOT = null;
@@ -215,25 +221,49 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             }
 
             if (PARENT && ROOT) {
-                let files = $('#upload input')[0].files;
+                let files = isFolder ? $('#upload-folder input')[0].files : $('#upload input')[0].files;
                 if (files.length <= 0) return;
 
                 $scope.status.uploading = true;
 
-                API.browse.upload(ROOT, {'./': files}).then((data)=> {
+                let uploadData = {};
+
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].webkitRelativePath == "") {
+                        if (!uploadData['./']) uploadData['./'] = [];
+                        uploadData['./'].push(files[i]);
+                    } else {
+                        let dirname = './';
+                        for (let j = 0; j < files[i].webkitRelativePath.split('/').length - 1; j++)
+                            dirname += files[i].webkitRelativePath.split('/')[j] + '/';
+                        if (!uploadData[dirname]) uploadData[dirname] = [];
+                        uploadData[dirname].push(files[i]);
+                    }
+                }
+
+                API.browse.upload(ROOT, uploadData).then((data)=> {
                     $scope.status.uploading = false;
                     $scope.current = data;
                     $scope.click.finderList(PARENT);
                     $scope.click.finderList(PARENT);
-                    $('#upload').modal('hide');
-                    $('#upload input').val('');
+
+                    if (isFolder) {
+                        $('#upload-folder').modal('hide');
+                        $('#upload-folder input').val('');
+                    } else {
+                        $('#upload').modal('hide');
+                        $('#upload input').val('');
+                    }
                 });
             }
         };
 
-        $scope.click.finderRight.upload = (node)=> {
+        $scope.click.finderRight.upload = (node, isFolder)=> {
             $scope.status.finder.node = node;
-            $('#upload').modal('show');
+            if (isFolder)
+                $('#upload-folder').modal('show');
+            else
+                $('#upload').modal('show');
         };
 
         // add
@@ -343,7 +373,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         // download
         $scope.click.finderRight.download = (node)=> {
-            if(node.type =='project') {
+            if (node.type == 'project') {
                 window.open('/api/script/export?path=' + encodeURI(node.path), '_blank');
             } else {
                 window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');

@@ -37,7 +37,6 @@ app.factory('API', ()=> {
 
     factory.browse.delete = (PATH, checked)=> new Promise((resolve)=> {
         $.post('/api/browse/delete', {
-            read_path: JSON.stringify(PATH),
             rm: JSON.stringify(checked)
         }, function () {
             $.get('/api/browse/list?read_path=' + JSON.stringify(PATH), (data)=> {
@@ -69,7 +68,7 @@ app.factory('API', ()=> {
                 contentType: false,
                 data: formData,
                 type: 'POST',
-                success: function () {
+                success: function (data) {
                     uploader(callback);
                 }
             });

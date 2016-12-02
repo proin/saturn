@@ -35,7 +35,7 @@ html(ng-app="app")
                         | &nbsp;Saturn: {{file}}
                     ul.nav.navbar-nav
                         li.nav-item
-                            a.nav-link(ng-href='{{ROOT_PATH}}') List
+                            a.nav-link(ng-click='history()') List
 
             .toolbar(ng-cloak)
                 .container-fluid(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
