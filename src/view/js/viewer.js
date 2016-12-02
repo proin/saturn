@@ -47,7 +47,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         $scope.value = '';
 
         $scope.history = function () {
-            let PATH = $scope.PATH.splice('/');
+            let PATH = $scope.PATH.split('/');
             PATH.splice(0, 1);
             PATH.splice(PATH.length - 1, 1);
             let path = '';
