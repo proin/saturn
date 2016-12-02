@@ -14,19 +14,11 @@ html(ng-app="app")
         .on-dragging
             h2 Drag & Drop Here!
         .container.top-menu
-            nav.navbar.navbar-fixed-top.navbar-light.bg-faded
-                .container
-                    a.navbar-brand
-                        img(src='/images/saturn-ico.png', width='30', height='30', alt='')
-                        | &nbsp;Saturn
-                    ul.nav.navbar-nav
-                        li.nav-item(ng-if='ACCESS_POLICY !== "OPEN"')
-                            a.nav-link(ng-if='ACCESS_STATUS !== "GRANTALL"', href='/signin.html') Sign in
-                            a.nav-link(ng-if='ACCESS_STATUS === "GRANTALL"', ng-click='click.signout()') Sign Out
+            include ./components/jade/navbar
 
             .toolbar(ng-cloak)
-                .container(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
-                .container(ng-if="ACCESS_STATUS === 'GRANTALL'")
+                .container-fulid(ng-if="ACCESS_STATUS !== 'GRANTALL'") READ ONLY
+                .container-fulid(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='click.checkall()')
                         i.fa.fa-check-square-o
                     button.btn.btn-default.btn-sm(type='button', data-toggle='modal', data-target='#add')
@@ -37,7 +29,7 @@ html(ng-app="app")
                         i.fa.fa-upload
                     button.btn.btn-default.btn-sm(ng-click='click.delete()')
                         i.fa.fa-trash
-        .container
+        .container-fulid
             #finder
 
         .modal.fade#alert(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')

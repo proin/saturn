@@ -46,6 +46,10 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         $scope.value = '';
 
+        $scope.click.list = ()=> {
+            $('.finder-view').toggleClass('fixed');
+        };
+
         $scope.history = function () {
             let PATH = $scope.PATH.split('/');
             PATH.splice(0, 1);

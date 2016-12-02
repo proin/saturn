@@ -23,17 +23,12 @@ html(ng-app="app")
     body(ng-controller='ctrl')
         // component: nav
         .container-fluid.top-menu
-            nav.navbar.navbar-fixed-top.navbar-light.bg-faded
-                .container-fluid(ng-cloak)
-                    a.navbar-brand
-                        img(src='/images/saturn-ico.png', width='30', height='30', alt='')
-                        span &nbsp;Saturn: {{app}}
-                    ul.nav.navbar-nav
-                        li.nav-item
-                            a.nav-link(ng-click='history()') List
+            include ./components/jade/navbar
 
             .toolbar(ng-cloak)
                 .container-fluid
+                    button.btn.btn-default.btn-sm(ng-click='history()', ng-cloak)
+                        i.fa.fa-home
                     button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
                         i.fa.fa-list
                     button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')

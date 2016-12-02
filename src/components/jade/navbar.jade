@@ -1,0 +1,14 @@
+nav.navbar.navbar-fixed-top.navbar-light.bg-faded
+    .container-fulid
+        a.navbar-brand
+            img(src='/images/saturn-ico.png', width='30', height='30', alt='')
+            | &nbsp;Saturn
+        ul.nav.navbar-nav.float-xs-right(style='display: visible!important')
+            li.nav-item
+                a.nav-link(href='https://github.com/proin/saturn', target='_blank')
+                    i.fa.fa-github
+                    | &nbsp;GitHub
+        ul.nav.navbar-nav
+            li.nav-item(ng-if='ACCESS_POLICY !== "OPEN"', ng-cloak)
+                a.nav-link(ng-if='ACCESS_STATUS !== "GRANTALL"', href='/signin.html') Sign in
+                a.nav-link(ng-if='ACCESS_STATUS === "GRANTALL"', ng-click='click.signout()') Sign Out

@@ -3,6 +3,14 @@ body {
     font-size: 14px;
 }
 
+.only-mobile {
+    display: none;
+
+    @media only screen and (max-device-width: 768px) {
+        display: inline-block;
+    }
+}
+
 .position-fixed {
     position: fixed;
 }
@@ -49,7 +57,6 @@ body {
 
         ul {
             @media only screen and (max-device-width: 768px) {
-                display: none;
             }
         }
     }
