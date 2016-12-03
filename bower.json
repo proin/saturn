@@ -25,6 +25,9 @@
     "font-awesome": "4.7.0",
     "ng-context-menu": "1.0.3",
     "chart.js": "^2.4.0",
-    "vis": "^4.17.0"
+    "vis": "^4.17.0",
+    "angular-animate": "^1.5.9",
+    "angular-messages": "^1.5.9",
+    "angular-aria": "^1.5.9"
   }
 }
