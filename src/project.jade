@@ -55,7 +55,7 @@ html(ng-app="app")
         .view-container
             // component: file browse
             .finder-view
-                div(data-angular-treeview='true', data-on-select='project_info_bind', data-tree-model='project_info', data-node-id='id', data-node-label='title', data-node-children='narrower')
+                div(data-angular-treeview='true', data-on-select='project_info_bind', data-tree-model='project_info', data-node-id='id', data-node-label='title', data-node-children='narrower', ng-if='ACCESS_STATUS === "GRANTALL"')
                 div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
 
             // component: code editor
