@@ -989,7 +989,38 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             if (node.name == 'editor') {
                 $scope.status.view = 'editor';
             }
+
+            if (node.name == 'setting') {
+                if ($scope.status.view == 'config')
+                    return;
+                $scope.status.view = 'config';
+                $timeout();
+            }
         };
+
+        API.browse.read(PATH + '/config.json').then((data)=> {
+            if (!data || !data.status) {
+                data = {};
+                data.data = '{}';
+            }
+
+            $scope.config = JSON.parse(data.data);
+
+            $scope.config.click = {};
+
+            $scope.config.click.mailing = (type)=> {
+                if (!$scope.config.mailing) $scope.config.mailing = {};
+                $timeout(()=>{
+                    $scope.config.mailing[type] = !$scope.config.mailing[type];
+                });
+            };
+
+            $timeout();
+        });
+
+        $scope.$watch('config', ()=> {
+            API.browse.save(PATH + '/config.json', JSON.stringify($scope.config));
+        }, true);
 
         let arrayInserter = (append)=> {
             let res = [];
@@ -1004,7 +1035,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 narrower: [
                     {type: 'project_info', context: {delete: true}, icon: 'fa-folder', path: PATH + '/node_modules', name: 'node_modules', narrower: [], PATH: arrayInserter(['node_modules']), collapsed: true},
                     {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/editor', name: 'editor', narrower: [], collapsed: true},
-                    {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/package.json', name: 'package.json', narrower: [], PATH: arrayInserter(['package.json']), collapsed: true}
+                    {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/package.json', name: 'package.json', narrower: [], PATH: arrayInserter(['package.json']), collapsed: true},
+                    {type: 'project_info', disabledContext: true, icon: 'fa-cogs', path: PATH + '/config.json', name: 'setting', narrower: [], PATH: arrayInserter(['config.json']), collapsed: true}
                 ]
             },
         ];

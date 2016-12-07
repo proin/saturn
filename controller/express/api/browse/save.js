@@ -11,7 +11,10 @@ router.post("/", function (req, res) {
 
     let {filepath, filevalue} = req.body;
 
-    filevalue =  filevalue.replace(/\t/gim, '    ');
+    if (!filevalue)
+        return res.send({status: false});
+
+    filevalue = filevalue.replace(/\t/gim, '    ');
 
     filepath = path.join(req.DIR.WORKSPACE_PATH, filepath);
     if (filepath.indexOf(req.DIR.WORKSPACE_PATH) == -1)

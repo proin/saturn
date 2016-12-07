@@ -27,7 +27,7 @@ router.get("/", function (req, res) {
     if (!fs.existsSync(WORKSPACE_PATH)) return res.send([]);
 
     let dirs = fs.readdirSync(WORKSPACE_PATH);
-    let ignores = {'.git': true, '.idea': true};
+    let ignores = {'.git': true, '.idea': true, '.tmp': true};
     let projectList = {};
     for (let i = 0; i < dirs.length; i++) {
         if (ignores[dirs[i]]) continue;

@@ -13,7 +13,7 @@ module.exports = (server, config)=> {
     const HOME = config.home ?
         path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], config.home)
         : path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn');
-    const WORKSPACE_PATH = path.resolve(HOME, 'workspace');
+    const WORKSPACE_PATH = path.resolve(HOME);
 
     // class: terminal
     let terminal = (cmd, args, opts, data, err, callback)=> new Promise((resolve)=> {
@@ -175,15 +175,21 @@ module.exports = (server, config)=> {
 
     // class: mailing
     let mailer = (type, name, target) => new Promise((resolve)=> {
+        const PROJECT_CONFIG = path.join(WORKSPACE_PATH, name, 'config.json');
+        if (!fs.existsSync(PROJECT_CONFIG)) return resolve();
+
+        let projectConfig = JSON.parse(fs.readFileSync(PROJECT_CONFIG, 'utf-8'));
+
         if (!config.smtp) return resolve();
-        if (!config.mailingList) return resolve();
         if (!config.smtp.user) return resolve();
         if (!config.smtp.password) return resolve();
         if (!config.smtp.host) return resolve();
 
-        if (config.mailingOn)
-            if (!config.mailingOn[type])
-                return resolve();
+        if (!projectConfig.mailing)
+            return resolve();
+
+        if (!projectConfig.mailing[type])
+            return resolve();
 
         let mail = emailjs.server.connect({
             user: config.smtp.user,
@@ -224,7 +230,7 @@ module.exports = (server, config)=> {
 
         mail.send({
             from: config.smtp.user,
-            to: config.mailingList,
+            to: projectConfig.mailing.to,
             subject: 'Message on Saturn - ' + type,
             text: '',
             attachment: {

@@ -12,9 +12,9 @@ module.exports = (config)=> {
         else if (config.home) req.DIR.USERHOME = path.resolve(req.DIR.USERHOME, config.home);
         else req.DIR.USERHOME = path.resolve(req.DIR.USERHOME, '.node-saturn');
 
-        req.DIR.WORKSPACE_PATH = path.resolve(req.DIR.USERHOME, 'workspace');
-        req.DIR.TMP = (name)=> path.resolve(req.DIR.USERHOME, 'tmp', name);
-        req.DIR.TMPD = path.resolve(req.DIR.USERHOME, 'tmp');
+        req.DIR.WORKSPACE_PATH = path.resolve(req.DIR.USERHOME);
+        req.DIR.TMP = (name)=> path.resolve(req.DIR.USERHOME, '.tmp', name);
+        req.DIR.TMPD = path.resolve(req.DIR.USERHOME, '.tmp');
         next();
     };
 };
