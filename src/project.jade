@@ -27,35 +27,42 @@ html(ng-app="app")
 
             .toolbar(ng-cloak)
                 .container-fluid
-                    button.btn.btn-default.btn-sm(ng-click='history()', ng-cloak)
+                    button.btn.btn-secondary.btn-sm(ng-click='history()', ng-cloak)
                         i.fa.fa-home
-                    button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
+                    button.btn.btn-secondary.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
                         i.fa.fa-list
-                    button.btn.btn-default.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-play(ng-if='status.running != "running"')
-                        i.fa.fa-stop(ng-if='status.running == "running"')
-                    button.btn.btn-default.btn-sm(ng-click='click.clean()', ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-eraser
-                    button.btn.btn-default.btn-sm(ng-click='click.save()', ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-floppy-o
-                    button.btn.btn-default.btn-sm(ng-click='click.add()', ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-plus-square
-                    button.btn.btn-default.btn-sm(ng-click='click.remove()', ng-if='ACCESS_STATUS === "GRANTALL"')
-                        i.fa.fa-minus-circle
-                    button.btn.btn-default.btn-sm(ng-click='click.export()')
-                        i.fa.fa-book
-                    button.btn.btn-default.btn-sm(ng-click='click.exportRun()')
-                        i.fa.fa-rocket
+                    .btn-group(role="group", aria-label="commands")
+                        button.btn.btn-secondary.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')
+                            i.fa.fa-play(ng-if='status.running != "running"')
+                            i.fa.fa-stop(ng-if='status.running == "running"')
+                        button.btn.btn-secondary.btn-sm(ng-click='click.clean()', ng-if='ACCESS_STATUS === "GRANTALL"')
+                            i.fa.fa-eraser
+                        button.btn.btn-secondary.btn-sm(ng-click='click.save()', ng-if='ACCESS_STATUS === "GRANTALL"')
+                            i.fa.fa-floppy-o
+                    .btn-group(role="group", aria-label="editor")
+                        button.btn.btn-secondary.btn-sm(ng-click='click.add()', ng-if='ACCESS_STATUS === "GRANTALL"')
+                            i.fa.fa-plus-square
+                        button.btn.btn-secondary.btn-sm(ng-click='click.remove()', ng-if='ACCESS_STATUS === "GRANTALL"')
+                            i.fa.fa-minus-circle
+                    .btn-group(role="group", aria-label="export")
+                        button.btn.btn-secondary.btn-sm(ng-click='click.export()')
+                            i.fa.fa-book
+                        button.btn.btn-secondary.btn-sm(ng-click='click.exportRun()')
+                            i.fa.fa-rocket
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
         // component: view
         .view-container
             // component: file browse
             .finder-view
+                div(data-angular-treeview='true', data-on-select='project_info_bind', data-tree-model='project_info', data-node-id='id', data-node-label='title', data-node-children='narrower')
                 div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
 
             // component: code editor
-            .editor-view(ng-cloak)
+            .editor-view(ng-if='status.view == "package.json"')
+                .code-editor#code-editor-package-json
+
+            .editor-view(ng-show='status.view == "editor"', ng-cloak)
                 // component: lib code editor
                 .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == "running" ? "running": ""')
                     .row.code-box(ng-click='click.codebox(-1)', ng-class='status.focused == -1 ? "active":""')

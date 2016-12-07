@@ -176,13 +176,11 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                         node.narrower = data;
                         node.collapsed = !node.collapsed;
                         $timeout();
-                        localStorage.finder = JSON.stringify($scope.finder);
                     });
                 } else {
                     node.narrower = [];
                     node.collapsed = !node.collapsed;
                     $timeout();
-                    localStorage.finder = JSON.stringify($scope.finder);
                 }
             } else if (node.type == 'project') {
                 if (node.path == PATH) return;
@@ -202,12 +200,33 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             }
         };
 
-        if (localStorage.finder) {
-            $scope.finder = JSON.parse(localStorage.finder);
-        } else {
-            $scope.finder = [{type: 'folder', path: '/', name: 'root', narrower: [], PATH: [], collapsed: true}];
-            $scope.click.finderList($scope.finder[0]);
-        }
+        $scope.finder = [{type: 'folder', path: '/', name: 'home', narrower: [], PATH: [], collapsed: true}];
+
+        let PRELOAD_PATH = $scope.PATH.split('/');
+        PRELOAD_PATH.splice(0, 1);
+        PRELOAD_PATH.splice(PATH.length - 1, 1);
+
+        let preLoad = (idx)=> {
+            if (!PRELOAD_PATH[idx]) return;
+
+            let DATA_TARGET = '';
+            for (let i = 0; i < idx; i++)
+                DATA_TARGET += '/' + PRELOAD_PATH[i];
+            if (!DATA_TARGET) DATA_TARGET = '/';
+
+            let ci = $(`.finder-view li span[data-target="menu-${DATA_TARGET}"]`);
+            if (ci.length == 0) {
+                $timeout(()=> {
+                    preLoad(idx);
+                }, 10);
+                return;
+            }
+
+            ci.click();
+            preLoad(idx + 1);
+        };
+
+        preLoad(0);
 
         // upload
         $scope.click.finder.upload = function (isFolder) {
@@ -343,7 +362,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                     }
                     CURRENT.splice(finding, 1);
                     $timeout();
-                    localStorage.finder = JSON.stringify($scope.finder);
                 }
             });
         };
@@ -382,6 +400,25 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             } else {
                 window.open('/api/browse/download?filepath=' + encodeURI(node.path), '_blank');
             }
+        };
+
+        // copy
+        $scope.PASTE_DATA = null;
+        $scope.click.finderRight.copy = (node)=> {
+            $scope.PASTE_DATA = node;
+            $timeout();
+        };
+
+        // paste
+        $scope.click.finderRight.paste = (node)=> {
+            if (!$scope.PASTE_DATA) return;
+            if (node.type !== 'folder')
+                node = finder.findParent(node);
+
+            API.browse.copy($scope.PASTE_DATA.path, node.path).then(()=> {
+                $scope.click.finderList(node);
+                $scope.click.finderList(node);
+            });
         };
     });
 });

@@ -7,10 +7,11 @@ angular.module("ngTreeview", []).directive("treeModel", function ($compile) {
             let onSelect = b.onSelect;
 
             d = '<ul><li data-ng-repeat="node in ' + f + '">' +
-                '<i class="fa fa-folder" data-ng-if="node.type== \'folder\' && node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
-                '<i class="fa fa-folder-open" data-ng-if="node.type == \'folder\' && !node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
-                '<i class="fa fa-code-fork" data-ng-if="node.type == \'project\'" data-ng-click="' + onSelect + '(node)"></i> ' +
-                '<i class="fa fa-file-o" data-ng-if="node.type == \'file\'" data-ng-click="' + onSelect + '(node)"></i> ' +
+                '<i class="fa fa-folder" data-ng-if="!node.icon && node.type== \'folder\' && node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
+                '<i class="fa fa-folder-open" data-ng-if="!node.icon && node.type == \'folder\' && !node.collapsed" data-ng-click="' + onSelect + '(node)"></i>' +
+                '<i class="fa fa-code-fork" data-ng-if="!node.icon && node.type == \'project\'" data-ng-click="' + onSelect + '(node)"></i> ' +
+                '<i class="fa fa-file-o" data-ng-if="!node.icon && node.type == \'file\'" data-ng-click="' + onSelect + '(node)"></i> ' +
+                '<i class="fa" data-ng-class="node.icon" data-ng-if="node.icon" data-ng-click="' + onSelect + '(node)"></i> ' +
                 '<span ng-class="' +
                 'status.runningLog[node.path] && PATH == node.path ? ' +
                 'status.runningLog[node.path] + \' selected\' : ' +
@@ -21,13 +22,15 @@ angular.module("ngTreeview", []).directive("treeModel", function ($compile) {
                 '" data-ng-click="' + onSelect + '(node)" context-menu data-target="menu-{{ node.path }}">{{node.name}}</span>' +
 
                 // context menu
-                '<div class="dropdown position-fixed" id="menu-{{ node.path }}"><div class="dropdown-menu" role="menu">' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.rename(node)">rename</a>' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.add(node)">add</a>' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node)">upload file</a>' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node, true)">upload folder</a>' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.delete(node)">delete</a>' +
-                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.download(node)">download</a>' +
+                '<div class="dropdown position-fixed" data-ng-if="!node.disabledContext" id="menu-{{ node.path }}"><div class="dropdown-menu" role="menu">' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.add(node)" data-ng-if="!node.context || node.context.add">add</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node)" data-ng-if="!node.context || node.context.upload">upload file</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.upload(node, true)" data-ng-if="!node.context || node.context.upload">upload folder</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.rename(node)" data-ng-if="!node.context || node.context.rename">rename</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.copy(node)" data-ng-if="!node.context || node.context.copy">copy</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.paste(node)" data-ng-if="!node.context || node.context.paste">paste</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.delete(node)" data-ng-if="!node.context || node.context.delete">delete</a>' +
+                '<a class="dropdown-item pointer" role="menuitem" data-ng-click="click.finderRight.download(node)" data-ng-if="!node.context || node.context.download">download</a>' +
                 '</div></div>' +
 
                 '<div data-ng-hide="node.collapsed" data-tree-model="node.' + c + '" data-node-id=' + (b.path || "id") + " data-node-label=" + d + " data-node-children=" + c + " data-on-select='" + onSelect + "'></div></li></ul>";

@@ -66,7 +66,11 @@ module.exports = (config)=> (req, res, next)=> {
             }
         }
 
-        thread.install(npmlibs, WORKSPACE_PATH, runpath).then(resolve);
+        if (fs.existsSync(path.join(WORKSPACE_PATH, runpath, 'package.json')) == false) {
+            fs.writeFileSync(path.join(WORKSPACE_PATH, runpath, 'package.json'), JSON.stringify({}));
+        }
+
+        thread.install(npmlibs, path.join(WORKSPACE_PATH, runpath), runpath).then(resolve);
     });
 
     app.save = (args)=> new Promise((resolve)=> {

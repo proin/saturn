@@ -330,9 +330,6 @@ module.exports = (server, config)=> {
     let runnable = {};
 
     runnable.install = (libs, run_path, name)=> new Promise((resolve)=> {
-        if (fs.existsSync(path.resolve(run_path, 'package.json')))
-            fs.unlinkSync(path.resolve(run_path, 'package.json'));
-
         let DEPS_PATH = path.resolve(run_path, 'node_modules');
 
         let deps = ['install'];
@@ -341,6 +338,8 @@ module.exports = (server, config)=> {
                 deps.push(libs[i]);
 
         if (deps.length == 1) return resolve();
+
+        deps.push('--save');
 
         manager.status[name] = 'install';
         sockets.broadcast(name, {channel: 'status', type: 'install', name: name, data: libs}, true);

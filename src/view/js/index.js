@@ -10,8 +10,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         // Function
         $scope.event = {};
         $scope.click = {};
-
-        // Variables
         $scope.status = {};
 
         let PATH = location.href.split('#')[1] ? decodeURI(location.href.split('#')[1]) : '';
@@ -20,41 +18,26 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         var preSelectedNode = {};
         var preSelectedFolder = {};
 
-        $scope.createType = 'folder';
-        $scope.createName = '';
-
-        // Add Project
-        $scope.click.add = function () {
-            let {addName, PATH} = $scope;
-            if (!addName) return;
-            let rootPath = '';
-            for (let i = 0; i < PATH.length; i++)
-                rootPath += '/' + PATH[i];
-            location.href = `/project.html#${encodeURI(rootPath + '/' + addName + '.satbook')}`;
-        };
+        $scope.status.finder = {};
+        $scope.status.finder.createType = 'project';
+        $scope.status.finder.createName = 'new';
+        $scope.status.finder.selectedDir = '/';
 
         // Signout
         $scope.click.signout = API.user.signout;
 
-        let reloadView = ()=> {
-            let isFolder = true;
-            if (preSelectedNode && preSelectedNode.type != 'folder')
-                isFolder = false;
+        let reloadView = (_PATH)=> {
+            if (!PATH) PATH = '/';
+            let activated = $(`.fjs-filename[value='${_PATH ? _PATH : PATH}']`).parent().parent().parent();
 
-            let activated = $('.fjs-active');
-            if (isFolder) {
-                if (activated.length == 0) {
-                    location.reload();
-                } else {
-                    $(activated[activated.length - 1]).click();
-                }
-            } else {
-                if (activated.length <= 1) {
-                    location.reload();
-                } else {
-                    $(activated[activated.length - 2]).click();
-                }
+            if (activated.length == 0) {
+                $timeout(()=> {
+                    reloadView(_PATH);
+                }, 50);
+                return;
             }
+
+            activated.click();
         };
 
         let openFile = (parent)=> {
@@ -80,7 +63,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             if (!cnt) cnt = 0;
             if (PRE_PATH.length <= idx) {
                 $scope.preLoading = false;
-                console.log($scope.preLoading);
                 $timeout();
                 return;
             }
@@ -133,7 +115,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                     else if (data[i].type == 'file') fa += '<i class="fa fa-file-o"></i>';
                     else if (data[i].type == 'project') fa += '<i class="fa fa-code-fork"></i>';
                     result.push({
-                        label: `${fa} <span class="fjs-filename" value="${data[i].path}">${data[i].name}</span>`,
+                        label: `${fa} <span class="fjs-filename" value="${data[i].path}" data='${encodeURI(JSON.stringify(data[i]))}'>${data[i].name}</span>`,
                         name: data[i].name,
                         type: data[i].type,
                         path: data[i].path
@@ -180,7 +162,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
                 else if (parent.type == 'project') fa += '<i class="fa fa-code-fork"></i>';
 
                 let div = $(
-                    `<div class="fjs-col leaf-col"><div class="leaf-col"><div class="leaf-col-container">
+                    `<div class="leaf-col"><div class="leaf-col"><div class="leaf-col-container">
                         <div class="icon">
                             ${fa}
                         </div>
@@ -214,15 +196,173 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             }
         });
 
-        // File or Folder Create
-        $scope.click.create = ()=> {
-            let {PATH, createType, createName} = $scope;
-            API.browse.create(PATH, createType, createName).then(()=> {
-                $('#create').modal('hide');
-                $scope.createName = '';
-                reloadView();
-                $timeout();
+        // class: contextMenu
+        let PASTE_DATA = null;
+
+        let contextMenu = {};
+
+        contextMenu.rename = (options, selected)=> {
+            $scope.status.finder.node = selected;
+            $scope.status.finder.node.rename = $scope.status.finder.node.name;
+            $timeout();
+            $('#rename').modal('show');
+        };
+
+        contextMenu.add = (options, selected)=> {
+            $scope.status.finder.selectedDir = selected.path;
+            $timeout();
+            $('#create-in-dir').modal('show');
+        };
+
+        contextMenu.copy = (options, selected)=> {
+            PASTE_DATA = selected;
+        };
+
+        contextMenu.paste = (options, selected)=> {
+            API.browse.copy(PASTE_DATA.path, selected.path).then(()=> {
+                let TMP_PATH = PATH + '';
+                reloadView(selected.path);
+                if (selected.path != TMP_PATH)
+                    reloadView(TMP_PATH);
             });
+        };
+
+        contextMenu.delete = (options, selected)=> {
+            if (selected.path == '/') return;
+
+            if (selected.type == 'favorite') {
+                let defaultList = localStorage.favorite ? JSON.parse(localStorage.favorite) : [{
+                    label: '<i class="fa fa-folder"></i> <span class="fjs-filename" value="/">Home</span>',
+                    name: 'home',
+                    type: 'folder',
+                    path: '/'
+                }];
+
+                for (let i = 0; i < defaultList.length; i++) {
+                    if (defaultList[i].path == selected.path) {
+                        defaultList.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                localStorage.favorite = JSON.stringify(defaultList);
+                location.reload();
+                return;
+            }
+
+            API.browse.delete($scope.PATH, [selected.path]).then(()=> {
+                if (selected.type === 'folder') {
+                    $scope.PATH.splice($scope.PATH.length - 1, 1);
+                    let path = '';
+                    for (let i = 0; i < $scope.PATH.length; i++)
+                        path += '/' + $scope.PATH[i];
+                    PATH = path;
+                    location.href = `#${encodeURI(path)}`;
+                }
+
+                $(`.fjs-filename[value='${selected.path}']`).parent().parent().parent().remove();
+            });
+        };
+
+        contextMenu.download = (options, selected)=> {
+            if (selected.type == 'project') {
+                window.open('/api/script/export?path=' + encodeURI(selected.path), '_blank');
+            } else {
+                window.open('/api/browse/download?filepath=' + encodeURI(selected.path), '_blank');
+            }
+        };
+
+        emitter.on('column-created', ()=> {
+            $.contextMenu({
+                selector: '.fjs-item',
+                callback: function (key, options) {
+                    let selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    if (contextMenu[key])
+                        contextMenu[key](options, selected);
+                },
+                items: {
+                    rename: {name: "Rename", icon: "fa-edit"},
+                    copy: {name: "Copy", icon: "fa-copy"},
+                    paste: {
+                        name: "Paste", icon: "fa-paste", disabled: function () {
+                            let fileType = JSON.parse(decodeURI($(this).find('span').attr('data'))).type;
+                            return fileType != 'folder' || !PASTE_DATA;
+                        }
+                    },
+                    delete: {name: "Delete", icon: "fa-trash"},
+                    download: {name: "Download", icon: "fa-download"},
+                }
+            });
+
+            $.contextMenu({
+                selector: '.fjs-col',
+                callback: function (key, options) {
+                    let selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    selected.type = 'folder';
+                    selected.path = selected.path.split('/');
+                    selected.path.splice(0, 1);
+                    let tmp = '';
+                    for (let i = 0; i < selected.path.length - 1; i++)
+                        tmp += '/' + selected.path[i]
+                    if (!tmp) tmp = '/';
+                    selected.path = tmp;
+                    delete selected.name;
+
+                    if (contextMenu[key])
+                        contextMenu[key](options, selected);
+                },
+                items: {
+                    add: {name: "Add", icon: "add"},
+                    paste: {name: "Paste", icon: "paste", disabled: ()=> !PASTE_DATA}
+                }
+            });
+        });
+
+        // class: action in button
+        $scope.click.finder = {};
+
+        // Create Files
+        $scope.click.finder.create = (to)=> {
+            let {createType, createName} = $scope.status.finder;
+
+            if (createType == 'project') {
+                let rootPath = '';
+                for (let i = 0; i < $scope.PATH.length; i++)
+                    rootPath += '/' + $scope.PATH[i];
+
+                location.href = '/project.html#' + encodeURI((to ? to : rootPath) + '/' + createName + '.satbook');
+                return;
+            }
+
+            if (createName && createType) {
+                let target = $scope.PATH;
+                if (to) {
+                    target = to.split('/');
+                    target.splice(0, 1);
+                }
+
+                API.browse.create(target, createType, createName).then(()=> {
+                    $('#create').modal('hide');
+                    $('#create-in-dir').modal('hide');
+                    $scope.createName = 'new';
+
+                    if (to) {
+                        let TMP_PATH = PATH;
+                        let PARENT = '';
+                        for (let i = 0; i < target.length; i++)
+                            PARENT += '/' + target[i];
+                        if (PARENT == '') PARENT = '/';
+                        reloadView(PARENT);
+
+                        if (PARENT != TMP_PATH)
+                            reloadView(TMP_PATH);
+                    } else {
+                        reloadView();
+                    }
+
+                    $timeout();
+                });
+            }
         };
 
         // Delete Files
@@ -250,13 +390,30 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             });
         });
 
-        $scope.click.upload = function () {
+        $scope.click.finder.upload = function () {
             let files = $('#upload input')[0].files;
             if (files.length <= 0) return;
 
             $scope.event.upload({'./': $('#upload input')[0].files}).then(()=> {
                 $('#upload').modal('hide');
                 $('#upload input').val('');
+            });
+        };
+
+        // rename
+        $scope.click.finder.rename = (node)=> {
+            API.browse.rename(node.path, node.type, node.rename).then((resp)=> {
+                $('#rename').modal('hide');
+                let TMP_PATH = PATH;
+                let PARENT = '';
+                for (let i = 1; i < node.path.split('/').length - 1; i++)
+                    PARENT += '/' + node.path.split('/')[i];
+                if (PARENT == '') PARENT = '/';
+                reloadView(PARENT);
+
+                if (PARENT != TMP_PATH)
+                    reloadView(TMP_PATH);
+                $timeout();
             });
         };
     });

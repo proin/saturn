@@ -35,6 +35,15 @@ app.factory('API', ()=> {
         });
     });
 
+    factory.browse.copy = (file, target)=> new Promise((resolve)=> {
+        $.post('/api/browse/copy', {
+            file: file,
+            target: target
+        }, ()=> {
+            resolve();
+        });
+    });
+
     factory.browse.delete = (PATH, checked)=> new Promise((resolve)=> {
         $.post('/api/browse/delete', {
             rm: JSON.stringify(checked)
