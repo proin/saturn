@@ -8,3 +8,4 @@ node_modules/
 bower_components/
 plugins/
 config.json
+test/

@@ -37,7 +37,11 @@ saturn.python = (script)=> new Promise((resolve)=> {
     let _spawn = require('child_process').spawn;
     if (process.platform == 'win32')
         _spawn = require('cross-spawn');
-    let term = _spawn('python', [script], {cwd: '${scriptManager.path.workspace}'});
+    let term = _spawn('python', ['-u', script], {cwd: '${scriptManager.path.workspace}'});
+
+    process.on('SIGINT', () => {
+        term.kill();
+    });
 
     term.stdout.on('data', (data)=> {
         console.log(data + '');
@@ -50,7 +54,7 @@ saturn.python = (script)=> new Promise((resolve)=> {
     term.on('close', () => {
         resolve();
         
-        let varJSON = '${require('path').join(scriptManager.path.python, 'variables.json')}';
+        let varJSON = '${require('path').join(scriptManager.path.python, 'variable.json')}';
         if(require('fs').existsSync(varJSON)) {
             let v = JSON.parse(require('fs').readFileSync(varJSON, 'utf-8'));
             for(let key in v) 
@@ -130,7 +134,7 @@ for key in vars().keys():
     if type(vars()[key]) is dict:
         __save__[key] = vars()[key]
         
-file_ = open('${require('path').join(scriptManager.path.python, 'variables.json')}', 'w')
+file_ = open('${require('path').join(scriptManager.path.python, 'variable.json')}', 'w')
 file_.write(json.dumps(__save__))
 file_.close()
 \`;

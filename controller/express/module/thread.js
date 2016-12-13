@@ -246,7 +246,7 @@ module.exports = (server, config)=> {
 
         if (manager.proc[name]) {
             manager.proc[name].stdin.pause();
-            manager.proc[name].kill();
+            manager.proc[name].kill('SIGINT');
         }
 
         delete manager.status[name];
