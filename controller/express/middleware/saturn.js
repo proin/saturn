@@ -37,7 +37,7 @@ saturn.python = (script)=> new Promise((resolve)=> {
     let _spawn = require('child_process').spawn;
     if (process.platform == 'win32')
         _spawn = require('cross-spawn');
-    let term = _spawn('python', ['-c', script], {cwd: '${scriptManager.path.workspace}'});
+    let term = _spawn('python', [script], {cwd: '${scriptManager.path.workspace}'});
 
     term.stdout.on('data', (data)=> {
         console.log(data + '');
@@ -98,8 +98,12 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
             pythonScript += JSON.stringify(variables[key]);
             pythonScript += \`')\`;
             newLine();    
-        } else if (typeof variables[key] == 'number'){
+        } else if (typeof variables[key] == 'number') {
             pythonScript += key + ' = ' + variables[key];
+            newLine();
+        } else if (typeof variables[key] == 'string'){
+            variables[key] = variables[key].replace(/\\n/gim, '\\\\n');
+            pythonScript += key + ' = "' + variables[key] + '"';
             newLine();
         } else {
             pythonScript += key + ' = "' + variables[key] + '"';
@@ -132,7 +136,10 @@ file_.close()
 \`;
     newLine();
     
-    saturn.python(pythonScript).then(resolve);
+    let py = '${require('path').join(scriptManager.path.python, 'python-' + target + '.py')}';
+    fs.writeFileSync(py, pythonScript);
+    
+    saturn.python(py).then(resolve);
 }));
 `;
 
