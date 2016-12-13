@@ -254,15 +254,23 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         });
 
         // class: Code Editor
-        var codemirror = function (_id) {
-            var creator = function (id) {
-                var fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
-                var value = '';
+        let codemirror = function (_id) {
+            let creator = function (id) {
+                let fidx = $scope.event.findIndex(id.replace('code-editor-', ''));
+                let value = '';
+                let _mode = 'javascript';
                 if (id == 'code-editor-libs') {
                     $scope.lib.value = $scope.lib.value ? $scope.lib.value : "// load npm libraries\nconst fs = require('fs');";
                     value = $scope.lib.value;
                 } else {
                     value = $scope.flowpipe[fidx].value;
+                    if ($scope.flowpipe[fidx].type == 'python') {
+                        _mode = {
+                            name: "text/x-cython",
+                            version: 2,
+                            singleLineStringErrors: false
+                        };
+                    }
                 }
 
                 $('#' + id).html('');
@@ -298,7 +306,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     viewportMargin: Infinity,
                     indentUnit: 4,
                     readOnly: $scope.ACCESS_STATUS !== 'GRANTALL',
-                    mode: "javascript"
+                    mode: _mode
                 }).on('change', function (e) {
                     var changeValue = e.getValue();
                     if (id == 'code-editor-libs') $scope.lib.value = changeValue;
@@ -1010,7 +1018,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
             $scope.config.click.mailing = (type)=> {
                 if (!$scope.config.mailing) $scope.config.mailing = {};
-                $timeout(()=>{
+                $timeout(()=> {
                     $scope.config.mailing[type] = !$scope.config.mailing[type];
                 });
             };

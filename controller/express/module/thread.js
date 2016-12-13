@@ -55,7 +55,7 @@ module.exports = (server, config)=> {
             let logData = {status: status, target: target, message: message, ts: new Date().getTime()};
             if (status) {
                 log[name][target].push(logData);
-                log[name][target].splice(0, log[name][target].length - 500);
+                log[name][target].splice(0, log[name][target].length - MAX_LOG_SIZE);
             }
 
             fs.writeFileSync(path.join(LOG_HOME(name)), JSON.stringify(log[name]));

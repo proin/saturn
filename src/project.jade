@@ -4,15 +4,18 @@ html(ng-app="app")
         include components/jade/header
 
         script(src="{$ROOT}/components/js/codemirror/codemirror.js")
-        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
 
         // fold code
+        script(src='{$ROOT}/components/js/codemirror/addon/edit/matchbrackets.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/foldcode.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/foldgutter.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/brace-fold.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/xml-fold.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/markdown-fold.js')
         script(src='{$ROOT}/components/js/codemirror/addon/fold/comment-fold.js')
+
+        script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/python/python.js")
 
         link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
         link(rel="stylesheet", href="{$ROOT}/components/js/codemirror/addon/fold/foldgutter.css")
@@ -113,6 +116,7 @@ html(ng-app="app")
                             b(ng-click='inputLong[$index] = !inputLong[$index]') in [{{$index}}] &nbsp;
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
                                 option(value='work') work
+                                option(value='python') python
                                 option(value='loop') loop
                         .col-md-11(ng-class='inputLong[$index] ? "scroll" : ""')
                             // component: if loop
@@ -126,6 +130,8 @@ html(ng-app="app")
                                             option(ng-repeat='works in loopwork[$index]', value='{{works}}') {{works}}
                             // component: if work
                             .work(ng-if='code.type == "work"')
+                                .code-editor(id='code-editor-{{code.id}}')
+                            .work(ng-if='code.type == "python"')
                                 .code-editor(id='code-editor-{{code.id}}')
 
                     .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
