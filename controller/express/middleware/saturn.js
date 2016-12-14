@@ -73,12 +73,14 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
 
 scriptManager.python = (target, script)=> `
 flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
-    let pythonScript = '';
+    let pythonScript = '# -*- coding: utf-8 -*-';
     
     let newLine = ()=> {
         pythonScript += \`
 \`;
     }
+    
+    newLine();
     
     let variables = {};
     for(let key in global) {
@@ -98,9 +100,8 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
     for(let key in variables) {
         if(typeof variables[key] == 'object') {
             pythonScript += key;
-            pythonScript += \` = json.loads('\`;
+            pythonScript += \` = \`;
             pythonScript += JSON.stringify(variables[key]);
-            pythonScript += \`')\`;
             newLine();    
         } else if (typeof variables[key] == 'number') {
             pythonScript += key + ' = ' + variables[key];
