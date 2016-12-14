@@ -100,9 +100,9 @@ html(ng-app="app")
                         .col-md-1(ng-click='outputLong.lib = !outputLong.lib')
                             b out [libs] &nbsp;
                         .col-md-11(ng-class='outputLong.lib ? "" : "scroll"')
-                            .output-messages
+                            pre.output-messages
                                 div(ng-repeat='log in singleLog.libs track by $index', ng-class='log.status', ng-show='outputLong.lib || $index >= singleLog.libs.length - 5')
-                                    pre(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
+                                    div(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
 
                     .row.code-box.chart(ng-if='chartLog.libs' style='width: 100%; text-align: center; min-height: 0;', ng-class='status.focused == -1 ? "active":""')
                         div(ng-repeat='chart in chartLog.libs', style='display: inline-block;')
@@ -138,9 +138,9 @@ html(ng-app="app")
                         .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
                             b out [{{$index}}] &nbsp;
                         .col-md-11(ng-class='outputLong[$index] ? "" : "scroll"')
-                            .output-messages
+                            pre.output-messages
                                 div(ng-repeat='log in singleLog[$index] track by $index', ng-class='log.status', ng-show='outputLong[$parent.$index] || $index >= singleLog[$parent.$index].length - 5')
-                                    pre(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
+                                    div(ng-if='log.status == "data" || log.status == "error"', ng-bind-html='log.message')
 
                     .row.code-box.chart(ng-if='chartLog[$index]', style='width: 100%; text-align: center;', ng-class='status.focused == $index ? "active":""')
                         div(ng-repeat='chart in chartLog[$index]', id='chart-{{$parent.$parent.$index}}-{{chart.id}}', style='display: inline-block !important; width: {{chart.data.width}}; height: {{chart.data.height}}', ng-if='chart.graph=="vis"')

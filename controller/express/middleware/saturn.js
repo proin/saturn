@@ -121,17 +121,18 @@ __save__ = {}
 for key in vars().keys():
     if key == '__save__':
         continue;
+        
     if type(vars()[key]) is list:
     	__save__[key] = vars()[key]
-    if type(vars()[key]) is str:
+    elif type(vars()[key]) is str:
         __save__[key] = vars()[key]
-    if type(vars()[key]) is int:
+    elif type(vars()[key]) is int:
         __save__[key] = vars()[key]
-    if type(vars()[key]) is long:
+    elif type(vars()[key]) is long:
         __save__[key] = vars()[key]
-    if type(vars()[key]) is float:
+    elif type(vars()[key]) is float:
         __save__[key] = vars()[key]
-    if type(vars()[key]) is dict:
+    elif type(vars()[key]) is dict:
         __save__[key] = vars()[key]
         
 file_ = open('${require('path').join(scriptManager.path.python, 'variable.json')}', 'w')

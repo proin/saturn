@@ -236,6 +236,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 }
 
                 $scope.singleLog[target].push(data);
+                if ($scope.singleLog[target].length > 500)
+                    $scope.singleLog[target].splice(0, $scope.singleLog[target].length - 500);
             }
 
             $timeout();
