@@ -304,7 +304,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 };
 
                 if ($scope.flowpipe[fidx] && $scope.flowpipe[fidx].type == 'markdown') {
-                    $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(markdown.toHTML(value));
+                    let md = window.markdownit();
+                    $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(md.render(value));
                 }
 
                 CodeMirror(document.getElementById(id), {
