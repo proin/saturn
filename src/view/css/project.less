@@ -35,6 +35,34 @@ body {
             width: 100%;
         }
 
+        .markdown {
+            .editable {
+                display: flex;
+                .code-editor {
+                    width: 50%;
+                    display: inline-block;
+
+                    .CodeMirror {
+                        height: 300px;
+                    }
+                }
+
+                .preview {
+                    width: 50%;
+                    padding: 12px;
+                    display: inline-block;
+                    height: 300px;
+                    overflow: scroll;
+                }
+            }
+
+            .readonly {
+                .preview {
+                    width: 100%;
+                }
+            }
+        }
+
         .col-md-1 {
             cursor: pointer;
         }

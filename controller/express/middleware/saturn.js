@@ -73,6 +73,12 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
 }));
 `;
 
+scriptManager.markdown = (target)=> `
+flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
+    resolve();
+}));
+`;
+
 scriptManager.escape = (str)=>
     str
         .replace(/[\\]/g, '\\\\')
@@ -371,6 +377,8 @@ module.exports = (config)=> (req, res, next)=> {
                     runjs += scriptManager.work(i, scripts[i]);
                 else if (scripts[i].type == 'python')
                     runjs += scriptManager.python(i, scripts[i]);
+                else if (scripts[i].type == 'markdown')
+                    runjs += scriptManager.markdown(i);
 
                 if (runInsert[i])
                     for (let j = 0; j < runInsert[i].length; j++)
@@ -388,6 +396,8 @@ module.exports = (config)=> (req, res, next)=> {
             } else if (scripts[target].type == 'python') {
                 runjs += scriptManager.python(target, scripts[target]);
                 runjs += variables;
+            } else if (scripts[target].type == 'markdown') {
+                runjs += scriptManager.markdown(target);
             } else if (scripts[target].type == 'loop') {
                 for (let i = target; i <= scripts[target].block_end; i++) {
                     if (scripts[i].type == 'work') {

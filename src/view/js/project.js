@@ -272,6 +272,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                             version: 2,
                             singleLineStringErrors: false
                         };
+                    } else if ($scope.flowpipe[fidx].type == 'markdown') {
+                        _mode = {
+                            name: "markdown",
+                            version: 2,
+                            singleLineStringErrors: false
+                        };
                     }
                 }
 
@@ -297,6 +303,10 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     $scope.click.save(true);
                 };
 
+                if ($scope.flowpipe[fidx] && $scope.flowpipe[fidx].type == 'markdown') {
+                    $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(markdown.toHTML(value));
+                }
+
                 CodeMirror(document.getElementById(id), {
                     height: 'auto',
                     value: value,
@@ -312,7 +322,13 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 }).on('change', function (e) {
                     var changeValue = e.getValue();
                     if (id == 'code-editor-libs') $scope.lib.value = changeValue;
-                    else $scope.flowpipe[fidx].value = changeValue;
+                    else {
+                        $scope.flowpipe[fidx].value = changeValue;
+                        if ($scope.flowpipe[fidx].type == 'markdown') {
+                            $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(markdown.toHTML(changeValue));
+                            $scope.click.save(true);
+                        }
+                    }
                 });
             };
 
@@ -1001,7 +1017,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             }
 
             if (node.name == 'variable') {
-                if($scope.status.view == 'variable')
+                if ($scope.status.view == 'variable')
                     return;
 
                 $scope.status.view = 'variable';

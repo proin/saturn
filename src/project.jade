@@ -16,6 +16,7 @@ html(ng-app="app")
 
         script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
         script(src="{$ROOT}/components/js/codemirror/mode/python/python.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/markdown/markdown.js")
 
         link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
         link(rel="stylesheet", href="{$ROOT}/components/js/codemirror/addon/fold/foldgutter.css")
@@ -128,8 +129,9 @@ html(ng-app="app")
                         .col-md-1
                             b(ng-click='inputLong[$index] = !inputLong[$index]') in [{{$index}}] &nbsp;
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
-                                option(value='work') work
+                                option(value='work') node
                                 option(value='python') python
+                                option(value='markdown') readme
                                 option(value='loop') loop
                         .col-md-11(ng-class='inputLong[$index] ? "scroll" : ""')
                             // component: if loop
@@ -146,6 +148,14 @@ html(ng-app="app")
                                 .code-editor(id='code-editor-{{code.id}}')
                             .work(ng-if='code.type == "python"')
                                 .code-editor(id='code-editor-{{code.id}}')
+                            .markdown(ng-if='code.type == "markdown"')
+                                .editable(ng-if='ACCESS_STATUS === "GRANTALL"')
+                                    .preview(id='code-preview-{{code.id}}')
+                                    .code-editor(id='code-editor-{{code.id}}')
+                                .readonly(ng-if='ACCESS_STATUS !== "GRANTALL"')
+                                    .code-editor(id='code-editor-{{code.id}}', style='display: none;')
+                                    .preview(id='code-preview-{{code.id}}')
+
 
                     .row.code-box.output(ng-if='singleLog[$index] && singleLog[$index].length > 0', ng-class='status.focused == $index ? "active":""')
                         .col-md-1(ng-click='outputLong[$index] = !outputLong[$index]')
