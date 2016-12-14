@@ -326,7 +326,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     else {
                         $scope.flowpipe[fidx].value = changeValue;
                         if ($scope.flowpipe[fidx].type == 'markdown') {
-                            $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(markdown.toHTML(changeValue));
+                            let md = window.markdownit();
+                            $(`#code-preview-${$scope.flowpipe[fidx].id}`).html(md.render(changeValue));
                             $scope.click.save(true);
                         }
                     }
