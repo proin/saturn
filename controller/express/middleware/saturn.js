@@ -140,10 +140,6 @@ for key in vars().keys():
         __save__[key] = vars()[key]
     elif type(vars()[key]) is int:
         __save__[key] = vars()[key]
-    elif type(vars()[key]) is long:
-        __save__[key] = vars()[key]
-    elif type(vars()[key]) is float:
-        __save__[key] = vars()[key]
     elif type(vars()[key]) is dict:
         __save__[key] = vars()[key]
         
