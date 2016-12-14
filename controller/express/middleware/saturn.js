@@ -71,6 +71,17 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
 }));
 `;
 
+scriptManager.escape = (str)=>
+    str
+        .replace(/[\\]/g, '\\\\')
+        .replace(/[\"]/g, '\\\"')
+        .replace(/[\/]/g, '\\/')
+        .replace(/[\b]/g, '\\b')
+        .replace(/[\f]/g, '\\f')
+        .replace(/[\n]/g, '\\n')
+        .replace(/[\r]/g, '\\r')
+        .replace(/[\t]/g, '\\t');
+
 scriptManager.python = (target, script)=> `
 flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
     let pythonScript = '# -*- coding: utf-8 -*-';
@@ -96,7 +107,7 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
     
     pythonScript += 'import json';
     newLine();
-    
+
     for(let key in variables) {
         if(typeof variables[key] == 'object') {
             pythonScript += key;
@@ -116,7 +127,7 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
         }
     }
     
-    pythonScript += \`${script.value}\`;
+    pythonScript += \`${scriptManager.escape(script.value)}\`;
     pythonScript += \`
 __save__ = {}
 for key in vars().keys():
