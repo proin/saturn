@@ -171,11 +171,17 @@ scriptManager.variable = {};
 scriptManager.variable.save = ()=> `
 flowpipe.then(()=> new Promise((resolve)=> {
     let variables = {};
-    for(let key in global)
+    for(let key in global) {
         try {
-            JSON.stringify(global[key]);
-            variables[key] = global[key];
+            if(typeof global[key] == 'function') {
+                if(global[key].name && global[key].name !== 'Buffer')
+                    variables[key] = { type: 'function', eval: global[key].name + ' = ' + global[key].toString() };
+            } else {
+                JSON.stringify(global[key]);
+                variables[key] = global[key];
+            }
         } catch(e) {}
+    }
     
     delete variables.console;
     
@@ -188,8 +194,14 @@ scriptManager.variable.loader = ()=> `
 flowpipe.then(()=> new Promise((resolve)=> {
     try {
         let variables = JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, 'variable.json'), 'utf-8'));
-        for(let key in variables)
-            global[key] = variables[key];
+        for(let key in variables) {
+            if(typeof variables[key] == 'object' && variables[key].type === 'function') {
+                eval(variables[key].eval);
+            } else {
+                global[key] = variables[key];
+            }
+        }
+            
     } catch(e) {
     }
     resolve();
