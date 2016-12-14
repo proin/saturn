@@ -87,6 +87,16 @@ html(ng-app="app")
                             .btn.btn-secondary(ng-click='config.click.mailing("finish")', class='{{config.mailing.finish ? "active" : ""}}')
                                 |  Finish
 
+                br
+
+                .alert.alert-success(role='alert')
+                    strong Python Env
+
+                .form-group.row
+                    label.col-xs-2.col-form-label Python Path
+                    .col-xs-10
+                        input.form-control(type='text', ng-model='config.python', placeholder='~/anaconda3/bin/python')
+
             .editor-view(ng-show='status.view == "editor"', ng-cloak)
                 // component: lib code editor
                 .code-container(ng-cloak, ng-class='status.singleFocused == "libs" && status.running == "running" ? "running": ""')

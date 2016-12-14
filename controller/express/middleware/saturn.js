@@ -6,6 +6,8 @@ scriptManager.path = {};
 scriptManager.path.python = '';
 scriptManager.path.workspace = '';
 
+scriptManager.config = {};
+
 scriptManager.lib = (lib)=> `
 ${lib.value}
             
@@ -37,7 +39,7 @@ saturn.python = (script)=> new Promise((resolve)=> {
     let _spawn = require('child_process').spawn;
     if (process.platform == 'win32')
         _spawn = require('cross-spawn');
-    let term = _spawn('python', ['-u', script], {cwd: '${scriptManager.path.workspace}'});
+    let term = _spawn('${scriptManager.path.pythonEnv ? scriptManager.path.pythonEnv : 'python'}', ['-u', script], {cwd: '${scriptManager.path.workspace}'});
 
     process.on('SIGINT', () => {
         term.kill();
@@ -130,23 +132,26 @@ flowpipe.then('${target}', (args)=> new Promise((resolve)=> {
     pythonScript += \`${scriptManager.escape(script.value)}\`;
     pythonScript += \`
 __save__ = {}
-for key in vars().keys():
+__vars__ = vars().copy();
+
+for key in __vars__.keys():
     if key == '__save__':
         continue;
-        
+    if key == '__vars__':
+        continue;
     try:
-        if type(vars()[key]) is list:
-            __save__[key] = vars()[key]
-        elif type(vars()[key]) is str:
-            __save__[key] = vars()[key]
-        elif type(vars()[key]) is int:
-            __save__[key] = vars()[key]
-        elif type(vars()[key]) is long:
-            __save__[key] = vars()[key]
-        elif type(vars()[key]) is float:
-            __save__[key] = vars()[key]
-        elif type(vars()[key]) is dict:
-            __save__[key] = vars()[key]
+        if type(__vars__[key]) is list:
+            __save__[key] = __vars__[key]
+        elif type(__vars__[key]) is str:
+            __save__[key] = __vars__[key]
+        elif type(__vars__[key]) is int:
+            __save__[key] = __vars__[key]
+        elif type(__vars__[key]) is long:
+            __save__[key] = __vars__[key]
+        elif type(__vars__[key]) is float:
+            __save__[key] = __vars__[key]
+        elif type(__vars__[key]) is dict:
+            __save__[key] = __vars__[key]
     except:
         print 
         
@@ -296,6 +301,15 @@ module.exports = (config)=> (req, res, next)=> {
 
         scriptManager.path.python = TMP_PATH;
         scriptManager.path.workspace = WORKSPACE_PATH;
+
+        if (fs.existsSync(path.join(TMP_PATH, 'config.json')))
+            scriptManager.config = JSON.parse(fs.readFileSync(path.join(TMP_PATH, 'config.json'), 'utf-8'));
+
+        if (scriptManager.config.python) {
+            if (scriptManager.config.python.indexOf('~') !== -1)
+                scriptManager.config.python = scriptManager.config.python.replace('~', process.env.HOME || process.env.USERPROFILE);
+            scriptManager.path.pythonEnv = path.resolve(scriptManager.config.python)
+        }
 
         // save project info.
         fs.writeFileSync(path.join(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
