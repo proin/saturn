@@ -134,14 +134,21 @@ for key in vars().keys():
     if key == '__save__':
         continue;
         
-    if type(vars()[key]) is list:
-    	__save__[key] = vars()[key]
-    elif type(vars()[key]) is str:
-        __save__[key] = vars()[key]
-    elif type(vars()[key]) is int:
-        __save__[key] = vars()[key]
-    elif type(vars()[key]) is dict:
-        __save__[key] = vars()[key]
+    try:
+        if type(vars()[key]) is list:
+            __save__[key] = vars()[key]
+        elif type(vars()[key]) is str:
+            __save__[key] = vars()[key]
+        elif type(vars()[key]) is int:
+            __save__[key] = vars()[key]
+        elif type(vars()[key]) is long:
+            __save__[key] = vars()[key]
+        elif type(vars()[key]) is float:
+            __save__[key] = vars()[key]
+        elif type(vars()[key]) is dict:
+            __save__[key] = vars()[key]
+    except:
+        print 
         
 file_ = open('${require('path').join(scriptManager.path.python, 'variable.json')}', 'w')
 file_.write(json.dumps(__save__))
