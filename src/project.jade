@@ -65,6 +65,9 @@ html(ng-app="app")
             .editor-view(ng-if='status.view == "package.json"')
                 .code-editor#code-editor-package-json
 
+            .editor-view(ng-if='status.view == "variable"')
+                .code-editor#code-editor-variable
+
             .editor-view.container(ng-if='status.view == "config"')
                 br
                 .alert.alert-success(role='alert')

@@ -1000,6 +1000,51 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 $scope.status.view = 'editor';
             }
 
+            if (node.name == 'variable') {
+                if($scope.status.view == 'variable')
+                    return;
+
+                $scope.status.view = 'variable';
+
+                API.browse.read(PATH + '/variable.json').then((data)=> {
+                    if (!data || !data.status) {
+                        data = {};
+                        data.data = '{}';
+                    }
+
+                    let variablesJSON = JSON.parse(data.data);
+
+                    variablesJSON = JSON.stringify(variablesJSON, null, 4);
+
+                    CodeMirror(document.getElementById('code-editor-variable'), {
+                        height: 'auto',
+                        value: variablesJSON,
+                        lineNumbers: true,
+                        lineWrapping: true,
+                        foldGutter: true,
+                        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+                        viewportMargin: Infinity,
+                        indentUnit: 4,
+                        readOnly: false,
+                        mode: 'javascript'
+                    }).on('change', function (e) {
+                        var changeValue = e.getValue();
+                        try {
+                            JSON.parse(changeValue);
+                            API.browse.save(PATH + '/variable.json', changeValue).then((data)=> {
+                                if (data.status) {
+                                    $scope.status.lastSaved = new Date().format('yyyy-MM-dd HH:mm:ss');
+                                    $timeout();
+                                }
+                            });
+                        } catch (e) {
+                        }
+                    });
+
+                    $timeout();
+                });
+            }
+
             if (node.name == 'setting') {
                 if ($scope.status.view == 'config')
                     return;
@@ -1044,8 +1089,9 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 type: 'project_info', disabledContext: true, icon: 'fa-code-fork', path: PATH + '/root', name: 'project', PATH: npath, collapsed: false,
                 narrower: [
                     {type: 'project_info', context: {delete: true}, icon: 'fa-folder', path: PATH + '/node_modules', name: 'node_modules', narrower: [], PATH: arrayInserter(['node_modules']), collapsed: true},
-                    {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/editor', name: 'editor', narrower: [], collapsed: true},
                     {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/package.json', name: 'package.json', narrower: [], PATH: arrayInserter(['package.json']), collapsed: true},
+                    {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/editor', name: 'editor', narrower: [], collapsed: true},
+                    {type: 'project_info', disabledContext: true, icon: 'fa-cogs', path: PATH + '/variable.json', name: 'variable', narrower: [], collapsed: true},
                     {type: 'project_info', disabledContext: true, icon: 'fa-cogs', path: PATH + '/config.json', name: 'setting', narrower: [], PATH: arrayInserter(['config.json']), collapsed: true}
                 ]
             },
