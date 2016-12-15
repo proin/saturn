@@ -243,7 +243,7 @@ module.exports = (server, config)=> {
             ssl: config.smtp.ssl
         });
 
-        let url = `${config.hostname}:${config.port}/project.html#${path}`;
+        let url = `${config.hostname}:${config.port}/project.html#${target}`;
         let message = '';
         if (type === 'error') message += `<h3 style="color: #e53935;">${type}</h3><code style="color: #e53935;>`;
         else if (type === 'error') message += `<h3 style="color: #f9a825;">${type}</h3><code style="color: #f9a825;>`;
