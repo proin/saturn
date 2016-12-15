@@ -266,28 +266,58 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             $.contextMenu({
                 selector: '.fjs-item',
                 callback: function (key, options) {
-                    let selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    let selected = {type: 'folder', path: '/'};
+
+                    if ($(this).find('span').attr('data')) {
+                        selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    }
+
                     if (contextMenu[key])
                         contextMenu[key](options, selected);
                 },
                 items: {
-                    rename: {name: "Rename", icon: "fa-edit"},
-                    copy: {name: "Copy", icon: "fa-copy"},
-                    paste: {
-                        name: "Paste", icon: "fa-paste", disabled: function () {
-                            let fileType = JSON.parse(decodeURI($(this).find('span').attr('data'))).type;
-                            return fileType != 'folder' || !PASTE_DATA;
+                    rename: {
+                        name: "Rename", icon: "fa-edit", disabled: function () {
+                            return !$(this).find('span').attr('data');
                         }
                     },
-                    delete: {name: "Delete", icon: "fa-trash"},
-                    download: {name: "Download", icon: "fa-download"},
+                    copy: {
+                        name: "Copy", icon: "fa-copy", disabled: function () {
+                            return !$(this).find('span').attr('data');
+                        }
+                    },
+                    paste: {
+                        name: "Paste", icon: "fa-paste", disabled: function () {
+                            try {
+                                let fileType = JSON.parse(decodeURI($(this).find('span').attr('data'))).type;
+                                return fileType != 'folder' || !PASTE_DATA;
+                            } catch (e) {
+                                return !PASTE_DATA;
+                            }
+                        }
+                    },
+                    delete: {
+                        name: "Delete", icon: "fa-trash", disabled: function () {
+                            return !$(this).find('span').attr('data');
+                        }
+                    },
+                    download: {
+                        name: "Download", icon: "fa-download", disabled: function () {
+                            return !$(this).find('span').attr('data');
+                        }
+                    },
                 }
             });
 
             $.contextMenu({
                 selector: '.fjs-col',
                 callback: function (key, options) {
-                    let selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    let selected = {type: 'folder', path: PATH};
+                    try {
+                        selected = JSON.parse(decodeURI($(this).find('span').attr('data')));
+                    } catch (e) {
+                    }
+
                     selected.type = 'folder';
                     selected.path = selected.path.split('/');
                     selected.path.splice(0, 1);
