@@ -76,6 +76,11 @@ window.finderTree = ($scope, $timeout, API)=> {
                 $timeout();
             }
         } else if (node.type == 'project') {
+            if ($scope.status.view && $scope.status.view != 'editor') {
+                $scope.status.view = 'editor';
+                $timeout();
+            }
+
             if (node.path == PATH) return;
 
             if ($scope.flowpipe && $scope.ACCESS_POLICY === 'GRANTALL') {

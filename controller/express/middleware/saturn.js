@@ -14,6 +14,8 @@ ${lib.value}
 const Flowpipe = require('flowpipe');
 let flowpipe = Flowpipe.instance('SATURN');
 
+__dirname = require('path').dirname(__dirname);
+
 let saturn = {};
 
 saturn.graphId = console.graphId = 1;
