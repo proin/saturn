@@ -7,12 +7,12 @@
 
 ## Quick Reference
 
-- [common usage](http://workspace.proinlab.com:3000/#/basic)
-- [chart demo](http://workspace.proinlab.com:3000/#/chart-example)
-- [crawler demo](http://workspace.proinlab.com:3000/#/crawler)
-- [machine learning](http://workspace.proinlab.com:3000/#/machine-learning)
-- [web server](http://saturn.proinlab.com:3000/#/server)
-- [using python](http://saturn.proinlab.com:3000/project.html#/basic/using-python.satbook)
+- [common usage](http://workspace.proinlab.com:3000/#/examples/basic)
+- [chart demo](http://workspace.proinlab.com:3000/#/examples/chart-example)
+- [crawler demo](http://workspace.proinlab.com:3000/#/examples/crawler)
+- [machine learning](http://workspace.proinlab.com:3000/#/examples/machine-learning)
+- [web server](http://saturn.proinlab.com:3000/#/examples/server)
+- [using python](http://saturn.proinlab.com:3000/project.html#/examples/basic/using-python.satbook)
 
 ## Features
 
