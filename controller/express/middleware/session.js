@@ -1,11 +1,13 @@
 'use strict';
 
 module.exports = (config)=> {
-    const session = require("express-session");
+    let session = require("express-session");
 
-    return session({
+    global.session = session({
         secret: config.session.secret,
         resave: config.session.resave,
         saveUninitialized: config.session.saveUninitialized
     });
+
+    return global.session;
 };

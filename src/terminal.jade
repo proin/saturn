@@ -1,0 +1,16 @@
+doctype html
+html(ng-app="app")
+    head
+        include components/jade/header
+        script(src='term.js')
+        script(src="{$ROOT}/view/js/terminal.js")
+        link(rel="stylesheet", href="{$ROOT}/view/css/terminal.css")
+
+    body(ng-controller='ctrl', ng-drop='event.upload', ng-show='preLoading === false')
+        .container.top-menu
+            include ./components/jade/navbar
+        #terminal
+        script.
+            window.addEventListener('load', function () {
+
+            }, false);

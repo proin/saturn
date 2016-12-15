@@ -145,8 +145,32 @@ module.exports = (server, config)=> {
         client.send({channel: 'log', type: 'list', data: logger.read(name)});
     };
 
+    io.use((socket, next)=> {
+        session(socket.request, socket.request.res, next);
+    });
+
     io.sockets.on('connection', (client) => {
         let name = null;
+
+        let checkout = ()=> {
+            try {
+                let req = client.request;
+                if (config.user && config.password)
+                    if (!req.session || !req.session.user) {
+                        if (config.readonly)
+                            return 'READONLY';
+                        return 'DENIED';
+                    }
+                return 'GRANTALL';
+            } catch (e) {
+            }
+            return 'DENIED';
+        };
+
+        let allow = checkout();
+        if (allow === 'DENIED') return;
+
+        // Class: Saturn
         client.on('message', (data)=> {
             let {channel} = data;
             if (!name && data.name) {
@@ -160,7 +184,28 @@ module.exports = (server, config)=> {
                 socketHandler[channel](client, data);
         });
 
-        client.on('disconnect', ()=> sockets.remove(name, client))
+        client.on('disconnect', ()=> sockets.remove(name, client));
+
+        if (allow !== 'GRANTALL') return;
+
+        // Class: terminal
+        let pty = require('pty.js');
+        let term = pty.fork(process.env.SHELL || 'sh', [], {
+            name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
+                ? 'xterm-256color'
+                : 'xterm',
+            cols: 150,
+            rows: 40,
+            cwd: process.env.HOME
+        });
+
+        term.on('data', function (data) {
+            return client.emit('data', data);
+        });
+
+        client.on('data', (data)=> {
+            term.write(data);
+        });
     });
 
     // join logger at sockets
