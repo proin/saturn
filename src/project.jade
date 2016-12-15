@@ -130,7 +130,7 @@ html(ng-app="app")
 
                 // component: additional code editor
                 .code-container(ng-repeat='code in flowpipe track by $index', style='margin-left: {{status.indent[$index]*48}}px;', ng-cloak, ng-class='status.singleFocused == $index && status.running == "running" ? "running": ""')
-                    .row.code-box(ng-click='click.codebox($index)', ng-class='status.focused == $index ? "active":""')
+                    .row.code-box(ng-click='click.codebox($index)', ng-class='code.type == "markdown" ? "markdown" : status.focused == $index ? "active":""')
                         .col-md-1
                             b(ng-click='inputLong[$index] = !inputLong[$index]') in [{{$index}}] &nbsp;
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
