@@ -205,7 +205,7 @@ flowpipe.then(()=> new Promise((resolve)=> {
     
     delete variables.console;
     
-    require('fs').writeFileSync(require('path').resolve(__dirname, 'variable.json'), JSON.stringify(variables));
+    require('fs').writeFileSync(require('path').resolve(require('path').dirname(__filename), 'variable.json'), JSON.stringify(variables));
     resolve();
 }));
 `;
@@ -213,7 +213,7 @@ flowpipe.then(()=> new Promise((resolve)=> {
 scriptManager.variable.loader = ()=> `
 flowpipe.then(()=> new Promise((resolve)=> {
     try {
-        let variables = JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, 'variable.json'), 'utf-8'));
+        let variables = JSON.parse(require('fs').readFileSync(require('path').resolve(require('path').dirname(__filename), 'variable.json'), 'utf-8'));
         for(let key in variables) {
             if(typeof variables[key] == 'object' && variables[key].type === 'function') {
                 eval(variables[key].eval);
