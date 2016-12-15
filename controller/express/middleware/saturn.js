@@ -394,7 +394,44 @@ module.exports = (config)=> (req, res, next)=> {
                 runjs += scriptManager.work(target, scripts[target]);
                 runjs += variables;
             } else if (scripts[target].type == 'python') {
-                runjs += scriptManager.python(target, scripts[target]);
+                let pyScript = {value: ''};
+
+                for (let i = 0; i < target; i++) {
+                    if (scripts[i].type == 'python') {
+                        let addingScript = scripts[i].value + '';
+                        addingScript = addingScript.split('\n');
+                        let addingScriptTmp = '';
+                        let fnStart = false;
+                        for (let j = 0; j < addingScript.length; j++) {
+                            if (fnStart === true) {
+                                if (addingScript[j].indexOf('\t') === 0 || addingScript[j].indexOf('  ') === 0) {
+                                    addingScriptTmp += addingScript[j] + '\n';
+                                    continue;
+                                } else {
+                                    fnStart = false;
+                                }
+                            }
+
+                            if (addingScript[j].indexOf('import') === 0 || addingScript[j].indexOf('from') === 0) {
+                                addingScriptTmp += addingScript[j] + '\n';
+                            }
+
+                            if (addingScript[j].indexOf('def') === 0) {
+                                fnStart = true;
+                                addingScriptTmp += addingScript[j] + '\n';
+                            }
+
+                        }
+
+                        console.log(addingScriptTmp);
+
+                        pyScript.value += addingScriptTmp + '\n';
+                    }
+                }
+
+                pyScript.value += scripts[target].value + '\n';
+
+                runjs += scriptManager.python(target, pyScript);
                 runjs += variables;
             } else if (scripts[target].type == 'markdown') {
                 runjs += scriptManager.markdown(target);
