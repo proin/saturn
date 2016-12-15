@@ -9,12 +9,6 @@
         "password": "password",
         "ssl": true
     },
-    "mailingList": "your@mail-address.net",
-    "mailingOn": {
-        "error": true,
-        "finish": true
-    },
-    "readonly": true,
     "home": "./workspace/saturn",
     "user": "admin",
     "password": "admin123",
@@ -23,7 +17,11 @@
         "resave": false,
         "saveUninitialized": false
     },
-    "MAX_HEAP": 16,
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379
+    },
+    "MAX_HEAP": 4,
     "MAX_LOG": 500,
     "encrypt": "sAtuRn"
 }
