@@ -9,12 +9,11 @@ scriptManager.path.workspace = '';
 scriptManager.config = {};
 
 scriptManager.lib = (lib)=> `
-${lib.value}
-            
+__dirname = require('path').dirname(__dirname);
 const Flowpipe = require('flowpipe');
 let flowpipe = Flowpipe.instance('SATURN');
 
-__dirname = require('path').dirname(__dirname);
+${lib.value}
 
 let saturn = {};
 
