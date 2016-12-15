@@ -56,7 +56,7 @@ html(ng-app="app")
                     .save-time(style='float: right; font-size: 14px;') {{status.lastSaved}}
 
         // component: view
-        .view-container
+        .view-container(ng-cloak)
             // component: file browse
             .finder-view
                 div(data-angular-treeview='true', data-on-select='project_info_bind', data-tree-model='project_info', data-node-id='id', data-node-label='title', data-node-children='narrower', ng-if='ACCESS_STATUS === "GRANTALL"')
@@ -65,9 +65,6 @@ html(ng-app="app")
             // component: code editor
             .editor-view(ng-if='status.view == "package.json"')
                 .code-editor#code-editor-package-json
-
-            .editor-view(ng-if='status.view == "variable"')
-                .code-editor#code-editor-variable
 
             .editor-view.container(ng-if='status.view == "config"')
                 br
@@ -100,6 +97,14 @@ html(ng-app="app")
                     label.col-xs-2.col-form-label Python Path
                     .col-xs-10
                         input.form-control(type='text', ng-model='config.python', placeholder='~/anaconda3/bin/python')
+
+                br
+
+                .alert.alert-success(role='alert')
+                    strong Global Variables
+
+                .form-group.row
+                    button.btn.btn-danger.btn-block(ng-click='config.click.deleteVariable()') Clear
 
             .editor-view(ng-show='status.view == "editor"', ng-cloak)
                 // component: lib code editor

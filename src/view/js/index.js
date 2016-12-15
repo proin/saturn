@@ -7,25 +7,15 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         $timeout();
 
-        // Function
-        $scope.event = {};
-        $scope.click = {};
-        $scope.status = {};
-
         let PATH = location.href.split('#')[1] ? decodeURI(location.href.split('#')[1]) : '';
         $scope.PATH = [];
 
         var preSelectedNode = {};
         var preSelectedFolder = {};
 
-        $scope.status.finder = {};
-        $scope.status.finder.createType = 'project';
-        $scope.status.finder.createName = 'new';
-        $scope.status.finder.selectedDir = '/';
+        globalScope($scope, $timeout, API);
 
-        // Signout
-        $scope.click.signout = API.user.signout;
-
+        // Function
         let reloadView = (_PATH)=> {
             if (!PATH) PATH = '/';
             let activated = $(`.fjs-filename[value='${_PATH ? _PATH : PATH}']`).parent().parent().parent();
@@ -319,8 +309,6 @@ app.controller("ctrl", function ($scope, $timeout, API) {
         });
 
         // class: action in button
-        $scope.click.finder = {};
-
         // Create Files
         $scope.click.finder.create = (to)=> {
             let {createType, createName} = $scope.status.finder;
