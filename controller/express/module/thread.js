@@ -245,8 +245,6 @@ module.exports = (server, config)=> {
 
         let url = `${config.hostname}:${config.port}/project.html#${name}`;
 
-        console.log(url);
-
         let message = '';
         if (type === 'error') message += `<h3 style="color: #e53935;">${type}</h3><code style="color: #e53935;>`;
         else if (type === 'error') message += `<h3 style="color: #f9a825;">${type}</h3><code style="color: #f9a825;>`;
