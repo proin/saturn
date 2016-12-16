@@ -445,7 +445,7 @@ module.exports = (config)=> (req, res, next)=> {
                                 if (addingScript[j].indexOf('\t') === 0 || addingScript[j].indexOf('  ') === 0) {
                                     addingScriptTmp += addingScript[j] + '\n';
                                     continue;
-                                } else {
+                                } else if (addingScript[j].trim() != '') {
                                     fnStart = false;
                                 }
                             }
