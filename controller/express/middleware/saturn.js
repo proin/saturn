@@ -386,23 +386,23 @@ module.exports = (config)=> (req, res, next)=> {
                             addingScript = addingScript.split('\n');
                             let addingScriptTmp = '';
                             let fnStart = false;
-                            for (let j = 0; j < addingScript.length; j++) {
+                            for (let k = 0; k < addingScript.length; k++) {
                                 if (fnStart === true) {
-                                    if (addingScript[j].indexOf('\t') === 0 || addingScript[j].indexOf('  ') === 0) {
-                                        addingScriptTmp += addingScript[j] + '\n';
+                                    if (addingScript[k].indexOf('\t') === 0 || addingScript[k].indexOf('  ') === 0) {
+                                        addingScriptTmp += addingScript[k] + '\n';
                                         continue;
-                                    } else {
+                                    } else if (addingScript[k].trim() != '') {
                                         fnStart = false;
                                     }
                                 }
 
-                                if (addingScript[j].indexOf('import') === 0 || addingScript[j].indexOf('from') === 0) {
-                                    addingScriptTmp += addingScript[j] + '\n';
+                                if (addingScript[k].indexOf('import') === 0 || addingScript[k].indexOf('from') === 0) {
+                                    addingScriptTmp += addingScript[k] + '\n';
                                 }
 
-                                if (addingScript[j].indexOf('def') === 0) {
+                                if (addingScript[k].indexOf('def') === 0) {
                                     fnStart = true;
-                                    addingScriptTmp += addingScript[j] + '\n';
+                                    addingScriptTmp += addingScript[k] + '\n';
                                 }
 
                             }
