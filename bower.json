@@ -1,35 +1,38 @@
 {
-  "name": "lwot",
-  "description": "",
-  "main": "",
-  "authors": [
-    "ple <ple@searble.net>",
-    "proin <proin@searble.net>"
-  ],
-  "license": "MIT",
-  "homepage": "",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "www/libs",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "angular": "1.5.8",
-    "angular-route": "1.5.8",
-    "angular-sanitize": "1.5.8",
-    "jquery": "3.1.1",
-    "bootstrap": "4.0.0-alpha.5",
-    "font-awesome": "4.7.0",
-    "ng-context-menu": "1.0.3",
-    "chart.js": "^2.4.0",
-    "vis": "^4.17.0",
-    "angular-animate": "^1.5.9",
-    "angular-messages": "^1.5.9",
-    "angular-aria": "^1.5.9",
-    "jQuery-contextMenu": "^2.3.0",
-    "markdown-it": "^8.2.1"
-  }
+    "name": "lwot",
+    "description": "",
+    "main": "",
+    "authors": [
+        "ple <ple@searble.net>",
+        "proin <proin@searble.net>"
+    ],
+    "license": "MIT",
+    "homepage": "",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "www/libs",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "angular": "1.5.8",
+        "angular-route": "1.5.8",
+        "angular-sanitize": "1.5.8",
+        "jquery": "3.1.1",
+        "bootstrap": "4.0.0-alpha.5",
+        "font-awesome": "4.7.0",
+        "ng-context-menu": "1.0.3",
+        "chart.js": "^2.4.0",
+        "vis": "^4.17.0",
+        "angular-animate": "^1.5.9",
+        "angular-messages": "^1.5.9",
+        "angular-aria": "^1.5.9",
+        "jQuery-contextMenu": "^2.3.0",
+        "markdown-it": "^8.2.1"
+    },
+    "resolutions": {
+        "angular": "1.5.8"
+    }
 }
