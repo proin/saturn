@@ -374,12 +374,49 @@ module.exports = (config)=> (req, res, next)=> {
         if (target === 'libs') {
             // insert scripts
             for (let i = 0; i < scripts.length; i++) {
-                if (scripts[i].type == 'work')
+                if (scripts[i].type == 'work') {
                     runjs += scriptManager.work(i, scripts[i]);
-                else if (scripts[i].type == 'python')
-                    runjs += scriptManager.python(i, scripts[i]);
-                else if (scripts[i].type == 'markdown')
+                }
+                else if (scripts[i].type == 'python') {
+                    let pyScript = {value: ''};
+
+                    for (let j = 0; j < i; j++) {
+                        if (scripts[j].type == 'python') {
+                            let addingScript = scripts[j].value + '';
+                            addingScript = addingScript.split('\n');
+                            let addingScriptTmp = '';
+                            let fnStart = false;
+                            for (let j = 0; j < addingScript.length; j++) {
+                                if (fnStart === true) {
+                                    if (addingScript[j].indexOf('\t') === 0 || addingScript[j].indexOf('  ') === 0) {
+                                        addingScriptTmp += addingScript[j] + '\n';
+                                        continue;
+                                    } else {
+                                        fnStart = false;
+                                    }
+                                }
+
+                                if (addingScript[j].indexOf('import') === 0 || addingScript[j].indexOf('from') === 0) {
+                                    addingScriptTmp += addingScript[j] + '\n';
+                                }
+
+                                if (addingScript[j].indexOf('def') === 0) {
+                                    fnStart = true;
+                                    addingScriptTmp += addingScript[j] + '\n';
+                                }
+
+                            }
+
+                            pyScript.value += addingScriptTmp + '\n';
+                        }
+                    }
+
+                    pyScript.value += scripts[i].value + '\n';
+                    runjs += scriptManager.python(i, pyScript);
+                }
+                else if (scripts[i].type == 'markdown') {
                     runjs += scriptManager.markdown(i);
+                }
 
                 if (runInsert[i])
                     for (let j = 0; j < runInsert[i].length; j++)
