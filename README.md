@@ -28,18 +28,9 @@
 - Comming soon
     - Work scheduling (once a day, once a week, etc..)
 
-## Versions
-
-When we finish that we think about, we will update version upper 1.x.x
-
-- 0.x.__***x***__ 
-    - bug fixed
-- 0.__***x***__.0
-    - functional added
-
 ## Installation
 
-### How to start
+### build from source
 
 ```bash
 npm install -g lwot
@@ -53,7 +44,7 @@ lwot express run
 # then started at your browser, localhost:3000
 ```
 
-### Run as Daemon
+### run as daemon
 
 ```bash
 lwot express forever start # after launched, press Ctrl+C
@@ -61,7 +52,10 @@ lwot express forever stop # stop daemon
 lwot express forever log # show logs
 ```
 
-### Update Saturn
+### update
+
+- you can easily update saturn in web. just click update.
+- or run below,
 
 ```bash
 cd saturn
@@ -71,7 +65,29 @@ lwot build
 lwot express run
 ```
 
-### Configuration
+## Using Docker
+
+### Installation & Run
+
+```bash
+docker pull proin/saturn
+docker run -it --name saturn -v ~/workspace/saturn:/workspace -p 3000:3000 proin/saturn
+```
+
+### run as daemon
+
+```bash
+docker run -d --name saturn -v ~/workspace/saturn:/workspace -p 3000:3000 proin/saturn
+docker kill saturn #if you want to kill process
+```
+
+### attach running container
+
+```bash
+docker exec -i -t saturn /bin/bash
+```
+
+## Configuration
 
 - you can change configuration editing by `./controller/express/config.json` file
 
