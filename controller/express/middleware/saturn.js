@@ -461,8 +461,6 @@ module.exports = (config)=> (req, res, next)=> {
 
                         }
 
-                        console.log(addingScriptTmp);
-
                         pyScript.value += addingScriptTmp + '\n';
                     }
                 }
