@@ -3,8 +3,12 @@ nav.navbar.navbar-fixed-top.navbar-light.bg-faded
         a.navbar-brand
             img(src='/images/saturn-ico.png', width='30', height='30', alt='')
             | &nbsp;Saturn
-        ul.nav.navbar-nav.float-xs-right(style='display: visible!important')
-            li.nav-item
+        ul.nav.navbar-nav.float-xs-right(style='display: visible!important', ng-cloak)
+            li.nav-item(ng-if='ACCESS_STATUS === "GRANTALL"')
+                a.nav-link(href='/api/update')
+                    i.fa.fa-wrench
+                    | &nbsp;Update
+            li.nav-item(ng-if='ACCESS_STATUS === "GRANTALL"')
                 a.nav-link(href='/terminal.html', target='_blank')
                     i.fa.fa-terminal
                     | &nbsp;Terminal

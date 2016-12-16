@@ -3,4 +3,4 @@
 git pull
 bower install
 lwot build express
-lwot express forever
+lwot express forever start --silent
