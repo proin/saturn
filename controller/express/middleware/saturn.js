@@ -41,7 +41,7 @@ saturn.python = (script)=> new Promise((resolve)=> {
     let _spawn = require('child_process').spawn;
     if (process.platform == 'win32')
         _spawn = require('cross-spawn');
-    let term = _spawn('${scriptManager.path.pythonEnv ? scriptManager.path.pythonEnv : 'python'}', ['-u', script], {cwd: '${scriptManager.path.workspace}'});
+    let term = _spawn('${scriptManager.path.pythonEnv && scriptManager.path.pythonEnv.trim() !== '' ? scriptManager.path.pythonEnv : 'python'}', ['-u', script], {cwd: '${scriptManager.path.workspace}'});
 
     process.on('SIGINT', () => {
         term.kill();
@@ -328,6 +328,8 @@ module.exports = (config)=> (req, res, next)=> {
             if (scriptManager.config.python.indexOf('~') !== -1)
                 scriptManager.config.python = scriptManager.config.python.replace('~', process.env.HOME || process.env.USERPROFILE);
             scriptManager.path.pythonEnv = path.resolve(scriptManager.config.python)
+        } else {
+            scriptManager.path.pythonEnv = null;
         }
 
         // save project info.
