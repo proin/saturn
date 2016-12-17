@@ -10,6 +10,7 @@ scriptManager.config = {};
 
 scriptManager.lib = (lib)=> `
 __dirname = require('path').dirname(__dirname);
+
 const Flowpipe = require('flowpipe');
 let flowpipe = Flowpipe.instance('SATURN');
 
@@ -242,10 +243,13 @@ module.exports = (config)=> (req, res, next)=> {
     // npm install @workspace
     app.install = (args)=> new Promise((resolve)=> {
         let {WORKSPACE_PATH, lib, runpath} = args;
+
         lib = JSON.parse(lib);
 
         let npmlibs = ['flowpipe'];
         let npms = lib.value.match(/require\([^\)]+\)/gim);
+
+        npms = npms ? npms : [];
 
         // find npm modules
         for (let i = 0; i < npms.length; i++) {
@@ -305,6 +309,7 @@ module.exports = (config)=> (req, res, next)=> {
         // initialize variables
         let {WORKSPACE_PATH, TMP_PATH, lib, scripts, target} = args;
         target = target && target != -1 ? target : 'libs';
+
         lib = JSON.parse(lib);
         scripts = JSON.parse(scripts);
 
@@ -332,6 +337,8 @@ module.exports = (config)=> (req, res, next)=> {
         // check node requirements
         let libVal = lib.value;
         let requirestr = libVal.match(/require\([^\)]+\)/gim);
+        requirestr = requirestr ? requirestr : [];
+
         for (let i = 0; i < requirestr.length; i++) {
             requirestr[i] = requirestr[i].replace(/ /gim, '');
             requirestr[i] = requirestr[i].replace(/\n/gim, '');

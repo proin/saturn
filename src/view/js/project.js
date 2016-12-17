@@ -310,6 +310,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                             $scope.click.save(true);
                         }
                     }
+
+                    $timeout();
                 });
             };
 
