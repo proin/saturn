@@ -81,6 +81,12 @@ docker run -d --name saturn -v ~/workspace/saturn:/workspace -p 3000:3000 proin/
 docker kill saturn #if you want to kill process
 ```
 
+### restart
+
+```bash
+docker restart saturn
+```
+
 ### attach running container
 
 ```bash
