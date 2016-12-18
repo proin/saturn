@@ -25,11 +25,11 @@ router.get("/", function (req, res) {
         });
     };
 
-    if(req.modules.thread.update!== true) {
+    if (req.modules.thread.update !== true) {
         req.modules.thread.update = true;
 
         terminal('git', ['pull'], (resultData)=> {
-            if (resultData.indexOf('Already up-to-date.') !== -1) {
+            if (resultData.indexOf('Already up-to-date') !== -1) {
                 setTimeout(()=> {
                     delete req.modules.thread.update;
                 }, 3000);
@@ -40,7 +40,9 @@ router.get("/", function (req, res) {
                 terminal('bower', ['install'], ()=> {
                     terminal('lwot', ['build'], ()=> {
                         req.modules.thread.update = false;
-                        throw new Error('Restart');
+                        for (let key in req.modules.thread.manager.proc)
+                            req.modules.thread.stop(key);
+                        process.exit();
                     });
                 });
             });

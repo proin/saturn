@@ -4,7 +4,6 @@ module.exports = (config)=> {
     const path = require('path');
 
     return (req, res, next)=> {
-
         req.DIR = {};
         req.DIR.USERHOME = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 

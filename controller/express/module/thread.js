@@ -414,5 +414,7 @@ module.exports = (server, config)=> {
         resolve();
     });
 
+    runnable.manager = manager;
+
     return runnable;
 };

@@ -345,8 +345,10 @@ init();
 `;
 
     if (req.modules.thread.update === true) {
-        res.send(req.static.updateHtml);
-        return;
+        if (req.path !== '/api/status') {
+            res.send(req.static.updateHtml);
+            return;
+        }
     }
 
     next();
