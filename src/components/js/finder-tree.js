@@ -92,17 +92,18 @@ window.finderTree = ($scope, $timeout, API)=> {
 
                 API.script.save(runnable).then(()=> {
                     location.href = `/project.html#${encodeURI(node.path)}`;
-                    $timeout(()=> location.reload(), 500);
+                    $timeout(()=> location.reload(), 100);
                 });
             } else {
                 location.href = `/project.html#${encodeURI(node.path)}`;
-                $timeout(()=> location.reload(), 500);
+                $timeout(()=> location.reload(), 100);
             }
         } else {
             let allowed = ['.js', '.html', '.jade', '.css', '.less'];
             for (let i = 0; i < allowed.length; i++) {
                 if (node.name.indexOf(allowed[i]) == node.name.length - allowed[i].length) {
                     location.href = '/viewer.html#' + encodeURI(node.path);
+                    $timeout(()=> location.reload(), 100);
                     return;
                 }
             }
