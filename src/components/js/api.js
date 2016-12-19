@@ -2,7 +2,7 @@ app.factory('API', ()=> {
     'use strict';
     let factory = {};
 
-    // LIB: API Browse
+    // class: Browse
     factory.browse = {};
 
     factory.browse.list = (PATH, notUpper)=> new Promise((resolve)=> {
@@ -99,7 +99,7 @@ app.factory('API', ()=> {
         $.post('/api/browse/save', {filepath: path, filevalue: value}, resolve);
     });
 
-    // LIB: API User
+    // class: User
     factory.user = {};
 
     factory.user.check = ()=> new Promise((resolve)=> {
@@ -132,7 +132,7 @@ app.factory('API', ()=> {
         });
     });
 
-    // LIB: Script
+    // class: Script
     factory.script = {};
 
     factory.script.load = (path)=> new Promise((resolve)=> {
@@ -168,6 +168,25 @@ app.factory('API', ()=> {
 
     factory.script.stop = (path)=> new Promise((resolve)=> {
         $.get('/api/script/stop?runpath=' + path, resolve);
+    });
+
+    // class: remote
+    factory.remote = {};
+
+    factory.remote.connect = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/remote/connect', runnable, resolve);
+    });
+
+    factory.remote.status = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/remote/status', runnable, resolve);
+    });
+
+    factory.remote.run = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/remote/run', runnable, resolve);
+    });
+
+    factory.remote.stop = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/remote/stop', runnable, resolve);
     });
 
     return factory;

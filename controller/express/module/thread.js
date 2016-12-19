@@ -10,7 +10,6 @@ module.exports = (server, config)=> {
 
     // class: const variables
     const MAX_LOG_SIZE = config.MAX_LOG ? config.MAX_LOG : 500;
-    const MAX_HEAP = config.MAX_HEAP ? config.MAX_HEAP : 4;
 
     const HOME = config.home ?
         path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], config.home)
@@ -106,6 +105,7 @@ module.exports = (server, config)=> {
                     list[channel][key].send(data);
         };
 
+        this.client = {};
         this.list = list;
         this.push = push;
         this.remove = remove;
@@ -135,6 +135,8 @@ module.exports = (server, config)=> {
 
     io.sockets.on('connection', (client) => {
         let name = null;
+
+        sockets.client[client.id] = client;
 
         let checkout = ()=> {
             try {
@@ -168,7 +170,10 @@ module.exports = (server, config)=> {
                 socketHandler[channel](client, data);
         });
 
-        client.on('disconnect', ()=> sockets.remove(name, client));
+        client.on('disconnect', ()=> {
+            delete sockets.client[client.id];
+            sockets.remove(name, client)
+        });
 
         if (allow !== 'GRANTALL') return;
 
@@ -287,7 +292,7 @@ module.exports = (server, config)=> {
     manager.run = (name, target)=> {
         if (manager.proc[name] || manager.status[name] == 'install') {
             sockets.broadcast(name, {channel: 'status', type: 'message', name: name, data: 'running'}, true);
-            return;
+            return 'running';
         }
 
         manager.status[name] = 'running';
@@ -338,7 +343,7 @@ module.exports = (server, config)=> {
         };
 
         let onStart = (term)=> {
-            let saveCurrentStatus = ()=> {
+            let saveCurrentStatus = (force)=> {
                 let savedata = {};
                 if (fs.existsSync(RUNNING_STATUS_PATH))
                     savedata = JSON.parse(fs.readFileSync(RUNNING_STATUS_PATH, 'utf-8'));
@@ -348,6 +353,9 @@ module.exports = (server, config)=> {
                     if (manager.status[prev] !== 'running')
                         delete savedata[prev];
 
+                if (force)
+                    delete savedata[name];
+
                 fs.writeFileSync(RUNNING_STATUS_PATH, JSON.stringify(savedata));
             };
 
@@ -356,11 +364,22 @@ module.exports = (server, config)=> {
             saveCurrentStatus();
 
             manager.proc[name].on('exit', ()=> {
-                saveCurrentStatus();
+                saveCurrentStatus(true)
             });
         };
 
-        core.worker.run(path.join(WORKSPACE_PATH, name), target === 'libs' ? 'all' : target, {data: onData, error: onError, terminal: onStart}).then(()=> {
+        let config = core.compile.source(path.join(WORKSPACE_PATH, name)).config;
+
+        let argv = config.argv ? config.argv.split(',') : [];
+        for (let i = 0; i < argv.length; i++)
+            argv[i] = argv[i].trim();
+
+        core.worker.run(
+            path.join(WORKSPACE_PATH, name),
+            target === 'libs' ? 'all' : target,
+            {data: onData, error: onError, terminal: onStart},
+            argv
+        ).then(()=> {
             if (manager.status[name] === 'error')
                 mailer('error', name, target);
 
@@ -371,9 +390,10 @@ module.exports = (server, config)=> {
             }
 
             delete manager.proc[name];
-
             sockets.broadcast(name, {channel: 'status', type: 'message', name: name, data: manager.status[name] ? manager.status[name] : 'ready'}, true);
         });
+
+        return 'start';
     };
 
     // class: thread modules
@@ -408,8 +428,7 @@ module.exports = (server, config)=> {
 
     runnable.run = (name, target)=> new Promise((resolve)=> {
         target = target && target != -1 ? target : 'libs';
-        manager.run(name, target);
-        resolve();
+        resolve(manager.run(name, target));
     });
 
     runnable.manager = manager;
@@ -421,6 +440,77 @@ module.exports = (server, config)=> {
             if (previous[previous_running].status === 'running')
                 runnable.run(previous[previous_running].path, previous[previous_running].target);
     }
+
+    // class: remote
+    runnable.remote = {};
+    runnable.remote.list = {};
+
+    runnable.remote.connect = (args)=> new Promise((resolve)=> {
+        let {project_path, host, user, password} = args;
+        if (!project_path) return resolve();
+
+        if (!runnable.remote.list[project_path])
+            runnable.remote.list[project_path] = {};
+        if (!runnable.remote.list[project_path][host])
+            runnable.remote.list[project_path][host] = 'ready';
+
+        if (runnable.remote.list[project_path][host] === 'running')
+            return resolve();
+
+        let connect = core.connect(host, user, password);
+
+        connect.status().then((resp)=> {
+            if (resp[project_path])
+                runnable.remote.list[project_path][host] = resp[project_path].status;
+
+            connect.log(project_path).on('data', (data)=> {
+                if (data.channel == 'status' && data.data !== 'running') {
+                    for (let key in sockets.client) {
+                        sockets.client[key].send({channel: 'remote', host: host, project_path: project_path, data: data.data});
+                        runnable.remote.list[project_path][host] = data.data;
+                    }
+                }
+            });
+
+            resolve();
+        });
+    });
+
+    runnable.remote.stop = (args)=> new Promise((resolve)=> {
+        runnable.remote.connect(args).then(()=> {
+            let {project_path, host, user, password} = args;
+            let connect = core.connect(host, user, password);
+            connect.stop(project_path)
+                .then(resolve);
+        });
+    });
+
+    runnable.remote.run = (args)=> new Promise((resolve)=> {
+        runnable.remote.connect(args).then(()=> {
+            let {project_path, host, user, password, target, argv} = args;
+            if (!project_path) return resolve({err: new Error('not defined name')});
+            const real_path = path.join(WORKSPACE_PATH, project_path);
+            if (fs.existsSync(real_path) === false)
+                return resolve({err: new Error('not defined name')});
+            let src = core.compile.source(real_path);
+
+            src.config.argv = argv ? argv : src.config.argv;
+            for (let key in src)
+                src[key] = JSON.stringify(src[key]);
+
+            if (runnable.remote.list[project_path][host] === 'running') {
+                resolve({status: 'running'});
+                return;
+            }
+
+            runnable.remote.list[project_path][host] = 'running';
+
+            let connect = core.connect(host, user, password);
+
+            connect.run(project_path, target ? target : 'lib', src)
+                .then(resolve);
+        });
+    });
 
     return runnable;
 };

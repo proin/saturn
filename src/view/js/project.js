@@ -108,6 +108,13 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         // class: socket for logger
         let socketHandler = {};
 
+        socketHandler.remote = (message)=> {
+            if (message.project_path === PATH) {
+                $scope.connected[message.host] = message.data;
+                $timeout();
+            }
+        };
+
         socketHandler.status = (message)=> {
             let {type, data, name} = message;
             if (type == 'list') {
@@ -686,6 +693,13 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 $scope.status.view = 'config';
                 $timeout();
             }
+
+            if (node.name == 'remote') {
+                if ($scope.status.view == 'remote')
+                    return;
+                $scope.status.view = 'remote';
+                $timeout();
+            }
         };
 
         API.browse.read(PATH + '/config.json').then((data)=> {
@@ -718,6 +732,80 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             API.browse.save(PATH + '/config.json', JSON.stringify($scope.config));
         }, true);
 
+        // class: for remote
+        API.remote.status({project_path: PATH}).then((response)=> {
+            $scope.connected = response;
+            $timeout();
+        });
+
+        API.browse.read(PATH + '/remote.json').then((data)=> {
+            if (!data || !data.status) {
+                data = {};
+                data.data = '{}';
+            }
+
+            let remote_tmp = JSON.parse(data.data);
+            if (!remote_tmp.list) remote_tmp.list = [];
+            for (let i = 0; i < remote_tmp.list.length; i++)
+                delete remote_tmp.list[i]['$$hashKey'];
+
+            $scope.remote = remote_tmp;
+
+            $scope.remote.click = {};
+
+            $scope.remote.click.connect = (item)=> {
+                item.project_path = PATH;
+                API.remote.connect(item).then((response)=> {
+                    $scope.connected = response;
+                    $timeout();
+                });
+            };
+
+            $scope.remote.click.run = (item)=> {
+                item.project_path = PATH;
+                API.remote.run(item).then((response)=> {
+                    if (response.status == 'start') {
+                        $scope.connected[item.host] = 'running';
+                        $timeout();
+                    }
+                });
+            };
+
+            $scope.remote.click.add = ()=> {
+                $scope.remote.list.push({});
+            };
+
+            $scope.remote.click.remove = (index)=> {
+                $scope.remote.list.splice(index, 1);
+                $timeout();
+            };
+
+            $scope.remote.click.stop = (item)=> {
+                item.project_path = PATH;
+                API.remote.stop(item).then((response)=> {
+                    console.log(response);
+                });
+            };
+        });
+
+        $scope.$watch('remote', ()=> {
+            let save = {};
+            if ($scope.remote)
+                save = JSON.parse(JSON.stringify($scope.remote));
+
+            if (save.list)
+                for (let i = 0; i < save.list.length; i++) {
+                    delete save.list[i]['$$hashKey'];
+                    if (isNaN(save.list[i].target * 1)) {
+                        save.list[i].target = 'libs';
+                        $scope.remote.list[i].target = 'libs';
+                    }
+                }
+
+            API.browse.save(PATH + '/remote.json', JSON.stringify($scope.remote));
+        }, true);
+
+        // class: project menu
         let arrayInserter = (append)=> {
             let res = [];
             res = res.concat(npath);
@@ -732,7 +820,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     {type: 'project_info', context: {delete: true}, icon: 'fa-folder', path: PATH + '/node_modules', name: 'node_modules', narrower: [], PATH: arrayInserter(['node_modules']), collapsed: true},
                     {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/package.json', name: 'package.json', narrower: [], PATH: arrayInserter(['package.json']), collapsed: true},
                     {type: 'project_info', disabledContext: true, icon: 'fa-book', path: PATH + '/editor', name: 'editor', narrower: [], collapsed: true},
-                    {type: 'project_info', disabledContext: true, icon: 'fa-cogs', path: PATH + '/config.json', name: 'setting', narrower: [], PATH: arrayInserter(['config.json']), collapsed: true}
+                    {type: 'project_info', disabledContext: true, icon: 'fa-cogs', path: PATH + '/config.json', name: 'setting', narrower: [], PATH: arrayInserter(['config.json']), collapsed: true},
+                    {type: 'project_info', disabledContext: true, icon: 'fa-server', path: PATH + '/remote', name: 'remote', narrower: [], collapsed: true}
                 ]
             },
         ];

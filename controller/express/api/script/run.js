@@ -23,8 +23,8 @@ router.post("/", function (req, res) {
 
     saturn.save(args)
         .then(()=> thread.run(runpath, args.target))
-        .then(()=> {
-            res.send({status: true});
+        .then((stat)=> {
+            res.send({status: stat});
         });
 });
 

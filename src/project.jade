@@ -66,6 +66,48 @@ html(ng-app="app")
             .editor-view(ng-if='status.view == "package.json"')
                 .code-editor#code-editor-package-json
 
+            .editor-view.container(ng-if='status.view == "remote"')
+                .inner(style='max-width: 1024px; margin: 0 auto;')
+                    br
+                    .alert.alert-success(role='alert')
+                        strong Remote
+                        |  set remote server config
+
+                    .text-right(style='text-align: right;')
+                        button.btn.btn-primary.btn-sm(ng-click='remote.click.add()') Add
+
+                    br
+
+                    table.table.table-hover.remote-table
+                        tr
+                            th host server
+                            th user
+                            th password
+                            th target
+                            th process arguments
+                            th
+                        tr(ng-repeat='item in remote.list', ng-cloak)
+                            td
+                                input.remote-input(type='text', ng-model='item.host', placeholder='http://localhost:3000')
+                            td
+                                input.remote-input(type='text', ng-model='item.user', placeholder='user')
+                            td
+                                input.remote-input(type='password', ng-model='item.password', placeholder='password')
+                            td
+                                input.remote-input(type='text', ng-model='item.target', placeholder='lib or 1 ..')
+                            td
+                                input.remote-input(type='text', ng-model='item.argv', placeholder='arg1, arg2 ..')
+                            td(ng-if='connected[item.host]')
+                                button.btn.btn-success.btn-sm(ng-click='remote.click.run(item)', ng-if='connected[item.host] !== "running"') Run
+                                button.btn.btn-warning.btn-sm(ng-click='remote.click.stop(item)', ng-if='connected[item.host] === "running"') Stop
+                                | &nbsp;
+                                button.btn.btn-danger.btn-sm(ng-click='remote.click.remove($index)', ng-if='connected[item.host] !== "running"') -
+                            td(ng-if='!connected[item.host]')
+                                button.btn.btn-sm.btn-secondary(ng-click='remote.click.connect(item)') Connect
+                                | &nbsp;
+                                button.btn.btn-danger.btn-sm(ng-click='remote.click.remove($index)') -
+
+
             .editor-view.container(ng-if='status.view == "config"')
                 br
                 .alert.alert-success(role='alert')
@@ -92,6 +134,11 @@ html(ng-app="app")
 
                 .alert.alert-success(role='alert')
                     strong Env
+
+                .form-group.row
+                    label.col-xs-2.col-form-label Process Arguments
+                    .col-xs-10
+                        input.form-control(type='text', ng-model='config.argv', placeholder='process.argv, split by comma (,)')
 
                 .form-group.row
                     label.col-xs-2.col-form-label Node Max Heap

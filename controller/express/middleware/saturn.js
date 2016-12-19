@@ -28,23 +28,19 @@ module.exports = (config)=> (req, res, next)=> {
 
     app.save = (args)=> new Promise((resolve)=> {
         // initialize variables
-        let {WORKSPACE_PATH, TMP_PATH, lib, scripts} = args;
-
-        if(!(lib && scripts)) {
-            resolve();
-            return;
-        }
-
-        lib = JSON.parse(lib);
-        scripts = JSON.parse(scripts);
+        let {WORKSPACE_PATH, TMP_PATH, lib, scripts, config} = args;
 
         // check required files
         if (!fs.existsSync(WORKSPACE_PATH)) fsext.mkdirsSync(WORKSPACE_PATH);
         if (!fs.existsSync(TMP_PATH)) fsext.mkdirsSync(TMP_PATH);
 
         // save project info.
-        fs.writeFileSync(path.join(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
-        fs.writeFileSync(path.join(TMP_PATH, 'lib.json'), JSON.stringify(lib));
+        if (lib)
+            fs.writeFileSync(path.join(TMP_PATH, 'lib.json'), lib);
+        if (scripts)
+            fs.writeFileSync(path.join(TMP_PATH, 'scripts.json'), scripts);
+        if (config)
+            fs.writeFileSync(path.join(TMP_PATH, 'config.json'), config);
 
         resolve();
     });
