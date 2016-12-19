@@ -11,7 +11,6 @@ router.post("/", function (req, res) {
 
     let {thread} = req.modules;
     thread.remote.stop(req.body).then((response)=> {
-        console.log(response);
         res.send(response);
     });
 });

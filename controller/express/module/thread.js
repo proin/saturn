@@ -113,6 +113,7 @@ module.exports = (server, config)=> {
     })();
 
     let socketHandler = {};
+
     socketHandler.log = (client, data)=> {
         let {name} = data;
         client.send({channel: 'log', type: 'list', data: logger.read(name)});
@@ -154,7 +155,7 @@ module.exports = (server, config)=> {
         };
 
         let allow = checkout();
-        if (allow === 'DENIED') return;
+        // if (allow === 'DENIED') return;
 
         // Class: Saturn
         client.on('message', (data)=> {
