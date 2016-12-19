@@ -162,16 +162,12 @@ app.factory('API', ()=> {
         $.get('/api/script/running', resolve);
     });
 
-    factory.script.run = (runnable)=> new Promise(()=> {
-        $.post('/api/script/run', runnable);
+    factory.script.run = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/script/run', runnable, resolve);
     });
 
-    factory.script.runSingle = (runnable)=> new Promise(()=> {
-        $.post('/api/script/run-single', runnable);
-    });
-
-    factory.script.stop = (path)=> new Promise(()=> {
-        $.get('/api/script/stop?runpath=' + path);
+    factory.script.stop = (path)=> new Promise((resolve)=> {
+        $.get('/api/script/stop?runpath=' + path, resolve);
     });
 
     return factory;

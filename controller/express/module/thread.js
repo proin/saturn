@@ -2,9 +2,11 @@
 
 module.exports = (server, config)=> {
     const fs = require('fs');
+    const fsextra = require('fs-extra');
     const path = require('path');
     const asar = require('asar');
     const emailjs = require('emailjs');
+    const core = require('saturn-core');
 
     // class: const variables
     const MAX_LOG_SIZE = config.MAX_LOG ? config.MAX_LOG : 500;
@@ -12,29 +14,11 @@ module.exports = (server, config)=> {
 
     const HOME = config.home ?
         path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], config.home)
-        : path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.node-saturn');
+        : path.resolve(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], 'workspace');
     const WORKSPACE_PATH = path.resolve(HOME);
 
-    // class: terminal
-    let terminal = (cmd, args, opts, data, err, callback)=> new Promise((resolve)=> {
-        let _spawn = require('child_process').spawn;
-        if (process.platform == 'win32')
-            _spawn = require('cross-spawn');
-
-        let term = _spawn(cmd, args, opts);
-
-        term.stdout.on('data', data ? data : ()=> {
-        });
-
-        term.stderr.on('data', err ? err : ()=> {
-        });
-
-        term.on('close', () => {
-            resolve();
-        });
-
-        if (callback) callback(term);
-    });
+    const RUNNING_STATUS_PATH = path.resolve(WORKSPACE_PATH, '.tmp', 'running.json');
+    fsextra.mkdirsSync(path.dirname(RUNNING_STATUS_PATH));
 
     // class: Logger
     let logger = new (function () {
@@ -312,10 +296,6 @@ module.exports = (server, config)=> {
         logger.clear(name, target);
         logger.send(name, target, `start`, `start ${name}`);
 
-        let runjs = target == 'libs' ? 'run.js' : `run-${target}.js`;
-        let parg = [`--max-old-space-size=${MAX_HEAP * 1024}`, path.join(WORKSPACE_PATH, name, runjs)];
-        let popt = {cwd: WORKSPACE_PATH};
-
         let onData = (data)=> {
             if (config.log) process.stdout.write(data);
             data = data + '';
@@ -358,11 +338,27 @@ module.exports = (server, config)=> {
         };
 
         let onStart = (term)=> {
+            let saveCurrentStatus = ()=> {
+                let savedata = JSON.parse(fs.readFileSync(RUNNING_STATUS_PATH, 'utf-8'));
+                savedata[name] = {status: manager.status[name], target: target, path: name, time: new Date().getTime()};
+
+                for (let prev in savedata)
+                    if (manager.status[prev] !== 'running')
+                        delete savedata[prev];
+
+                fs.writeFileSync(RUNNING_STATUS_PATH, JSON.stringify(savedata));
+            };
+
             manager.proc[name] = term;
+
+            saveCurrentStatus();
+
+            manager.proc[name].on('exit', ()=> {
+                saveCurrentStatus();
+            });
         };
 
-        // terminal
-        terminal('node', parg, popt, onData, onError, onStart).then(()=> {
+        core.worker.run(path.join(WORKSPACE_PATH, name), target === 'libs' ? 'all' : target, {data: onData, error: onError, terminal: onStart}).then(()=> {
             if (manager.status[name] === 'error')
                 mailer('error', name, target);
 
@@ -396,7 +392,7 @@ module.exports = (server, config)=> {
         manager.status[name] = 'install';
         sockets.broadcast(name, {channel: 'status', type: 'install', name: name, data: libs}, true);
 
-        terminal('npm', deps, {cwd: run_path}, ()=> null, ()=> null).then(()=> {
+        core.worker.install(run_path).then(()=> {
             delete manager.status[name];
             sockets.broadcast(name, {channel: 'status', type: 'install', name: name, data: 'finish'}, true);
             resolve();
@@ -415,6 +411,14 @@ module.exports = (server, config)=> {
     });
 
     runnable.manager = manager;
+
+    // restart previous running
+    if (fs.existsSync(RUNNING_STATUS_PATH)) {
+        let previous = JSON.parse(fs.readFileSync(RUNNING_STATUS_PATH, 'utf-8'));
+        for (let previous_running in previous)
+            if (previous[previous_running].status === 'running')
+                runnable.run(previous[previous_running].path, previous[previous_running].target);
+    }
 
     return runnable;
 };

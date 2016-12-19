@@ -91,7 +91,12 @@ html(ng-app="app")
                 br
 
                 .alert.alert-success(role='alert')
-                    strong Python Env
+                    strong Env
+
+                .form-group.row
+                    label.col-xs-2.col-form-label Node Max Heap
+                    .col-xs-10
+                        input.form-control(type='text', ng-model='config.NODE_MAX_HEAP', placeholder='4')
 
                 .form-group.row
                     label.col-xs-2.col-form-label Python Path

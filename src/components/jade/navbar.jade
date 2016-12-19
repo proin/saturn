@@ -7,15 +7,19 @@ nav.navbar.navbar-fixed-top.navbar-light.bg-faded
             li.nav-item(ng-if='ACCESS_STATUS === "GRANTALL"')
                 a.nav-link(href='/api/update')
                     i.fa.fa-wrench
-                    | &nbsp;Update
+                    span &nbsp;Update
+            li.nav-item(ng-if='ACCESS_STATUS === "GRANTALL"')
+                a.nav-link(href='/process.html')
+                    i.fa.fa-history
+                    span &nbsp;Process
             li.nav-item(ng-if='ACCESS_STATUS === "GRANTALL"')
                 a.nav-link(href='/terminal.html', target='_blank')
                     i.fa.fa-terminal
-                    | &nbsp;Terminal
+                    span &nbsp;Terminal
             li.nav-item
                 a.nav-link(href='https://github.com/proin/saturn', target='_blank')
                     i.fa.fa-github
-                    | &nbsp;GitHub
+                    span &nbsp;GitHub
         ul.nav.navbar-nav
             li.nav-item(ng-if='ACCESS_POLICY !== "OPEN"', ng-cloak)
                 a.nav-link(ng-if='ACCESS_STATUS !== "GRANTALL"', href='/signin.html') Sign in

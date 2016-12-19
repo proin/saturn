@@ -1,0 +1,46 @@
+doctype html
+html(ng-app="app")
+    head
+        include components/jade/header
+
+        script(src="{$ROOT}/view/js/process.js")
+        link(rel="stylesheet", href="{$ROOT}/view/css/process.css")
+
+    body(ng-controller='ctrl', ng-show='preLoading === false')
+        .container.top-menu
+            include ./components/jade/navbar
+
+        style.
+            td:nth-child(2), th:nth-child(2) {
+                width: 60px;
+                text-align: right;
+            }
+
+            td:nth-child(3), th:nth-child(3) {
+                width: 160px;
+                text-align: right;
+            }
+
+            td:nth-child(4), th:nth-child(4) {
+                width: 80px;
+            }
+
+        .view-container
+            .finder-view
+                div(data-angular-treeview='true', data-on-select='click.finderList', data-tree-model='finder', data-node-id='id', data-node-label='title', data-node-children='narrower')
+            .process-view
+                table.table.table-hover
+                    tr
+                        th process
+                        th target
+                        th time
+                        th
+                    tr(ng-repeat='item in process', ng-cloak, ng-if='item.status === "running"')
+                        td
+                            a(href="/project.html#{{item.path}}") {{item.path}}
+                        td {{item.target}}
+                        td {{ (current_time - item.time) / 1000 }} s
+                        td
+                            button.btn.btn-danger.btn-sm(ng-click='click.stop(item)') Stop
+
+        include components/jade/modal

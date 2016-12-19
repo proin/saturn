@@ -28,8 +28,12 @@ module.exports = (config)=> (req, res, next)=> {
 
     app.save = (args)=> new Promise((resolve)=> {
         // initialize variables
-        let {WORKSPACE_PATH, TMP_PATH, lib, scripts, target} = args;
-        target = target && target != -1 ? target : 'libs';
+        let {WORKSPACE_PATH, TMP_PATH, lib, scripts} = args;
+
+        if(!(lib && scripts)) {
+            resolve();
+            return;
+        }
 
         lib = JSON.parse(lib);
         scripts = JSON.parse(scripts);
@@ -42,7 +46,6 @@ module.exports = (config)=> (req, res, next)=> {
         fs.writeFileSync(path.join(TMP_PATH, 'scripts.json'), JSON.stringify(scripts));
         fs.writeFileSync(path.join(TMP_PATH, 'lib.json'), JSON.stringify(lib));
 
-        core.compile.runnable(TMP_PATH);
         resolve();
     });
 

@@ -22,7 +22,6 @@ router.post("/", function (req, res) {
     args.TMP_PATH = TMP_PATH;
 
     saturn.save(args)
-        .then(()=> saturn.install(args))
         .then(()=> thread.run(runpath, args.target))
         .then(()=> {
             res.send({status: true});

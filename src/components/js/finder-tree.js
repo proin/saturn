@@ -223,7 +223,9 @@ window.finderTree = ($scope, $timeout, API)=> {
                 projectRoot = '';
 
             location.href = '/project.html#' + encodeURI(projectRoot + '/' + createName + '.satbook');
-            location.reload();
+            $timeout(()=> {
+                location.reload();
+            }, 100);
             return;
         }
 

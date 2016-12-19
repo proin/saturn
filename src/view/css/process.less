@@ -1,0 +1,117 @@
+.view-container {
+    width: 100%;
+    height: 100%;
+
+    .finder-view {
+        padding-top: 70px;
+    }
+
+    .process-view {
+        position: fixed;
+        overflow: scroll;
+        height: 100%;
+        padding-top: 70px;
+        padding-right: 16px;
+        padding-left: 16px;
+        padding-bottom: 0;
+        top: 0;
+        left: 250px;
+        width: calc(~'100% - 250px');
+        display: inline-block;
+
+        @media only screen and (max-device-width: 768px) {
+            left: 0;
+            width: 100%;
+        }
+
+        .running {
+            background: #b3e5fc;
+        }
+
+        .row.code-box {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, .1);
+
+            &.output {
+                background: #e0f2f1 !important;
+
+                .scroll pre.output-messages {
+                    max-height: 150px !important;
+                    overflow: scroll;
+                }
+            }
+
+            &.active {
+                padding: 12px 4px;
+                background: rgba(0, 0, 0, .05);
+                border-left: 4px solid #2196f3;
+            }
+
+            > div:nth-child(2) {
+                padding-left: 12px;
+                border-left: 1px solid rgba(0, 0, 0, .1);
+
+                @media only screen and (max-device-width: 768px) {
+                    padding-left: 0;
+                    border: none;
+                }
+            }
+        }
+
+        .loop {
+            .row {
+                padding-top: 8px;
+
+                &:first-child {
+                    padding-top: 0;
+                }
+            }
+        }
+
+        .CodeMirror {
+            border: 1px solid #eee;
+            height: auto;
+        }
+
+        .panel {
+            height: 500px;
+            background: #27292c;
+            padding: 20px;
+            overflow-y: scroll;
+
+            .action {
+                margin-bottom: 10px;
+
+                .command {
+                    width: 100%;
+                    height: 20px;
+                    background: #27292c;
+                    color: #c86762;
+                    font-size: 16px;
+                    font-weight: 700;
+                }
+
+                span.in {
+                    width: 90%;
+                    background: #27292c;
+                    border: none;
+                    outline: none;
+                    color: white;
+                    margin-left: 5px;
+                    font-size: 16px;
+                }
+
+                .output {
+                    color: white;
+                    font-weight: 300;
+                }
+            }
+        }
+
+        .code-container {
+            @media only screen and (max-device-width: 768px) {
+                margin: 0 !important;
+            }
+        }
+    }
+}
