@@ -339,9 +339,11 @@ module.exports = (server, config)=> {
 
         let onStart = (term)=> {
             let saveCurrentStatus = ()=> {
-                let savedata = JSON.parse(fs.readFileSync(RUNNING_STATUS_PATH, 'utf-8'));
-                savedata[name] = {status: manager.status[name], target: target, path: name, time: new Date().getTime()};
+                let savedata = {};
+                if (fs.existsSync(RUNNING_STATUS_PATH))
+                    savedata = JSON.parse(fs.readFileSync(RUNNING_STATUS_PATH, 'utf-8'));
 
+                savedata[name] = {status: manager.status[name], target: target, path: name, time: new Date().getTime()};
                 for (let prev in savedata)
                     if (manager.status[prev] !== 'running')
                         delete savedata[prev];
