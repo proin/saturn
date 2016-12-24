@@ -185,6 +185,19 @@ body {
             font-weight: bold;
         }
     }
+
+    @media only screen and (min-device-width: 768px) {
+        &.finder-hide {
+            .finder-view {
+                display: none;
+            }
+
+            .editor-view {
+                width: 100%;
+                left: 0;
+            }
+        }
+    }
 }
 
 .form-group.row {

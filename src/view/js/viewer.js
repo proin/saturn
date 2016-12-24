@@ -88,6 +88,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
 
         $scope.click.list = ()=> {
             $('.finder-view').toggleClass('fixed');
+            $('.view-container').toggleClass('finder-hide');
         };
 
         $scope.history = function () {

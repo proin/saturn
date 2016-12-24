@@ -36,7 +36,7 @@ html(ng-app="app")
                 .container-fluid(ng-if="ACCESS_STATUS === 'GRANTALL'")
                     button.btn.btn-default.btn-sm(ng-click='history()', ng-cloak)
                         i.fa.fa-home
-                    button.btn.btn-default.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
+                    button.btn.btn-default.btn-sm(ng-click='click.list()', ng-cloak)
                         i.fa.fa-list
                     button.btn.btn-default.btn-sm(ng-click='click.save()')
                         i.fa.fa-floppy-o

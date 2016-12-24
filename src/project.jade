@@ -33,7 +33,7 @@ html(ng-app="app")
                 .container-fluid
                     button.btn.btn-secondary.btn-sm(ng-click='history()', ng-cloak)
                         i.fa.fa-home
-                    button.btn.btn-secondary.btn-sm.only-mobile(ng-click='click.list()', ng-cloak)
+                    button.btn.btn-secondary.btn-sm(ng-click='click.list()', ng-cloak)
                         i.fa.fa-list
                     .btn-group(role="group", aria-label="commands")
                         button.btn.btn-secondary.btn-sm(ng-click='click.run()', ng-cloak, ng-if='ACCESS_STATUS === "GRANTALL"')

@@ -434,6 +434,7 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         $scope.click.list = ()=> {
             $('.finder-view').toggleClass('fixed');
+            $('.view-container').toggleClass('finder-hide');
         };
 
         $scope.click.codebox = function (idx) {
