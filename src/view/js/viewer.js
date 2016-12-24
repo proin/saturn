@@ -124,6 +124,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             if (EXT.toLowerCase() == 'jade') codeMode = 'jade';
             if (EXT.toLowerCase() == 'css') codeMode = 'css';
             if (EXT.toLowerCase() == 'less') codeMode = 'text/x-less';
+            if (EXT.toLowerCase() == 'py') codeMode = 'text/x-cython';
 
             CodeMirror(document.getElementById('code-editor'), {
                 height: 'auto',

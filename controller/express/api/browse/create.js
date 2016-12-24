@@ -21,7 +21,7 @@ router.post("/", function (req, res) {
     if (CREATE_PATH.indexOf(req.DIR.WORKSPACE_PATH) == -1)
         return res.send({status: false});
 
-    let allowed = ['js', 'html', 'jade', 'less', 'css'];
+    let allowed = ['js', 'html', 'jade', 'less', 'css', 'py'];
 
     if (filetype == 'folder') {
         fsext.mkdirsSync(path.resolve(CREATE_PATH, filename));

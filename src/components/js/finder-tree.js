@@ -99,7 +99,7 @@ window.finderTree = ($scope, $timeout, API)=> {
                 $timeout(()=> location.reload(), 100);
             }
         } else {
-            let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+            let allowed = ['.js', '.html', '.jade', '.css', '.less', '.py'];
             for (let i = 0; i < allowed.length; i++) {
                 if (node.name.indexOf(allowed[i]) == node.name.length - allowed[i].length) {
                     location.href = '/viewer.html#' + encodeURI(node.path);

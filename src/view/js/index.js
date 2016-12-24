@@ -34,7 +34,7 @@ app.controller("ctrl", function ($scope, $timeout, API) {
             if (parent.type == 'project') {
                 location.href = `/project.html#${encodeURI(parent.path)}`;
             } else {
-                let allowed = ['.js', '.html', '.jade', '.css', '.less'];
+                let allowed = ['.js', '.html', '.jade', '.css', '.less', '.py'];
                 for (let i = 0; i < allowed.length; i++) {
                     if (parent.name.indexOf(allowed[i]) == parent.name.length - allowed[i].length) {
                         location.href = '/viewer.html#' + encodeURI(parent.path);
