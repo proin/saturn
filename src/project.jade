@@ -197,7 +197,8 @@ html(ng-app="app")
                         .col-md-1
                             b(ng-click='inputLong[$index] = !inputLong[$index]') in [{{$index}}] &nbsp;
                             select(ng-model='code.type', ng-change='event.changed()', ng-disabled='code.value != ""')
-                                option(value='work') node
+                                option(value='work') js
+                                option(value='nodesync') js-sync
                                 option(value='python') python
                                 option(value='markdown') readme
                                 option(value='loop') loop
@@ -213,6 +214,8 @@ html(ng-app="app")
                                             option(ng-repeat='works in loopwork[$index]', value='{{works}}') {{works}}
                             // component: if work
                             .work(ng-if='code.type == "work"')
+                                .code-editor(id='code-editor-{{code.id}}')
+                            .work(ng-if='code.type == "nodesync"')
                                 .code-editor(id='code-editor-{{code.id}}')
                             .work(ng-if='code.type == "python"')
                                 .code-editor(id='code-editor-{{code.id}}')
