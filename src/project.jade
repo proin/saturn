@@ -101,8 +101,12 @@ html(ng-app="app")
                                 button.btn.btn-success.btn-sm(ng-click='remote.click.run(item)', ng-if='connected[item.host] !== "running"') Run
                                 button.btn.btn-warning.btn-sm(ng-click='remote.click.stop(item)', ng-if='connected[item.host] === "running"') Stop
                                 | &nbsp;
-                                button.btn.btn-warning.btn-sm(ng-click='remote.click.disconnect(item)', ng-if='connected[item.host] !== "running"')
-                                    i.fa.fa-chain-broken
+                                div(ng-if='connected[item.host] !== "running"', style='display: inline-block;')
+                                    button.btn.btn-warning.btn-sm(ng-click='remote.click.disconnect(item)')
+                                        i.fa.fa-chain-broken
+                                    | &nbsp;
+                                button.btn.btn-secondary.btn-sm(ng-click='remote.click.log(item)')
+                                    i.fa.fa-terminal
                             td(ng-if='!connected[item.host]')
                                 button.btn.btn-sm.btn-secondary(ng-click='remote.click.connect(item)') Connect
                                 | &nbsp;
@@ -228,6 +232,17 @@ html(ng-app="app")
                         div(ng-repeat='chart in chartLog[$index]', id='chart-{{$parent.$parent.$index}}-{{chart.id}}', style='display: inline-block !important; width: {{chart.data.width}}; height: {{chart.data.height}}', ng-if='chart.graph=="vis"')
                         canvas(ng-repeat='chart in chartLog[$index]', id='chart-{{$parent.$parent.$index}}-{{chart.id}}', style='display: inline-block !important;', ng-if='chart.graph=="chart"')
 
-
+        #remote-log.modal.fade(tabindex='-1', role='dialog', aria-labelledby='alert', aria-hidden='true')
+            .modal-dialog
+                .modal-content
+                    .modal-header
+                        button.close(type='button', data-dismiss='modal', aria-label='Close')
+                            span(aria-hidden='true') ×
+                        h4.modal-title {{remoteLogSelectedHost}}
+                    .modal-body
+                        pre
+                            div(ng-repeat='log in remoteLog[remoteLogSelectedHost]') {{log}}
+                    .modal-footer
+                        button.btn.btn-secondary(type='button', data-dismiss='modal') Close
         // component: dialogs
         include components/jade/modal

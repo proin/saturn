@@ -9,7 +9,13 @@ router.post("/", function (req, res) {
     // only allow for user
     if (req.user.check() !== 'GRANTALL') return;
     let {thread} = req.modules;
-    res.send(thread.remote.list[req.body.project_path] ? thread.remote.list[req.body.project_path] : {});
+
+    let result = {};
+    let project_path = req.body.project_path;
+    result.log = thread.remote.log[project_path] ? thread.remote.log[project_path] : {};
+    result.list = thread.remote.list[project_path] ? thread.remote.list[project_path] : {};
+
+    res.send(result);
 });
 
 module.exports = router;

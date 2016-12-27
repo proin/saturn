@@ -445,6 +445,7 @@ module.exports = (server, config)=> {
     // class: remote
     runnable.remote = {};
     runnable.remote.list = {};
+    runnable.remote.log = {};
     runnable.remote.connector = {};
 
     runnable.remote.connect = (args)=> new Promise((resolve)=> {
@@ -468,6 +469,18 @@ module.exports = (server, config)=> {
                 runnable.remote.list[project_path][host] = resp[project_path].status;
 
             connect.log(project_path).on('data', (data)=> {
+                if (data.channel === 'remote-log' || data.channel === 'remote') return;
+
+                if (!runnable.remote.log[project_path]) runnable.remote.log[project_path] = {};
+                if (!runnable.remote.log[project_path][host]) runnable.remote.log[project_path][host] = [];
+
+                if (data.channel == 'log' && data.data.status == 'data') {
+                    runnable.remote.log[project_path][host].push(data.data.message);
+                    runnable.remote.log[project_path][host].splice(0, runnable.remote.log[project_path][host].length - 500);
+                }
+
+                sockets.broadcast(project_path, {channel: 'remote-log', host: host, project_path: project_path, data: data});
+
                 if (data.channel == 'status' && data.data !== 'running') {
                     for (let key in sockets.client) {
                         sockets.client[key].send({channel: 'remote', host: host, project_path: project_path, data: data.data});
@@ -500,6 +513,10 @@ module.exports = (server, config)=> {
     runnable.remote.run = (args)=> new Promise((resolve)=> {
         let {project_path, host, target, argv} = args;
         if (!project_path) return resolve({err: new Error('not defined name')});
+
+        if (runnable.remote.log[project_path] && runnable.remote.log[project_path][host])
+            runnable.remote.log[project_path][host] = [];
+
         const real_path = path.join(WORKSPACE_PATH, project_path);
         if (fs.existsSync(real_path) === false)
             return resolve({err: new Error('not defined name')});

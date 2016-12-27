@@ -104,6 +104,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
         $scope.status.runningLog = {};
         $scope.singleLog = {};
         $scope.chartLog = {};
+        $scope.remoteLog = {};
+        $scope.remoteLogSelectedHost = null;
 
         // class: socket for logger
         let socketHandler = {};
@@ -226,6 +228,17 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                     $scope.singleLog[target].splice(0, $scope.singleLog[target].length - 500);
             }
 
+            $timeout();
+        };
+
+        socketHandler['remote-log'] = (log)=> {
+            if (log.data.data.constructor === Array) return;
+            if (log.data.data.status == 'start')
+                $scope.remoteLog[log.host] = [];
+            if (!$scope.remoteLog[log.host])
+                $scope.remoteLog[log.host] = [];
+            if (log.data.data.status == 'data')
+                $scope.remoteLog[log.host].push(log.data.data.message);
             $timeout();
         };
 
@@ -735,7 +748,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
 
         // class: for remote
         API.remote.status({project_path: PATH}).then((response)=> {
-            $scope.connected = response;
+            $scope.connected = response.list;
+            $scope.remoteLog = response.log;
             $timeout();
         });
 
@@ -753,6 +767,12 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.remote = remote_tmp;
 
             $scope.remote.click = {};
+
+            $scope.remote.click.log = (item)=> {
+                $scope.remoteLogSelectedHost = item.host;
+                $timeout();
+                $('#remote-log').modal('show');
+            };
 
             $scope.remote.click.connect = (item)=> {
                 item.project_path = PATH;
@@ -792,7 +812,6 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
             $scope.remote.click.stop = (item)=> {
                 item.project_path = PATH;
                 API.remote.stop(item).then((response)=> {
-                    console.log(response);
                 });
             };
         });
