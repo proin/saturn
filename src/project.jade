@@ -121,13 +121,13 @@ html(ng-app="app")
                     |  When something occurred, Saturn send you an email.
 
                 .form-group.row
-                    label.col-xs-2.col-form-label Email
-                    .col-xs-10
+                    label.col-xs-3.col-form-label Email
+                    .col-xs-9
                         input.form-control(type='text', ng-model='config.mailing.to', placeholder='test@test.com, test2@test.com')
 
                 .form-group.row
-                    label.col-xs-2.col-form-label When
-                    .col-xs-10
+                    label.col-xs-3.col-form-label When
+                    .col-xs-9
                         .btn-group(data-toggle='buttons', ng-cloak)
                             .btn.btn-secondary(ng-click='config.click.mailing("error")', class='{{config.mailing.error == true ? "active" : ""}}')
                                 |  Error
@@ -142,18 +142,23 @@ html(ng-app="app")
                     strong Env
 
                 .form-group.row
-                    label.col-xs-2.col-form-label Process Arguments
-                    .col-xs-10
+                    label.col-xs-3.col-form-label Use Async/Await <br> (Node.js version 7)
+                    .col-xs-9
+                        .btn(ng-click='config.await = !config.await', class='{{config.await === true ? "btn-primary" : "btn-secondary"}}', ng-bind='config.await === true ? "Enabled" : "Disabled"')
+
+                .form-group.row
+                    label.col-xs-3.col-form-label Process Arguments
+                    .col-xs-9
                         input.form-control(type='text', ng-model='config.argv', placeholder='process.argv, split by comma (,)')
 
                 .form-group.row
-                    label.col-xs-2.col-form-label Node Max Heap
-                    .col-xs-10
+                    label.col-xs-3.col-form-label Node Max Heap
+                    .col-xs-9
                         input.form-control(type='text', ng-model='config.NODE_MAX_HEAP', placeholder='4')
 
                 .form-group.row
-                    label.col-xs-2.col-form-label Python Path
-                    .col-xs-10
+                    label.col-xs-3.col-form-label Python Path
+                    .col-xs-9
                         input.form-control(type='text', ng-model='config.python', placeholder='~/anaconda3/bin/python')
 
                 br
