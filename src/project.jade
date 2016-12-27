@@ -101,11 +101,13 @@ html(ng-app="app")
                                 button.btn.btn-success.btn-sm(ng-click='remote.click.run(item)', ng-if='connected[item.host] !== "running"') Run
                                 button.btn.btn-warning.btn-sm(ng-click='remote.click.stop(item)', ng-if='connected[item.host] === "running"') Stop
                                 | &nbsp;
-                                button.btn.btn-danger.btn-sm(ng-click='remote.click.remove($index)', ng-if='connected[item.host] !== "running"') -
+                                button.btn.btn-warning.btn-sm(ng-click='remote.click.disconnect(item)', ng-if='connected[item.host] !== "running"')
+                                    i.fa.fa-chain-broken
                             td(ng-if='!connected[item.host]')
                                 button.btn.btn-sm.btn-secondary(ng-click='remote.click.connect(item)') Connect
                                 | &nbsp;
-                                button.btn.btn-danger.btn-sm(ng-click='remote.click.remove($index)') -
+                                button.btn.btn-danger.btn-sm(ng-click='remote.click.remove($index)')
+                                    i.fa.fa-minus-circle
 
 
             .editor-view.container(ng-if='status.view == "config"')

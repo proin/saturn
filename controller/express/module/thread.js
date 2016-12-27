@@ -445,6 +445,7 @@ module.exports = (server, config)=> {
     // class: remote
     runnable.remote = {};
     runnable.remote.list = {};
+    runnable.remote.connector = {};
 
     runnable.remote.connect = (args)=> new Promise((resolve)=> {
         let {project_path, host, user, password} = args;
@@ -458,7 +459,9 @@ module.exports = (server, config)=> {
         if (runnable.remote.list[project_path][host] === 'running')
             return resolve();
 
-        let connect = core.connect(host, user, password);
+        if (!runnable.remote.connector[project_path])
+            runnable.remote.connector[project_path] = {};
+        let connect = runnable.remote.connector[project_path][host] = core.connect(host, user, password);
 
         connect.status().then((resp)=> {
             if (resp[project_path])
@@ -471,46 +474,51 @@ module.exports = (server, config)=> {
                         runnable.remote.list[project_path][host] = data.data;
                     }
                 }
+            }).on('disconnect', ()=> {
+                delete runnable.remote.list[project_path][host];
             });
 
             resolve();
         });
     });
 
+    runnable.remote.disconnect = (args)=> new Promise((resolve)=> {
+        let {project_path, host} = args;
+        runnable.remote.connector[project_path][host].disconnect();
+        delete runnable.remote.connector[project_path][host];
+        delete runnable.remote.list[project_path][host];
+        resolve();
+    });
+
     runnable.remote.stop = (args)=> new Promise((resolve)=> {
-        runnable.remote.connect(args).then(()=> {
-            let {project_path, host, user, password} = args;
-            let connect = core.connect(host, user, password);
-            connect.stop(project_path)
+        let {project_path, host} = args;
+        if (runnable.remote.connector[project_path][host])
+            runnable.remote.connector[project_path][host].stop(project_path)
                 .then(resolve);
-        });
     });
 
     runnable.remote.run = (args)=> new Promise((resolve)=> {
-        runnable.remote.connect(args).then(()=> {
-            let {project_path, host, user, password, target, argv} = args;
-            if (!project_path) return resolve({err: new Error('not defined name')});
-            const real_path = path.join(WORKSPACE_PATH, project_path);
-            if (fs.existsSync(real_path) === false)
-                return resolve({err: new Error('not defined name')});
-            let src = core.compile.source(real_path);
+        let {project_path, host, target, argv} = args;
+        if (!project_path) return resolve({err: new Error('not defined name')});
+        const real_path = path.join(WORKSPACE_PATH, project_path);
+        if (fs.existsSync(real_path) === false)
+            return resolve({err: new Error('not defined name')});
+        let src = core.compile.source(real_path);
 
-            src.config.argv = argv ? argv : src.config.argv;
-            for (let key in src)
-                src[key] = JSON.stringify(src[key]);
+        src.config.argv = argv ? argv : src.config.argv;
+        for (let key in src)
+            src[key] = JSON.stringify(src[key]);
 
-            if (runnable.remote.list[project_path][host] === 'running') {
-                resolve({status: 'running'});
-                return;
-            }
+        if (runnable.remote.list[project_path][host] === 'running') {
+            resolve({status: 'running'});
+            return;
+        }
 
-            runnable.remote.list[project_path][host] = 'running';
+        runnable.remote.list[project_path][host] = 'running';
 
-            let connect = core.connect(host, user, password);
-
-            connect.run(project_path, target ? target : 'lib', src)
+        if (runnable.remote.connector[project_path][host])
+            runnable.remote.connector[project_path][host].run(project_path, target ? target : 'lib', src)
                 .then(resolve);
-        });
     });
 
     return runnable;

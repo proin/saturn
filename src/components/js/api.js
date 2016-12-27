@@ -177,6 +177,10 @@ app.factory('API', ()=> {
         $.post('/api/remote/connect', runnable, resolve);
     });
 
+    factory.remote.disconnect = (runnable)=> new Promise((resolve)=> {
+        $.post('/api/remote/disconnect', runnable, resolve);
+    });
+
     factory.remote.status = (runnable)=> new Promise((resolve)=> {
         $.post('/api/remote/status', runnable, resolve);
     });

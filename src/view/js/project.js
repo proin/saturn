@@ -762,6 +762,14 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 });
             };
 
+            $scope.remote.click.disconnect = (item)=> {
+                item.project_path = PATH;
+                API.remote.disconnect(item).then((response)=> {
+                    $scope.connected = response;
+                    $timeout();
+                });
+            };
+
             $scope.remote.click.run = (item)=> {
                 item.project_path = PATH;
                 API.remote.run(item).then((response)=> {
