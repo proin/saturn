@@ -41,6 +41,17 @@ window.finderTree = ($scope, $timeout, API)=> {
     $scope.click.finder = {};
     $scope.click.finderRight = {};
 
+    let saveFinder = ()=> {
+        localStorage.finder = JSON.stringify($scope.finder);
+    };
+
+    $scope.finder = [{type: 'folder', path: '/', name: 'home', narrower: [], PATH: [], collapsed: true}];
+    try {
+        if (localStorage.finder)
+            $scope.finder = JSON.parse(localStorage.finder);
+    } catch (e) {
+    }
+
     $scope.click.finderList = (node)=> {
         if (node.type == 'folder') {
             if (node.collapsed) {
@@ -68,11 +79,14 @@ window.finderTree = ($scope, $timeout, API)=> {
 
                     node.narrower = data;
                     node.collapsed = !node.collapsed;
+
+                    saveFinder();
                     $timeout();
                 });
             } else {
                 node.narrower = [];
                 node.collapsed = !node.collapsed;
+                saveFinder();
                 $timeout();
             }
         } else if (node.type == 'project') {
@@ -112,8 +126,6 @@ window.finderTree = ($scope, $timeout, API)=> {
         }
     };
 
-    $scope.finder = [{type: 'folder', path: '/', name: 'home', narrower: [], PATH: [], collapsed: true}];
-
     let PRELOAD_PATH = $scope.PATH.split('/');
     PRELOAD_PATH.splice(0, 1);
     PRELOAD_PATH.splice(PATH.length - 1, 1);
@@ -134,7 +146,8 @@ window.finderTree = ($scope, $timeout, API)=> {
             return;
         }
 
-        ci.click();
+        if (ci.parent().find('div > ul li').length == 0)
+            ci.click();
         preLoad(idx + 1);
     };
 
@@ -277,6 +290,7 @@ window.finderTree = ($scope, $timeout, API)=> {
                 CURRENT.splice(finding, 1);
                 $timeout();
             }
+            saveFinder();
         });
     };
 

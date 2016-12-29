@@ -127,7 +127,6 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                 for (let __PATH in data)
                     if (data[__PATH])
                         __click.push(__PATH);
-
                 let __preloader = (_ti)=> {
                     let target = __click[_ti];
                     if (!target) return;
