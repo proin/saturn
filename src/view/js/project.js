@@ -278,6 +278,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                         };
                     } else if ($scope.flowpipe[fidx].type == 'r') {
                         _mode = 'r';
+                    } else if ($scope.flowpipe[fidx].type == 'torch') {
+                        _mode = 'lua';
                     }
                 }
 
