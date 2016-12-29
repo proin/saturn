@@ -1,5 +1,14 @@
 # Saturn
 
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/proin/saturn-docker/master/LICENSE)
+[![ubuntu](https://img.shields.io/badge/ubuntu-14.0.4-green.svg)]()
+[![mac](https://img.shields.io/badge/Mac-10.12-green.svg)]()
+[![windows](https://img.shields.io/badge/windows-10-orange.svg)]()
+[![node](https://img.shields.io/badge/node-v7.2.1-green.svg)]()
+[![python](https://img.shields.io/badge/python-2.7.6-green.svg)]()
+[![R](https://img.shields.io/badge/R-3.0.2-green.svg)]()
+[![torch](https://img.shields.io/badge/torch-7-green.svg)]()
+
 > Saturn is opensource Machine Learning Framework.
 
 ![Image of Graph](docs/images/sort.gif)
