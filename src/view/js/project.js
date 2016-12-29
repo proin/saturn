@@ -277,6 +277,8 @@ app.controller("ctrl", ($scope, $timeout, API)=> {
                             version: 2,
                             singleLineStringErrors: false
                         };
+                    } else if ($scope.flowpipe[fidx].type == 'r') {
+                        _mode = 'r';
                     }
                 }
 

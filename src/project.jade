@@ -16,6 +16,7 @@ html(ng-app="app")
 
         script(src="{$ROOT}/components/js/codemirror/mode/javascript/javascript.js")
         script(src="{$ROOT}/components/js/codemirror/mode/python/python.js")
+        script(src="{$ROOT}/components/js/codemirror/mode/r/r.js")
         script(src="{$ROOT}/components/js/codemirror/mode/markdown/markdown.js")
 
         link(rel="stylesheet", href="{$ROOT}/components/css/codemirror/codemirror.css")
@@ -200,6 +201,7 @@ html(ng-app="app")
                                 option(value='work') js
                                 option(value='nodesync') js-sync
                                 option(value='python') python
+                                option(value='r') R
                                 option(value='markdown') readme
                                 option(value='loop') loop
                         .col-md-11(ng-class='inputLong[$index] ? "scroll" : ""')
@@ -218,6 +220,8 @@ html(ng-app="app")
                             .work(ng-if='code.type == "nodesync"')
                                 .code-editor(id='code-editor-{{code.id}}')
                             .work(ng-if='code.type == "python"')
+                                .code-editor(id='code-editor-{{code.id}}')
+                            .work(ng-if='code.type == "r"')
                                 .code-editor(id='code-editor-{{code.id}}')
                             .markdown(ng-if='code.type == "markdown"')
                                 .editable(ng-if='ACCESS_STATUS === "GRANTALL"')
