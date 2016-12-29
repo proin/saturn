@@ -128,6 +128,12 @@
     
 ## Overview
 
+### Machine Learning
+
+- you can use machine learning libraries in `saturn`
+- now `saturn` supports `python (including tensorflow)`, `R`, `torch`
+- in `saturn-docker` installation, all frameworks are embedded in there.
+
 ### Code with Markdown
  
 - `saturn` support markdown editor in project
@@ -148,12 +154,6 @@
 - for more usage, refer [chart demo](http://saturn.proinlab.com/#/examples/chart-example)
 
 ![Image of Graph](docs/images/graph.png)
-
-### Tensorflow
-
-- you can use python libraries in `saturn`
-- [tensorflow example](http://saturn.proinlab.com/project.html#/examples/machine-learning/tensorflow/basic-example.satbook)
-- set python env in `[project > setting > Env > Python Path]`, use default python if you not set
 
 ### Remote Server
 
